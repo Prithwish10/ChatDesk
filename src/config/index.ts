@@ -17,7 +17,8 @@ export default {
      */
     connections: {
         mongodb: {
-            databaseURL: process.env.MONGO_URL
+            databaseURL: process.env.MONGO_URL,
+            databaseName: process.env.DB_NAME
         }
     },
 
