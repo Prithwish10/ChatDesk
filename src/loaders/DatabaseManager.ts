@@ -5,7 +5,7 @@ import mongoose, {
   ConnectOptions,
 } from "mongoose";
 import Logger from "./Logger";
-const logger = Logger.getInstance("DatabaseManager");
+const logger = Logger.getInstance();
 
 class DatabaseManager {
   private static instance: DatabaseManager;
@@ -38,7 +38,7 @@ class DatabaseManager {
       ################################################
     `);
     } catch (error) {
-      logger.error(`Error connecting to the database:, error`);
+      logger.error(`Error connecting to the database:, ${error}`);
       throw error;
     }
   }
