@@ -1,0 +1,7 @@
+2023-05-22 14:16:22 [App] error: Hello there
+2023-05-22 14:16:25 [App] error: Hello there
+2023-05-22 14:16:28 [App] error: Hello there
+2023-05-22 14:16:41 [App] error: Hello there
+2023-05-22 14:16:45 [App] error: Hello there
+{"level":"error","message":"Hello there","timestamp":"2023-05-22 14:16:54"}
+2023-05-22 14:17:13 [App] error: Hello there
