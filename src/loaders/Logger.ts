@@ -5,6 +5,10 @@ class Logger {
   private static instance: Logger;
   private logger: winston.Logger;
 
+  /**
+   * Private constructor of the Logger class.
+   * @param moduleName The name of the module or component.
+   */
   private constructor(moduleName: string) {
     this.logger = winston.createLogger({
       level: config.logs.level,
@@ -27,6 +31,12 @@ class Logger {
     });
   }
 
+  /**
+   * Retrieves the singleton instance of the Logger class.
+   * If the instance doesn't exist, it creates a new instance.
+   * @param moduleName The name of the module or component.
+   * @returns The Logger instance.
+   */
   public static getInstance(moduleName: string) {
     if(!Logger.instance) {
         Logger.instance = new Logger(moduleName);
@@ -35,22 +45,42 @@ class Logger {
     return Logger.instance;
   }
 
+  /**
+   * Logs an error message.
+   * @param message The error message to be logged.
+   */
   public error(message: string): void {
     this.logger.error(message);
   }
 
+  /**
+   * Logs a warning message.
+   * @param message The warning message to be logged.
+   */
   public warn(message: string): void {
     this.logger.warn(message);
   }
 
+  /**
+   * Logs an information message.
+   * @param message The information message to be logged.
+   */
   public info(message: string): void {
     this.logger.info(message);
   }
 
+  /**
+   * Logs a debug message.
+   * @param message The debug message to be logged.
+   */
   public debug(message: string): void {
     this.logger.debug(message);
   }
 
+  /**
+   * Logs a silly message.
+   * @param message The debug message to be logged.
+   */
   public silly(message: string): void {
     this.logger.silly(message);
   }
