@@ -1,17 +1,18 @@
 import { Service } from "typedi";
+import { Request, Response, NextFunction } from "express";
 import { MessageService } from "../services/Message.service";
 
 @Service()
 export class MessageController {
   constructor(private readonly messageService: MessageService) {}
 
-  public async create() {}
+  public async create(req: Request, res: Response, next: NextFunction) {}
 
-  public async get() {}
+  public async get(req: Request, res: Response, next: NextFunction) {}
 
-  public async getById() {}
+  public async getById(req: Request, res: Response, next: NextFunction) {}
 
-  public async update() {}
+  public async updateById(req: Request, res: Response, next: NextFunction) {}
 
-  public async deleteById() {}
+  public async deleteById(req: Request, res: Response, next: NextFunction) {}
 }

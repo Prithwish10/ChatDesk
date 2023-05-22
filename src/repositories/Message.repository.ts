@@ -8,7 +8,7 @@ export class MessageRepository {
 
   public async getById() {}
 
-  public async update() {}
+  public async updateById() {}
 
   public async deleteById() {}
 }
