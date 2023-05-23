@@ -11,8 +11,11 @@ const conversationSchema = new mongoose.Schema<Conversation>({
   },
   group_name: {
     type: String,
-    required: true,
-    default: null,
+    required: false,
+  },
+  group_photo: {
+    type: String,
+    required: false
   },
   created_at: {
     type: Date,
