@@ -1,5 +1,6 @@
 import mongoose from "mongoose";
 import { Message } from "../interfaces/Message";
+import AttachmentModel from "./Attachment.model";
 
 const messageSchema = new mongoose.Schema<Message>({
   conversation_id: {
@@ -14,6 +15,7 @@ const messageSchema = new mongoose.Schema<Message>({
     type: String,
     required: true,
   },
+  attachments: [AttachmentModel],
   parent_message_id: {
     type: String,
     required: false,
