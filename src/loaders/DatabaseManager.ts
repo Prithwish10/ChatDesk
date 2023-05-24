@@ -5,6 +5,7 @@ import mongoose, {
   ConnectOptions,
 } from "mongoose";
 import Logger from "./Logger";
+import bindModels from "./modelBinder";
 const logger = Logger.getInstance();
 
 class DatabaseManager {
@@ -37,6 +38,9 @@ class DatabaseManager {
       🛡️  Db connected successfully !! 🛡️
       ################################################
     `);
+      // Bind the models
+      const entities = await bindModels();
+      logger.info(`Discovered the following schema entities: ${entities}`);
     } catch (error) {
       logger.error(`Error connecting to the database:, ${error}`);
       throw error;
@@ -47,8 +51,14 @@ class DatabaseManager {
    * Disconnect from the MongoDB database.
    */
   disconnect(): void {
-    mongoose.disconnect();
-    logger.info("Disconnected from the database");
+    if(this.connection) {
+      this.connection.close();
+      logger.info(`
+      ################################################
+      🛡️  Db disconnected successfully !! 🛡️
+      ################################################
+    `);
+    }
   }
 
   /**
@@ -57,6 +67,9 @@ class DatabaseManager {
    * @returns A Mongoose model for the specified collection.
    */
   getModel<T extends Document>(modelName: string): Model<T> {
+    if (!this.connection) {
+      throw new Error('Database connection has not been established.');
+    }
     return this.connection.model<T>(modelName);
   }
 

@@ -1,5 +1,5 @@
 import mongoose from "mongoose";
-import { User } from "../interfaces/User";
+import { User } from "../../interfaces/v1/User";
 
 const userSchema = new mongoose.Schema<User>({
   username: {
@@ -9,6 +9,10 @@ const userSchema = new mongoose.Schema<User>({
   email: {
     type: String,
     required: true,
+  },
+  mobile_number: {
+    type: String,
+    required: true
   },
   password: {
     type: String,

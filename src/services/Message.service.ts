@@ -1,9 +1,13 @@
 import { Service } from "typedi";
-import { MessageRepository } from "../repositories/Message.repository";
+import { MessageRepository } from "../repositories/v1/Message.repository";
+import Logger from "../loaders/Logger";
 
 @Service()
 export class MessageService {
-  constructor(private readonly messageRepository: MessageRepository) {}
+  constructor(
+    private readonly messageRepository: MessageRepository,
+    private readonly logger: Logger
+  ) {}
 
   public async create() {}
 

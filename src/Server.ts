@@ -1,3 +1,4 @@
+import "reflect-metadata";
 import express, { Application } from "express";
 import http from "http";
 import DatabaseManager from "./loaders/DatabaseManager";
@@ -48,7 +49,7 @@ class Server {
         🛡️  Server listening on port: ${this.port} 🛡️
         ################################################
       `);
-
+          // Connect to the database
           await this.dbConnection.connect();
         })
         .on("error", (err) => {
@@ -69,7 +70,11 @@ class Server {
     if (this.dbConnection && this.server) {
       await Promise.all([this.server.close(), this.dbConnection.disconnect()]);
 
-      logger.info("All services are shutdown");
+      logger.info(`
+        ################################################
+        🛡️  All services are shutdown!! 🛡️
+        ################################################
+      `);
     }
   }
 }
