@@ -29,7 +29,8 @@ export default {
    * API configs
    */
   api: {
-    prefix: "/api",
+    prefix: process.env.API_PREFIX || "/api",
+    version: process.env.API_VERSION || "/v1"
   },
 
   /**

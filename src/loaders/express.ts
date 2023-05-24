@@ -1,8 +1,8 @@
 import express, { Application } from "express";
 import morgan from "morgan";
 import cors from "cors";
-import routes from "../routes/index";
-import config from "../config/index";
+import routes from "../routes/v1/index";
+import config from "../config/config.global";
 import {
   handle404Error,
   handle422Error,
@@ -19,7 +19,7 @@ export default ({ app }: { app: Application }) => {
   app.use(morgan("dev"));
 
   // Load API routes
-  app.use(config.api.prefix, routes());
+  app.use(`${config.api.version}${config.api.prefix}`, routes());
 
   // catch 422 Error and forward to error handler
   app.use(handle422Error);

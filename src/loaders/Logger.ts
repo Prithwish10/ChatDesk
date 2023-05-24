@@ -1,6 +1,8 @@
 import winston from "winston";
-import config from "../config/index";
+import config from "../config/config.global";
+import { Service } from "typedi";
 
+@Service()
 class Logger {
   private static instance: Logger;
   private logger: winston.Logger;
@@ -18,7 +20,7 @@ class Logger {
         }),
         winston.format.printf(({ level, message, timestamp }) => {
           return `${timestamp} ${level}: ${message}`;
-        }),
+        })
       ),
       transports: [
         new winston.transports.Console(),
@@ -38,8 +40,8 @@ class Logger {
    * @returns The Logger instance.
    */
   public static getInstance() {
-    if(!Logger.instance) {
-        Logger.instance = new Logger();
+    if (!Logger.instance) {
+      Logger.instance = new Logger();
     }
 
     return Logger.instance;

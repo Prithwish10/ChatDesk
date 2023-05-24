@@ -1,7 +1,7 @@
 import { Router, Request, Response, NextFunction } from "express";
 import sanitize from "mongo-sanitize";
 import Container from "typedi";
-import { MessageController } from "../controllers/Message.controller";
+import { MessageController } from "../../controllers/v1/Message.controller";
 
 const route = Router();
 

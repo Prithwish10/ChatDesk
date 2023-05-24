@@ -1,4 +1,4 @@
-import config from "./config/index";
+import config from "./config/config.global";
 import DatabaseManager from "./loaders/DatabaseManager";
 import Server from "./Server";
 
