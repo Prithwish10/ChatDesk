@@ -51,6 +51,7 @@ const handleError = (
   res: Response,
   next: NextFunction
 ) => {
+  console.log("===> ",err.statusCode)
   res.status(err.statusCode || 500);
   res.json({
     errors: {

@@ -7,7 +7,7 @@ const logger = Logger.getInstance();
 
 async function bindModels(): Promise<string[]> {
   try {
-    let pathToModels = path.join(__dirname, "..", "models");
+    let pathToModels = path.join(__dirname, "..", "models", "v1");
     if (!pathToModels) {
       logger.error("Error with creating the model path");
       throw new Error("Database not implemented");

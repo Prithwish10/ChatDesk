@@ -20,6 +20,11 @@ const conversationSchema = new mongoose.Schema<Conversation>({
     type: String,
     required: false,
   },
+  deleted: {
+    type: Number,
+    default: 0,
+    required: true
+  },
   created_at: {
     type: Date,
     default: Date.now,

@@ -1,7 +1,6 @@
-import { Inject, Service } from "typedi";
+import { Service } from "typedi";
 import { ConversationRepository } from "../repositories/v1/Conversation.repository";
 import { Conversation } from "../interfaces/v1/Conversation";
-import { Api500Error } from "../utils/error-handlers/Api500Error";
 import { Api400Error } from "../utils/error-handlers/Api400Error";
 import Logger from "../loaders/Logger";
 
@@ -12,9 +11,18 @@ export class ConversationService {
     private readonly logger: Logger
   ) {}
 
+  /**
+   * Creates a new conversation with the provided participants.
+   *
+   * @param conversation - The conversation object containing participants.
+   * @returns The newly created conversation.
+   * @throws Api400Error if a conversation with the same participants already exists.
+   * @throws Error if an error occurs while creating the conversation.
+   */
   public async create(conversation: Conversation) {
     try {
       const { participants } = conversation;
+
       // Check if a conversation with the same participants already exists
       const existingConversation =
         await this.conversationRepository.isConversationWithSameParticipantsExists(
@@ -29,7 +37,8 @@ export class ConversationService {
       );
       return newConversation;
     } catch (error: any) {
-      throw new Api500Error(error.message);
+      this.logger.error(`Error in service while creating document: ${error}`);
+      throw error;
     }
   }
 
