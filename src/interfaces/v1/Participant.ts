@@ -1,8 +1,8 @@
-import { Status } from "../../enums/Status";
+import { ParticipantStatus } from "../../enums/ParticipantStatus";
 
 export interface Participant {
-  user_id: string,
-  role: string,
-  status: String,
-  isAdmin?: boolean
+  user_id: string;
+  role: string;
+  status: String;
+  isAdmin?: boolean;
 }
