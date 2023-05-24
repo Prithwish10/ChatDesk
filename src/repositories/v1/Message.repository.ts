@@ -1,7 +1,10 @@
 import { Service } from "typedi";
+import Logger from "../../loaders/Logger";
 
 @Service()
 export class MessageRepository {
+  constructor(private readonly logger: Logger) {}
+
   public async create() {}
 
   public async get() {}

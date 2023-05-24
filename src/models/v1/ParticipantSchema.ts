@@ -1,5 +1,5 @@
 import mongoose from "mongoose";
-import { Participant } from "../interfaces/Participant";
+import { Participant } from "../../interfaces/v1/Participant";
 
 const participantSchema = new mongoose.Schema<Participant>({
   user_id: {
@@ -13,8 +13,8 @@ const participantSchema = new mongoose.Schema<Participant>({
   },
   isAdmin: {
     type: Boolean,
-    required: true,
+    required: false,
   },
 });
 
-export default mongoose.model<Participant>("Participant", participantSchema);
+export default participantSchema;

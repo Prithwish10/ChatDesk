@@ -5,7 +5,7 @@ export interface Message {
   conversation_id: string;
   sender_id: string;
   content: string;
-  attachments?: Attachment[]
+  attachments?: Attachment[];
   parent_message_id?: string;
   created_at?: Date;
   updated_at?: Date;

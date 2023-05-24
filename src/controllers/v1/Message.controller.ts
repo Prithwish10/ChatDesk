@@ -1,10 +1,10 @@
 import { Service } from "typedi";
 import { Request, Response, NextFunction } from "express";
-import { ConversationService } from "../services/Conversation.service";
+import { MessageService } from "../../services/Message.service";
 
 @Service()
-export class ConversationController {
-  constructor(private readonly conversationService: ConversationService) {}
+export class MessageController {
+  constructor(private readonly messageService: MessageService) {}
 
   public async create(req: Request, res: Response, next: NextFunction) {}
 
