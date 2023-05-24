@@ -30,18 +30,22 @@ export class ConversationRepository {
     participants: Participant[]
   ) {
     try {
-      console.log(participants);
-      const existingConversation = await ConversationModel.findOne({
-        participants: {
-          $elemMatch: {
-            $and: participants.map((participant: Participant) => ({
-              user_id: participant.user_id,
-              role: participant.role,
-            })),
-          },
-        },
-      });
-      console.log(existingConversation);
+      const participantQueries = participants.map(participant => ({
+        $elemMatch: {
+          user_id: participant.user_id,
+          role: participant.role
+        }
+      }));
+      
+      const query = {
+        $and: [
+          { participants: { $size: participants.length } },
+          { participants: { $all: participantQueries } }
+        ]
+      };
+
+      const existingConversation = await ConversationModel.findOne(query);
+
       return existingConversation;
     } catch (error: any) {
       this.logger.error(

@@ -24,6 +24,11 @@ const messageSchema = new mongoose.Schema<Message>({
     required: false,
     ref: "Message",
   },
+  deleted: {
+    type: Number,
+    default: 0,
+    required: true
+  },
   created_at: {
     type: Date,
     default: Date.now,
