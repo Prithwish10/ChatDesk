@@ -1,6 +1,6 @@
 import mongoose from "mongoose";
 import { Participant } from "../../interfaces/v1/Participant";
-import { Status } from "../../enums/Status";
+import { ParticipantStatus } from "../../enums/ParticipantStatus";
 
 const participantSchema = new mongoose.Schema<Participant>({
   user_id: {
@@ -15,8 +15,8 @@ const participantSchema = new mongoose.Schema<Participant>({
   status: {
     type: String,
     required: true,
-    enum: Object.values(Status),
-    default: Status.Active,
+    enum: Object.values(ParticipantStatus),
+    default: ParticipantStatus.Active,
   },
   isAdmin: {
     type: Boolean,
