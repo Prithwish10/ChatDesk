@@ -10,6 +10,13 @@ import MessageModel from "../../models/v1/Message.model";
 export class ConversationRepository {
   constructor(private readonly logger: Logger) {}
 
+  /**
+   * Creates a new conversation.
+   *
+   * @param conversation - The conversation object to create.
+   * @returns A Promise that resolves to the created conversation.
+   * @throws Throws an error if there was a problem creating the conversation.
+   */
   public async create(conversation: Conversation) {
     try {
       const newConversation = await ConversationModel.create(conversation);
@@ -22,10 +29,20 @@ export class ConversationRepository {
 
   public async get() {}
 
+  /**
+   * Retrieves a conversation by its ID.
+   *
+   * @param conversation_id - The ID of the conversation to fetch.
+   * @returns A Promise that resolves to the conversation with the specified ID.
+   * @throws Throws an error if there was a problem fetching the conversation.
+   */
   public async getById(conversation_id: string) {
     try {
-      const message = await ConversationModel.find({_id: conversation_id, deleted: 0});
-      console.log(conversation_id)
+      const message = await ConversationModel.find({
+        _id: conversation_id,
+        deleted: 0,
+      });
+      console.log(conversation_id);
       return message;
     } catch (error) {
       this.logger.error(`Error occured while getting message by Id: ${error}`);
@@ -33,6 +50,14 @@ export class ConversationRepository {
     }
   }
 
+  /**
+   * Updates a conversation by its ID.
+   *
+   * @param conversation_id - The ID of the conversation to update.
+   * @param conversation - The updated conversation object.
+   * @returns A Promise that resolves to the updated conversation.
+   * @throws Throws an error if there was a problem updating the conversation.
+   */
   public async updateById(conversation_id: string, conversation: Conversation) {
     try {
       const updatedMessage = await ConversationModel.findByIdAndUpdate(
@@ -47,6 +72,13 @@ export class ConversationRepository {
     }
   }
 
+  /**
+   * Deletes a conversation by its ID (soft delete).
+   *
+   * @param conversation_id - The ID of the conversation to delete.
+   * @returns A Promise that resolves to the deleted conversation.
+   * @throws Throws an error if there was a problem deleting the conversation.
+   */
   public async deleteById(conversation_id: string) {
     try {
       const updatedMessage = await ConversationModel.findByIdAndUpdate(
@@ -61,6 +93,13 @@ export class ConversationRepository {
     }
   }
 
+  /**
+   * Checks if a conversation with the same participants exists.
+   *
+   * @param participants - An array of participant objects.
+   * @returns A Promise that resolves to the existing conversation if found, or null if not found.
+   * @throws Throws an error if there was a problem checking the existence of the conversation.
+   */
   public async isConversationWithSameParticipantsExists(
     participants: Participant[]
   ) {

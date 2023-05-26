@@ -9,6 +9,13 @@ import { Api404Error } from "../../utils/error-handlers/Api404Error";
 export class MessageRepository {
   constructor(private readonly logger: Logger) {}
 
+  /**
+   * Creates a new message.
+   *
+   * @param message - The message object to create.
+   * @returns A Promise that resolves to the created message.
+   * @throws Throws an error if there was a problem creating the message.
+   */
   public async create(message: Message) {
     try {
       if (message.parent_message_id) {
@@ -24,6 +31,13 @@ export class MessageRepository {
     }
   }
 
+  /**
+   * Retrieves messages for a specific conversation.
+   *
+   * @param conversation_id - The ID of the conversation to fetch messages for.
+   * @returns A Promise that resolves to the messages for the specified conversation.
+   * @throws Throws an error if there was a problem fetching the messages.
+   */
   public async getMessagesForAConversation(conversation_id: string) {
     try {
       // const messages = await MessageModel.find({conversation_id: conversation_id}).populate('parent_message_id').exec();
@@ -51,6 +65,13 @@ export class MessageRepository {
     }
   }
 
+  /**
+   * Retrieves a message by its ID.
+   *
+   * @param message_id - The ID of the message to fetch.
+   * @returns A Promise that resolves to the message with the specified ID.
+   * @throws Throws an error if there was a problem fetching the message.
+   */
   public async getById(message_id: string) {
     try {
       const message = await MessageModel.find({ _id: message_id, deleted: 0 });
@@ -61,6 +82,14 @@ export class MessageRepository {
     }
   }
 
+  /**
+   * Updates a message by its ID.
+   *
+   * @param message_id - The ID of the message to update.
+   * @param message - The updated message object.
+   * @returns A Promise that resolves to the updated message.
+   * @throws Throws an error if there was a problem updating the message.
+   */
   public async updateById(message_id: string, message: Message) {
     try {
       const updatedMessage = await MessageModel.findByIdAndUpdate(
@@ -75,6 +104,13 @@ export class MessageRepository {
     }
   }
 
+  /**
+   * Deletes a message by its ID (soft delete).
+   *
+   * @param message_id - The ID of the message to delete.
+   * @returns A Promise that resolves to the deleted message.
+   * @throws Throws an error if there was a problem deleting the message.
+   */
   public async deleteById(message_id: string) {
     try {
       const updatedMessage = await MessageModel.findByIdAndUpdate(
