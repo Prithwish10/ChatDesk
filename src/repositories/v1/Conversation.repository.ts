@@ -1,8 +1,10 @@
 import { Inject, Service } from "typedi";
+import { SortOrder } from "mongoose";
 import { Conversation } from "../../interfaces/v1/Conversation";
 import ConversationModel from "../../models/v1/Conversation.model";
 import { Participant } from "../../interfaces/v1/Participant";
 import Logger from "../../loaders/Logger";
+import MessageModel from "../../models/v1/Message.model";
 
 @Service()
 export class ConversationRepository {
@@ -20,28 +22,61 @@ export class ConversationRepository {
 
   public async get() {}
 
-  public async getById() {}
+  public async getById(conversation_id: string) {
+    try {
+      const message = await ConversationModel.find({_id: conversation_id, deleted: 0});
+      console.log(conversation_id)
+      return message;
+    } catch (error) {
+      this.logger.error(`Error occured while getting message by Id: ${error}`);
+      throw error;
+    }
+  }
 
-  public async updateById() {}
+  public async updateById(conversation_id: string, conversation: Conversation) {
+    try {
+      const updatedMessage = await ConversationModel.findByIdAndUpdate(
+        { _id: conversation_id },
+        conversation,
+        { new: true }
+      );
+      return updatedMessage;
+    } catch (error) {
+      this.logger.error(`Error occured while updating message by Id: ${error}`);
+      throw error;
+    }
+  }
 
-  public async deleteById() {}
+  public async deleteById(conversation_id: string) {
+    try {
+      const updatedMessage = await ConversationModel.findByIdAndUpdate(
+        { _id: conversation_id },
+        { deleted: 1 }, // Soft delete
+        { new: true }
+      );
+      return updatedMessage;
+    } catch (error) {
+      this.logger.error(`Error occured while updating message by Id: ${error}`);
+      throw error;
+    }
+  }
 
   public async isConversationWithSameParticipantsExists(
     participants: Participant[]
   ) {
     try {
-      const participantQueries = participants.map(participant => ({
+      const participantQueries = participants.map((participant) => ({
         $elemMatch: {
           user_id: participant.user_id,
-          role: participant.role
-        }
+          role: participant.role,
+        },
       }));
-      
+
       const query = {
         $and: [
           { participants: { $size: participants.length } },
-          { participants: { $all: participantQueries } }
-        ]
+          { participants: { $all: participantQueries } },
+        ],
       };
 
       const existingConversation = await ConversationModel.findOne(query);
@@ -51,6 +86,99 @@ export class ConversationRepository {
       this.logger.error(
         `Error occured while checking whether conversation with same participants exists: ${error}`
       );
+      throw error;
+    }
+  }
+
+  /**
+   * Retrieves user conversations based on the provided parameters.
+   *
+   * @param user_id - The ID of the user for whom to retrieve conversations.
+   * @param sort - The field to sort the conversations by (default: "last_message_timestamp").
+   * @param order - The sort order ("asc" for ascending, "desc" for descending, default: "desc").
+   * @param page - The page number of results to retrieve (default: 1).
+   * @param limit - The maximum number of conversations to retrieve per page (default: 20).
+   * @returns An object containing the total number of pages, total number of conversations,
+   *          and an array of conversations with additional unread message count.
+   * @throws Throws an error if there was a problem retrieving the conversations.
+   */
+  public async getUserConversations(
+    user_id: string,
+    sort = "last_message_timestamp",
+    order = "desc",
+    page = 1,
+    limit = 20,
+    deleted = 0
+  ) {
+    try {
+      const sortConfig: { [key: string]: SortOrder } = {};
+      sortConfig[sort] = order === "asc" ? 1 : -1;
+
+      // Create the query to find conversations in which the user is a participant.
+      const participantQuery = {
+        participants: {
+          $elemMatch: {
+            user_id: user_id,
+          },
+        },
+        deleted,
+      };
+
+      // Count the total number of conversations matching the participant query.
+      const totalConversations = await this.countDocuments(participantQuery);
+      const totalPages = Math.ceil(totalConversations / limit);
+      const skip = (page - 1) * limit;
+
+      const userConversations = await ConversationModel.find(participantQuery)
+        .sort(sortConfig)
+        .skip(skip)
+        .limit(limit)
+        .lean();
+
+      // Retrieve unread message counts for each conversation using MessageModel.
+      const conversationsWithReadMessageCount = await Promise.all(
+        userConversations.map(async (userConversation) => {
+          const lastCheckedTimestamp = userConversation.last_ckecked;
+
+          // Count the number of unread messages in the conversation
+          const unreadMessageCount = await MessageModel.countDocuments({
+            conversation_id: userConversation._id,
+            created_at: { $gt: lastCheckedTimestamp },
+          });
+
+          return {
+            ...userConversation,
+            unreadMessageCount,
+          };
+        })
+      );
+
+      return {
+        totalPages,
+        totalConversations,
+        conversations: conversationsWithReadMessageCount,
+      };
+    } catch (error) {
+      this.logger.error(
+        `Error occured while in repository while fetching user conversations: ${error}`
+      );
+      throw error;
+    }
+  }
+
+  /**
+   * Counts the number of documents in a collection based on the provided query.
+   *
+   * @param query - The query object to filter the documents.
+   * @returns The total number of documents that match the given query.
+   * @throws Throws an error if there was a problem counting the documents.
+   */
+  private async countDocuments(query: any) {
+    try {
+      const totalDocuments = await ConversationModel.countDocuments(query);
+      return totalDocuments;
+    } catch (error) {
+      this.logger.error(`Error occured while counting documents: ${error}`);
       throw error;
     }
   }

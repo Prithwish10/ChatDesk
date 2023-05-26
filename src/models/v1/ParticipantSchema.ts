@@ -4,7 +4,7 @@ import { ParticipantStatus } from "../../enums/ParticipantStatus";
 
 const participantSchema = new mongoose.Schema<Participant>({
   user_id: {
-    type: String,
+    type: mongoose.Schema.Types.ObjectId,
     required: true,
     ref: "User",
   },

@@ -37,7 +37,7 @@ export default (app: Router) => {
     await messageController.updateById(req, res, next);
   });
 
-  route.delete("/", async (req: Request, res: Response, next: NextFunction) => {
+  route.delete("/:id", async (req: Request, res: Response, next: NextFunction) => {
     await messageController.deleteById(req, res, next);
   });
 };

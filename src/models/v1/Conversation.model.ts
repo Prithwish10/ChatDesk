@@ -23,13 +23,17 @@ const conversationSchema = new mongoose.Schema<Conversation>({
   deleted: {
     type: Number,
     default: 0,
-    required: true
+    required: true,
+  },
+  last_ckecked: {
+    type: Date,
+    default: Date.now,
   },
   created_at: {
     type: Date,
     default: Date.now,
   },
-  updated_at: {
+  last_message_timestamp: {
     type: Date,
     default: Date.now,
   },
