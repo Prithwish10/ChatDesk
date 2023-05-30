@@ -5,6 +5,8 @@ import ConversationModel from "../../models/v1/Conversation.model";
 import { Participant } from "../../interfaces/v1/Participant";
 import Logger from "../../loaders/Logger";
 import MessageModel from "../../models/v1/Message.model";
+import UserModel from "../../models/v1/User.model";
+import { Api404Error } from "../../utils/error-handlers/Api404Error";
 
 @Service()
 export class ConversationRepository {
@@ -38,12 +40,9 @@ export class ConversationRepository {
    */
   public async getById(conversation_id: string) {
     try {
-      const message = await ConversationModel.find({
-        _id: conversation_id,
-        deleted: 0,
-      });
-      console.log(conversation_id);
-      return message;
+      const conversation = await ConversationModel.findById(conversation_id);
+
+      return conversation;
     } catch (error) {
       this.logger.error(`Error occured while getting message by Id: ${error}`);
       throw error;
@@ -97,11 +96,13 @@ export class ConversationRepository {
    * Checks if a conversation with the same participants exists.
    *
    * @param participants - An array of participant objects.
+   * @param isGroup - A boolean field that tells whether it is a group or personal conversation.
    * @returns A Promise that resolves to the existing conversation if found, or null if not found.
    * @throws Throws an error if there was a problem checking the existence of the conversation.
    */
   public async isConversationWithSameParticipantsExists(
-    participants: Participant[]
+    participants: Participant[],
+    isGroup: boolean
   ) {
     try {
       const participantQueries = participants.map((participant) => ({
@@ -115,6 +116,7 @@ export class ConversationRepository {
         $and: [
           { participants: { $size: participants.length } },
           { participants: { $all: participantQueries } },
+          { isGroup: isGroup },
         ],
       };
 
@@ -168,20 +170,33 @@ export class ConversationRepository {
       const totalPages = Math.ceil(totalConversations / limit);
       const skip = (page - 1) * limit;
 
-      const userConversations = await ConversationModel.find(participantQuery)
+      let userConversations: any;
+
+      userConversations = await ConversationModel.find(participantQuery)
+        .populate("participants")
         .sort(sortConfig)
         .skip(skip)
         .limit(limit)
         .lean();
 
+      userConversations = await UserModel.populate(userConversations, {
+        path: "participants.user_id",
+        select: "username email",
+      });
+
       // Retrieve unread message counts for each conversation using MessageModel.
       const conversationsWithReadMessageCount = await Promise.all(
-        userConversations.map(async (userConversation) => {
-          const lastCheckedTimestamp = userConversation.last_ckecked;
+        userConversations.map(async (userConversation: any) => {
+          // Retrieve the last checked timestamp for a specific user within a conversation
+          const lastCheckedTimestamp = userConversation.participants.find(
+            (participant: Participant) =>
+              participant.user_id._id.toString() === user_id
+          ).last_checked_conversation_at;
 
           // Count the number of unread messages in the conversation
           const unreadMessageCount = await MessageModel.countDocuments({
             conversation_id: userConversation._id,
+            sender_id: { $ne: user_id },
             created_at: { $gt: lastCheckedTimestamp },
           });
 
@@ -200,6 +215,103 @@ export class ConversationRepository {
     } catch (error) {
       this.logger.error(
         `Error occured while in repository while fetching user conversations: ${error}`
+      );
+      throw error;
+    }
+  }
+
+  public async updateParticipantsLastCheckedTime(
+    conversation_id: string,
+    participant_id: string
+  ) {
+    try {
+      const conversation = await this.getById(conversation_id);
+      const participant = conversation?.participants.find(
+        (participant) => participant.user_id.toString() === participant_id
+      );
+      if (!participant) {
+        throw new Api404Error("Participant not found in the conversaation");
+      }
+
+      participant.last_checked_conversation_at = new Date();
+      await conversation?.save();
+    } catch (error) {
+      this.logger.error(
+        `Error occured while in repository while fetching user conversations: ${error}`
+      );
+      throw error;
+    }
+  }
+
+  /**
+   * Add a participant from a conversation.
+   *
+   * @param conversation_id - The ID of the conversation from which to remove the participant.
+   * @param participant_id - The ID of the user who needs to be removed from the conversation.
+   * @returns The conversation documents after adding the participant.
+   * @throws Throws an error if there was a problem adding participant to the conversation.
+   */
+  public async addParticipantsToConversation(
+    conversation_id: string,
+    participants: Participant[]
+  ) {
+    try {
+      const conversation = await this.getById(conversation_id);
+
+      const existingParticipants = new Set(
+        conversation?.participants.map((existingParticipant) =>
+          existingParticipant.user_id.toString()
+        )
+      );
+
+      // Add new participants to the conversation if they don't already exist
+      const newParticipants = participants.filter(
+        (participant) =>
+          !existingParticipants.has(participant.user_id.toString())
+      );
+
+      conversation?.participants.push(...newParticipants);
+
+      // Save the updated conversation
+      const updatedConversation = await conversation?.save();
+
+      return updatedConversation;
+    } catch (error) {
+      this.logger.error(
+        `Error occured while in repository while adding participants conversations: ${error}`
+      );
+      throw error;
+    }
+  }
+
+  /**
+   * Remove a participant from a conversation.
+   *
+   * @param conversation_id - The ID of the conversation from which to remove the participant.
+   * @param participant_id - The ID of the user who needs to be removed from the conversation.
+   * @returns The conversation documents after removing the participant.
+   * @throws Throws an error if there was a problem removing participant from the conversation.
+   */
+  public async removeParticipantFromConversation(
+    conversation_id: string,
+    participant_id: string
+  ) {
+    try {
+      const updatedConversation = await ConversationModel.findByIdAndUpdate(
+        conversation_id,
+        {
+          $pull: { participants: { user_id: participant_id } },
+        },
+        {
+          new: true,
+        }
+      ).populate("participants");
+      console.log(updatedConversation);
+
+      return updatedConversation;
+    } catch (error) {
+      this.logger.error(
+        `Error occured while in repository while removing participants conversations: ${error}`
       );
       throw error;
     }

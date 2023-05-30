@@ -32,14 +32,27 @@ export class MessageController {
 
   public async get(req: Request, res: Response, next: NextFunction) {
     try {
+      const sort = (req.query.sort as string) || "created_at";
+      const order = (req.query.order as string) || "desc";
+      const page = parseInt(req.query.page as string) || 1;
+      const deleted = parseInt(req.query.deleted as string) || 0;
+      let limit = parseInt(req.query.limit as string) || 30;
+      if (limit > 100) {
+        limit = 30;
+      }
       const messages = await this.messageService.getMessagesForAConversation(
-        req.query.conversation_id as string
+        req.query.conversation_id as string,
+        sort,
+        order,
+        page,
+        limit,
+        deleted
       );
 
       return res.status(200).json({
         success: true,
         statusCode: 200,
-        messages,
+        ...messages,
       });
     } catch (error) {
       this.logger.error(
@@ -90,13 +103,11 @@ export class MessageController {
 
   public async deleteById(req: Request, res: Response, next: NextFunction) {
     try {
-      await this.messageService.deleteById(
-        req.params.id as string
-      );
+      await this.messageService.deleteById(req.params.id as string);
 
       return res.status(204).json({
         success: true,
-        statusCode: 204
+        statusCode: 204,
       });
     } catch (error) {
       this.logger.error(

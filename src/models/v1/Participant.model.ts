@@ -18,6 +18,10 @@ const participantSchema = new mongoose.Schema<Participant>({
     enum: Object.values(ParticipantStatus),
     default: ParticipantStatus.Active,
   },
+  last_checked_conversation_at: {
+    type: Date,
+    default: Date.now,
+  },
   isAdmin: {
     type: Boolean,
     required: false,
