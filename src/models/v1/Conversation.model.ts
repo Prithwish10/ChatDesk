@@ -1,6 +1,6 @@
 import mongoose from "mongoose";
 import { Conversation } from "../../interfaces/v1/Conversation";
-import ParticipantSchema from "./ParticipantSchema";
+import ParticipantSchema from "./Participant.model";
 
 const conversationSchema = new mongoose.Schema<Conversation>({
   participants: {
@@ -14,6 +14,7 @@ const conversationSchema = new mongoose.Schema<Conversation>({
   },
   group_name: {
     type: String,
+    trim: true,
     required: false,
   },
   group_photo: {
@@ -23,13 +24,17 @@ const conversationSchema = new mongoose.Schema<Conversation>({
   deleted: {
     type: Number,
     default: 0,
-    required: true
+    required: true,
+  },
+  last_ckecked: {
+    type: Date,
+    default: Date.now,
   },
   created_at: {
     type: Date,
     default: Date.now,
   },
-  updated_at: {
+  last_message_timestamp: {
     type: Date,
     default: Date.now,
   },

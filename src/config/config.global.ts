@@ -30,7 +30,12 @@ export default {
    */
   api: {
     prefix: process.env.API_PREFIX || "/api",
-    version: process.env.API_VERSION || "/v1"
+    version: process.env.API_VERSION || "/v1",
+  },
+
+  socket: {
+    corsOrigin: process.env.CORS_ORIGIN || "http://localhost:4000",
+    pingTimeout: process.env.PING_TIMEOUT || 60000
   },
 
   /**

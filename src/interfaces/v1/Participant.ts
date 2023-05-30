@@ -1,8 +1,9 @@
-import { Status } from "../../enums/Status";
+import { Types } from "mongoose";
 
 export interface Participant {
-  user_id: string,
-  role: string,
-  status: String,
-  isAdmin?: boolean
+  user_id: Types.ObjectId;
+  role: string;
+  status: String;
+  last_checked_conversation_at?: Date;
+  isAdmin?: boolean;
 }

@@ -37,7 +37,15 @@ export default (app: Router) => {
     await conversationController.updateById(req, res, next);
   });
 
-  route.delete("/", async (req: Request, res: Response, next: NextFunction) => {
+  route.post("/:id/participants", async (req: Request, res: Response, next: NextFunction) => {
+    await conversationController.addParticipantsToConversation(req, res, next);
+  });
+
+  route.delete("/:conversation_id/participants/:user_id", async (req: Request, res: Response, next: NextFunction) => {
+    await conversationController.removeParticipantFromConversation(req, res, next);
+  });
+
+  route.delete("/:id", async (req: Request, res: Response, next: NextFunction) => {
     await conversationController.deleteById(req, res, next);
   });
 };
