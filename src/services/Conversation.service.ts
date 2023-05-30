@@ -4,6 +4,7 @@ import { Conversation } from "../interfaces/v1/Conversation";
 import { Api400Error } from "../utils/error-handlers/Api400Error";
 import Logger from "../loaders/Logger";
 import { Api404Error } from "../utils/error-handlers/Api404Error";
+import { Participant } from "../interfaces/v1/Participant";
 
 @Service()
 export class ConversationService {
@@ -34,12 +35,25 @@ export class ConversationService {
    */
   public async create(conversation: Conversation) {
     try {
-      const { participants } = conversation;
+      const { isGroup, participants } = conversation;
+
+      if (!isGroup && participants.length > 2) {
+        throw new Api400Error(
+          `Personal conversation can not have more than 2 participants.`
+        );
+      }
+
+      if (participants.length < 2) {
+        throw new Api400Error(
+          `More than 2 participants are required to create a conversation.`
+        );
+      }
 
       // Check if a conversation with the same participants already exists
       const existingConversation =
         await this.conversationRepository.isConversationWithSameParticipantsExists(
-          participants
+          participants,
+          isGroup
         );
       if (existingConversation) {
         throw new Api400Error("Conversation already exist");
@@ -48,6 +62,7 @@ export class ConversationService {
       const newConversation = await this.conversationRepository.create(
         conversation
       );
+
       return newConversation;
     } catch (error: any) {
       this.logger.error(`Error in service while creating document: ${error}`);
@@ -110,7 +125,7 @@ export class ConversationService {
       const conversation = await this.conversationRepository.getById(
         conversation_id
       );
-      if (!conversation || conversation.length === 0) {
+      if (!conversation || conversation.deleted === 1) {
         throw new Api404Error("Conversation no longer exist!");
       }
 
@@ -137,13 +152,14 @@ export class ConversationService {
       const isConversationPresent = await this.conversationRepository.getById(
         conversation_id
       );
-      if (!isConversationPresent || isConversationPresent.length === 0) {
+      if (!isConversationPresent || isConversationPresent.deleted === 1) {
         throw new Api404Error("Conversation no longer exist!");
       }
       const updatedConversation = await this.conversationRepository.updateById(
         conversation_id,
         conversation
       );
+      
       return updatedConversation;
     } catch (error) {
       this.logger.error(
@@ -165,13 +181,84 @@ export class ConversationService {
       const isConversationPresent = await this.conversationRepository.getById(
         conversation_id
       );
-      if (!isConversationPresent) {
+      if (!isConversationPresent || isConversationPresent.deleted === 1) {
         throw new Api404Error("Conversation no longer exist!");
       }
+
       await this.conversationRepository.deleteById(conversation_id);
     } catch (error) {
       this.logger.error(
         `Error in service while soft deleting conversation: ${error}`
+      );
+      throw error;
+    }
+  }
+
+  /**
+   * Adds participants to a conversation.
+   *
+   * @param conversation_id - The ID of the conversation.
+   * @param participants - An array of Participant objects to be added.
+   * @returns The conversation object with updated participants.
+   * @throws Api404Error if the conversation doesn't exist or is deleted.
+   * @throws Error if an error occurs while adding participants to the conversation.
+   */
+  public async addParticipantsToConversation(
+    conversation_id: string,
+    participants: Participant[]
+  ) {
+    try {
+      const isConversationPresent = await this.conversationRepository.getById(
+        conversation_id
+      );
+      if (!isConversationPresent || isConversationPresent.deleted === 1) {
+        throw new Api404Error("Conversation no longer exist!");
+      }
+      const conversationWithUpdatedParticipants =
+        await this.conversationRepository.addParticipantsToConversation(
+          conversation_id,
+          participants
+        );
+
+      return conversationWithUpdatedParticipants;
+    } catch (error) {
+      this.logger.error(
+        `Error in service while adding participants to a conversation: ${error}`
+      );
+      throw error;
+    }
+  }
+
+  /**
+   * Removes a participant from a conversation.
+   *
+   * @param conversation_id - The ID of the conversation.
+   * @param participant_id - The ID of the participant to be removed.
+   * @returns The conversation object with updated participants.
+   * @throws Api404Error if the conversation doesn't exist or is deleted.
+   * @throws Error if an error occurs while removing the participant from the conversation.
+   */
+  public async removeParticipantsToConversation(
+    conversation_id: string,
+    participant_id: string
+  ) {
+    try {
+      const isConversationPresent = await this.conversationRepository.getById(
+        conversation_id
+      );
+      if (!isConversationPresent || isConversationPresent.deleted === 1) {
+        throw new Api404Error("Conversation no longer exist!");
+      }
+      const conversationWithUpdatedParticipants =
+        await this.conversationRepository.removeParticipantFromConversation(
+          conversation_id,
+          participant_id
+        );
+
+      return conversationWithUpdatedParticipants;
+    } catch (error) {
+      this.logger.error(
+        `Error in service while removing participants from a conversation: ${error}`
       );
       throw error;
     }

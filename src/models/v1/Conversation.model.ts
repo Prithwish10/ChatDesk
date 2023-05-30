@@ -1,6 +1,6 @@
 import mongoose from "mongoose";
 import { Conversation } from "../../interfaces/v1/Conversation";
-import ParticipantSchema from "./ParticipantSchema";
+import ParticipantSchema from "./Participant.model";
 
 const conversationSchema = new mongoose.Schema<Conversation>({
   participants: {
@@ -14,6 +14,7 @@ const conversationSchema = new mongoose.Schema<Conversation>({
   },
   group_name: {
     type: String,
+    trim: true,
     required: false,
   },
   group_photo: {

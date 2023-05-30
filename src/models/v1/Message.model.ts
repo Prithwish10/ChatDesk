@@ -4,15 +4,18 @@ import AttachmentModel from "./Attachment.model";
 
 const messageSchema = new mongoose.Schema<Message>({
   conversation_id: {
-    type: String,
+    type: mongoose.Schema.Types.ObjectId,
     required: true,
+    ref: "Conversation",
   },
   sender_id: {
     type: mongoose.Schema.Types.ObjectId,
     required: true,
+    ref: "User",
   },
   content: {
     type: String,
+    trim: true,
     required: true,
   },
   attachments: {
@@ -28,7 +31,7 @@ const messageSchema = new mongoose.Schema<Message>({
   deleted: {
     type: Number,
     default: 0,
-    required: true
+    required: true,
   },
   created_at: {
     type: Date,

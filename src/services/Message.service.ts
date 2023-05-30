@@ -45,9 +45,23 @@ export class MessageService {
    * @returns A Promise that resolves to the messages for the specified conversation.
    * @throws Throws an error if there was a problem fetching the messages.
    */
-  public async getMessagesForAConversation(conversation_id: string) {
+  public async getMessagesForAConversation(
+    conversation_id: string,
+    sort: string,
+    order: string,
+    page: number,
+    limit: number,
+    deleted: number
+  ) {
     try {
-      const messages = await this.messageRepository.getMessagesForAConversation(conversation_id);
+      const messages = await this.messageRepository.getMessagesForAConversation(
+        conversation_id,
+        sort,
+        order,
+        page,
+        limit,
+        deleted
+      );
       return messages;
     } catch (error) {
       this.logger.error(`Error in service while fetching messages: ${error}`);

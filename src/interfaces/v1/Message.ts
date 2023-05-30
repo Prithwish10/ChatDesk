@@ -3,7 +3,7 @@ import { Attachment } from "./Attachment";
 
 export interface Message {
   _id?: string,
-  conversation_id: string,
+  conversation_id: Types.ObjectId,
   sender_id: Types.ObjectId,
   content: string,
   attachments?: Attachment[],
