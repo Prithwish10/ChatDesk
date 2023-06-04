@@ -26,10 +26,6 @@ const conversationSchema = new mongoose.Schema<Conversation>({
     default: 0,
     required: true,
   },
-  last_ckecked: {
-    type: Date,
-    default: Date.now,
-  },
   created_at: {
     type: Date,
     default: Date.now,

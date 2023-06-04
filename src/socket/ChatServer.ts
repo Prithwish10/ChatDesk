@@ -23,7 +23,7 @@ class ChatServer {
     this.io.on("connection", (socket: Socket) => {
       this.logger.info(`User connected: ${socket.id}`);
 
-      // socket.on("add-user", (userId: string) => {});
+      socket.on("add-user", (userId: string, username: string) => {});
 
       socket.on("join-conversation", (conversation_id: string, callback) => {
         socket.join(conversation_id);

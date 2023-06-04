@@ -1,5 +1,6 @@
 import mongoose from "mongoose";
 import { Message } from "../../interfaces/v1/Message";
+import ReactionSchema from "./Reaction.model";
 import AttachmentModel from "./Attachment.model";
 
 const messageSchema = new mongoose.Schema<Message>({
@@ -32,6 +33,10 @@ const messageSchema = new mongoose.Schema<Message>({
     type: Number,
     default: 0,
     required: true,
+  },
+  reactions: {
+    type: [ReactionSchema],
+    required: false,
   },
   created_at: {
     type: Date,

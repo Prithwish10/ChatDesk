@@ -1,5 +1,6 @@
 import { Types } from "mongoose";
 import { Attachment } from "./Attachment";
+import { Reaction } from "./Reaction";
 
 export interface Message {
   _id?: string,
@@ -8,7 +9,8 @@ export interface Message {
   content: string,
   attachments?: Attachment[],
   parent_message_id?: Types.ObjectId | null,
-  deleted: number
+  deleted: number,
+  reactions?: Reaction[],
   created_at?: Date,
   updated_at?: Date
 }
