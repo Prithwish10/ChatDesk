@@ -35,7 +35,7 @@ export default {
 
   socket: {
     corsOrigin: process.env.CORS_ORIGIN || "http://localhost:4000",
-    pingTimeout: process.env.PING_TIMEOUT || 60000
+    pingTimeout: process.env.PING_TIMEOUT || 60000,
   },
 
   /**

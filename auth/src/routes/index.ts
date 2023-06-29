@@ -1,11 +1,10 @@
 import { Router } from "express";
+import usersRoute from "./users.route";
 
 export default () => {
   const app = Router();
 
-  app.get('/users/currentuser', (req, res) => {
-    res.send('Hi There!!');
-  })
+  usersRoute(app);
 
   return app;
 };
