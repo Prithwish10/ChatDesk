@@ -1,4 +1,5 @@
 import express, { Application } from "express";
+import cookieSession from "cookie-session";
 import morgan from "morgan";
 import cors from "cors";
 import config from "../config/config.global";
@@ -10,12 +11,15 @@ import {
 } from "../middlewares/error-handler.middleware";
 
 export default ({ app }: { app: Application }) => {
-  app.enable("trust proxy");
-
+  app.set("trust proxy", true);
+  app.use(
+    cookieSession({
+      signed: false,
+      secure: true,
+    })
+  );
   app.use(cors());
-
   app.use(express.json());
-
   app.use(morgan("dev"));
 
   // Load API routes
