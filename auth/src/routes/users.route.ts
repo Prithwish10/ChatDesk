@@ -1,8 +1,10 @@
 import { Router, Request, Response, NextFunction } from "express";
 import sanitize from "mongo-sanitize";
 import Container from "typedi";
-import { signUpValidation } from "../middlewares/validator";
-import { SignUpController } from "../controllers/signup.controller";
+import { SignUpController } from "../controllers/Signup.controller";
+import { SignInController } from "../controllers/Signin.controller";
+import { UserController } from "../controllers/User.controller";
+import { SignoutController } from "../controllers/Signout.controller";
 
 const route = Router();
 
@@ -21,18 +23,21 @@ export default (app: Router) => {
   );
 
   const signUpController = Container.get(SignUpController);
+  const signinController = Container.get(SignInController);
+  const signoutController = Container.get(SignoutController);
+  const userController = Container.get(UserController);
 
   route.get(
     "/currentuser",
     async (req: Request, res: Response, next: NextFunction) => {
-      return res.send("Current user");
+      await userController.currentUser(req, res, next);
     }
   );
 
   route.post(
     "/signin",
     async (req: Request, res: Response, next: NextFunction) => {
-      return res.send("Sign in");
+      await signinController.signin(req, res, next);
     }
   );
 
@@ -46,7 +51,7 @@ export default (app: Router) => {
   route.post(
     "/signout",
     async (req: Request, res: Response, next: NextFunction) => {
-      return res.send("Sign out");
+      signoutController.signout(req, res, next);
     }
   );
 };
