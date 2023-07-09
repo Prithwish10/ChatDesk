@@ -11,6 +11,5 @@ const server = new Server(
   )
 );
 server.up();
-// new ChatServer(server);
 
 export default server;

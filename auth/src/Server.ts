@@ -4,7 +4,6 @@ import http from "http";
 import DatabaseManager from "./loaders/DatabaseManager";
 
 import Logger from "./loaders/Logger";
-import config from "./config/config.global";
 const logger = Logger.getInstance();
 
 /**
