@@ -12,12 +12,10 @@ export class UserController {
 
   public async currentUser(req: Request, res: Response, next: NextFunction) {
     try {
-      const currentUser = await this.userService.currentUser(req.session?.jwt);
-
       return res.status(200).json({
         success: true,
         statusCode: 200,
-        currentUser,
+        currentUser: req.currentUser || null,
       });
     } catch (error) {
       this.logger.error(`Error in signup controller: ${error} `);

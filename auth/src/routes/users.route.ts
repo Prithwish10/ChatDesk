@@ -5,6 +5,8 @@ import { SignUpController } from "../controllers/Signup.controller";
 import { SignInController } from "../controllers/Signin.controller";
 import { UserController } from "../controllers/User.controller";
 import { SignoutController } from "../controllers/Signout.controller";
+import { currentUser } from "../middlewares/current-user.middleware";
+import { requireAuth } from "../middlewares/require-auth.middleware";
 
 const route = Router();
 
@@ -29,6 +31,8 @@ export default (app: Router) => {
 
   route.get(
     "/currentuser",
+    currentUser,
+    requireAuth,
     async (req: Request, res: Response, next: NextFunction) => {
       await userController.currentUser(req, res, next);
     }
