@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction } from "express";
 import jwt from "jsonwebtoken";
 import config from "../config/config.global";
-import Logger from "../loaders/Logger";
+import Logger from "../utils/Logger";
 import { UserPayload } from "../interfaces/UserPayload";
 
 const logger = Logger.getInstance();

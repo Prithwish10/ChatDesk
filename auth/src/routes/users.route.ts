@@ -1,12 +1,11 @@
 import { Router, Request, Response, NextFunction } from "express";
+import { currentUser, requireAuth } from "@pdchat/common";
 import sanitize from "mongo-sanitize";
 import Container from "typedi";
 import { SignUpController } from "../controllers/Signup.controller";
 import { SignInController } from "../controllers/Signin.controller";
 import { UserController } from "../controllers/User.controller";
 import { SignoutController } from "../controllers/Signout.controller";
-import { currentUser } from "../middlewares/current-user.middleware";
-import { requireAuth } from "../middlewares/require-auth.middleware";
 
 const route = Router();
 

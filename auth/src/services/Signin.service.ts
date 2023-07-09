@@ -1,9 +1,9 @@
 import { Service } from "typedi";
 import jwt from "jsonwebtoken";
+import { Api400Error } from "@pdchat/common";
 import Logger from "../loaders/Logger";
 import { UserRepository } from "../repositories/user.repository";
 import config from "../config/config.global";
-import { Api400Error } from "../utils/errors/Api400Error";
 import { PasswordManager } from "./PasswordManager.service";
 
 @Service()

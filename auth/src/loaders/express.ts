@@ -1,14 +1,10 @@
 import express, { Application } from "express";
+import { handle404Error, handle422Error, handleError } from "@pdchat/common";
 import cookieSession from "cookie-session";
 import morgan from "morgan";
 import cors from "cors";
 import config from "../config/config.global";
 import routes from "../routes/index";
-import {
-  handle404Error,
-  handle422Error,
-  handleError,
-} from "../middlewares/error-handler.middleware";
 
 export default ({ app }: { app: Application }) => {
   app.set("trust proxy", true);

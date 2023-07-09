@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from "express";
-import { Api401Error } from "../utils/errors/Api401Error";
+import { Api401Error } from "../errors/Api401Error";
 
 /**
  * Middleware to check if the current user is authenticated.
