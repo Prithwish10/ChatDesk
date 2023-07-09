@@ -1,8 +1,8 @@
 import { Service } from "typedi";
 import jwt from "jsonwebtoken";
+import { Api409Error } from "@pdchat/common";
 import Logger from "../loaders/Logger";
 import { UserRepository } from "../repositories/user.repository";
-import { Api409Error } from "../utils/errors/Api409Error";
 import config from "../config/config.global";
 
 @Service()

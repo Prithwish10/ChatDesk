@@ -3,6 +3,7 @@ import jwt from "jsonwebtoken";
 import Logger from "../loaders/Logger";
 import { UserRepository } from "../repositories/user.repository";
 import config from "../config/config.global";
+import { UserPayload } from "../interfaces/UserPayload";
 
 @Service()
 export class UserService {
@@ -17,9 +18,9 @@ export class UserService {
         return null;
       }
 
-      let payload: string | jwt.JwtPayload;
+      let payload: UserPayload;
       try {
-        payload = jwt.verify(jwtToken, config.jwtSecret!);
+        payload = jwt.verify(jwtToken, config.jwtSecret!) as UserPayload;
       } catch (error) {
         return null;
       }
