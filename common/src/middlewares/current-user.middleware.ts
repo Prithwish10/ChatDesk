@@ -1,7 +1,10 @@
 import { Request, Response, NextFunction } from "express";
 import jwt from "jsonwebtoken";
 import config from "../config/config.global";
+import Logger from "../utils/Logger";
 import { UserPayload } from "../interfaces/UserPayload";
+
+const logger = Logger.getInstance();
 
 declare global {
   namespace Express {
@@ -40,7 +43,9 @@ export const currentUser = (
 
     // Store the user payload in the request object for future use
     req.currentUser = payload;
-  } catch (error) {}
+  } catch (error) {
+    logger.error(`Error in currentuser middleware: ${error}`);
+  }
 
   // Proceed to the next middleware or route handler
   next();
