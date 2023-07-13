@@ -1,7 +1,7 @@
 import winston from "winston";
 import config from "../config/config.global";
 
-class Logger {
+export class Logger {
   private static instance: Logger;
   private logger: winston.Logger;
 
@@ -85,5 +85,3 @@ class Logger {
     this.logger.silly(message);
   }
 }
-
-export default Logger;
