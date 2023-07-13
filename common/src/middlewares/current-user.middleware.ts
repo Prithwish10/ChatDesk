@@ -4,7 +4,7 @@ import config from "../config/config.global";
 import { Logger } from "../utils/Logger";
 import { UserPayload } from "../interfaces/UserPayload";
 
-const logger = Logger.getInstance();
+const logger = Logger.getInstance(config.servicename);
 
 declare global {
   namespace Express {

@@ -8,6 +8,7 @@ if (!process.env) {
 }
 
 export default {
+  servicename: 'common',
   jwtSecret: process.env.JWT_KEY,
 
   /**

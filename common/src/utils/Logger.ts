@@ -9,7 +9,7 @@ export class Logger {
    * Private constructor of the Logger class.
    * @param moduleName The name of the module or component.
    */
-  private constructor() {
+  private constructor(servicename: string) {
     this.logger = winston.createLogger({
       level: config.logs.level,
       format: winston.format.combine(
@@ -17,7 +17,7 @@ export class Logger {
           format: "YYYY-MM-DD HH:mm:ss",
         }),
         winston.format.printf(({ level, message, timestamp }) => {
-          return `${timestamp} ${level}: ${message}`;
+          return `${timestamp} [${servicename}] ${level}: ${message}`;
         })
       ),
       transports: [
@@ -37,9 +37,9 @@ export class Logger {
    * @param moduleName The name of the module or component.
    * @returns The Logger instance.
    */
-  public static getInstance() {
+  public static getInstance(servicename: string) {
     if (!Logger.instance) {
-      Logger.instance = new Logger();
+      Logger.instance = new Logger(servicename);
     }
 
     return Logger.instance;
