@@ -2,14 +2,17 @@ import winston from "winston";
 import config from "../config/config.global";
 
 export class Logger {
-  private static instance: Logger;
+  private static instances: { [moduleName: string]: Logger } = {};
   private logger: winston.Logger;
+  private serviceName: string;
 
   /**
    * Private constructor of the Logger class.
-   * @param moduleName The name of the module or component.
+   * @param serviceName The name of the module or component.
    */
-  private constructor(servicename: string) {
+  private constructor(serviceName: string) {
+    this.serviceName = serviceName;
+
     this.logger = winston.createLogger({
       level: config.logs.level,
       format: winston.format.combine(
@@ -17,7 +20,7 @@ export class Logger {
           format: "YYYY-MM-DD HH:mm:ss",
         }),
         winston.format.printf(({ level, message, timestamp }) => {
-          return `${timestamp} [${servicename}] ${level}: ${message}`;
+          return `${timestamp} [${serviceName}] ${level}: ${message}`;
         })
       ),
       transports: [
@@ -34,15 +37,15 @@ export class Logger {
   /**
    * Retrieves the singleton instance of the Logger class.
    * If the instance doesn't exist, it creates a new instance.
-   * @param moduleName The name of the module or component.
+   * @param serviceName The name of the module or component.
    * @returns The Logger instance.
    */
-  public static getInstance(servicename: string) {
-    if (!Logger.instance) {
-      Logger.instance = new Logger(servicename);
+  public static getInstance(serviceName: string) {
+    if (!Logger.instances[serviceName]) {
+      Logger.instances[serviceName] = new Logger(serviceName);
     }
 
-    return Logger.instance;
+    return Logger.instances[serviceName];
   }
 
   /**
