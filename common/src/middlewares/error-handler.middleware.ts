@@ -25,7 +25,7 @@ const handle422Error = (
 ) => {
   // Check if the error is a validation error
   if (err.name === "ValidationError") {
-    logger.error(`Error inside handle422Error middleware:, ${err}`);
+    // logger.error(`Error inside handle422Error middleware:, ${err}`);
     return res
       .status(422)
       .json({
@@ -61,7 +61,7 @@ const handle404Error = (
 ) => {
   // Check if the error is a Not Found error
   if (err.name === "Not found") {
-    logger.error(`Error inside handle404Error middleware:, ${err}`);
+    // logger.error(`Error inside handle404Error middleware:, ${err}`);
     return res
       .status(404)
       .json({
@@ -94,7 +94,7 @@ const handleError = (
   res: Response,
   next: NextFunction
 ) => {
-  logger.error(`Error inside handleError middleware:, ${err}`);
+  // logger.error(`Error inside handleError middleware:, ${err}`);
   // Set the appropriate status code on the response
   res.status(err.statusCode || 500);
   res.json({
