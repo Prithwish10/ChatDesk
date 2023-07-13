@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from "express";
 import { BaseError } from "../errors/BaseError";
-import Logger from "../utils/Logger";
+import { Logger } from "../utils/Logger";
 
 const logger = Logger.getInstance();
 
