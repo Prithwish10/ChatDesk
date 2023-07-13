@@ -1,10 +1,10 @@
 import { Service } from "typedi";
 import { ConversationRepository } from "../repositories/v1/Conversation.repository";
 import { Conversation } from "../interfaces/v1/Conversation";
-import { Api400Error } from "../utils/error-handlers/Api400Error";
-import Logger from "../loaders/Logger";
-import { Api404Error } from "../utils/error-handlers/Api404Error";
+import { Api400Error, Api404Error } from "@pdchat/common";
+import { Logger } from "@pdchat/common";
 import { Participant } from "../interfaces/v1/Participant";
+import config from "../config/config.global";
 
 @Service()
 export class ConversationService {
@@ -15,15 +15,11 @@ export class ConversationService {
    * ConversationRepository, which is a class that handles the storage and retrieval of
    * conversation data. The "private readonly" keywords indicate that this parameter is a class
    * property that cannot be modified outside of the constructor.
-   * @param {Logger} logger - The `logger` parameter is an instance of the `Logger` class, which is
-   * used for logging messages and errors during the execution of the code. It is marked as
-   * `readonly`, which means that it cannot be reassigned to a different value once it is initialized
-   * in the constructor.
    */
-  constructor(
-    private readonly conversationRepository: ConversationRepository,
-    private readonly logger: Logger
-  ) {}
+  private readonly _logger: Logger;
+  constructor(private readonly conversationRepository: ConversationRepository) {
+    this._logger = Logger.getInstance(config.servicename);
+  }
 
   /**
    * Creates a new conversation with the provided participants.
@@ -65,7 +61,7 @@ export class ConversationService {
 
       return newConversation;
     } catch (error: any) {
-      this.logger.error(`Error in service while creating document: ${error}`);
+      this._logger.error(`Error in service while creating document: ${error}`);
       throw error;
     }
   }
@@ -105,7 +101,7 @@ export class ConversationService {
 
       return totalUserConversations;
     } catch (error) {
-      this.logger.error(
+      this._logger.error(
         `Error in service while creating conversation: ${error}`
       );
       throw error;
@@ -131,7 +127,7 @@ export class ConversationService {
 
       return conversation;
     } catch (error) {
-      this.logger.error(
+      this._logger.error(
         `Error in service while fetching conversation by Id: ${error}`
       );
       throw error;
@@ -159,10 +155,10 @@ export class ConversationService {
         conversation_id,
         conversation
       );
-      
+
       return updatedConversation;
     } catch (error) {
-      this.logger.error(
+      this._logger.error(
         `Error in service while updating conversation: ${error}`
       );
       throw error;
@@ -187,7 +183,7 @@ export class ConversationService {
 
       await this.conversationRepository.deleteById(conversation_id);
     } catch (error) {
-      this.logger.error(
+      this._logger.error(
         `Error in service while soft deleting conversation: ${error}`
       );
       throw error;
@@ -222,7 +218,7 @@ export class ConversationService {
 
       return conversationWithUpdatedParticipants;
     } catch (error) {
-      this.logger.error(
+      this._logger.error(
         `Error in service while adding participants to a conversation: ${error}`
       );
       throw error;
@@ -257,7 +253,7 @@ export class ConversationService {
 
       return conversationWithUpdatedParticipants;
     } catch (error) {
-      this.logger.error(
+      this._logger.error(
         `Error in service while removing participants from a conversation: ${error}`
       );
       throw error;

@@ -1,8 +1,9 @@
 import { Service } from "typedi";
 import { MessageRepository } from "../repositories/v1/Message.repository";
-import Logger from "../loaders/Logger";
+import { Logger } from "@pdchat/common";
 import { Message } from "../interfaces/v1/Message";
-import { Api404Error } from "../utils/error-handlers/Api404Error";
+import { Api404Error } from "@pdchat/common";
+import config from "../config/config.global";
 
 @Service()
 export class MessageService {
@@ -12,14 +13,11 @@ export class MessageService {
    * MessageRepository, which is a class that handles the storage and retrieval of
    * message data. The "private readonly" keywords indicate that this parameter is a class
    * property that cannot be modified outside of the constructor.
-   * @param {Logger} logger - The `logger` parameter is an instance of the `Logger` class, which is
-   * used for logging messages and errors in the code. It is marked as `readonly`, which means
-   * that it cannot be reassigned to a different value once it has been initialized in the constructor.
    */
-  constructor(
-    private readonly messageRepository: MessageRepository,
-    private readonly logger: Logger
-  ) {}
+  private readonly _logger: Logger;
+  constructor(private readonly messageRepository: MessageRepository) {
+    this._logger = Logger.getInstance(config.servicename);
+  }
 
   /**
    * Creates a new message.
@@ -33,7 +31,7 @@ export class MessageService {
       const newMessage = await this.messageRepository.create(message);
       return newMessage;
     } catch (error) {
-      this.logger.error(`Error in service while creating message: ${error}`);
+      this._logger.error(`Error in service while creating message: ${error}`);
       throw error;
     }
   }
@@ -64,7 +62,7 @@ export class MessageService {
       );
       return messages;
     } catch (error) {
-      this.logger.error(`Error in service while fetching messages: ${error}`);
+      this._logger.error(`Error in service while fetching messages: ${error}`);
       throw error;
     }
   }
@@ -85,7 +83,7 @@ export class MessageService {
       }
       return message;
     } catch (error) {
-      this.logger.error(`Error in service while fetching messages: ${error}`);
+      this._logger.error(`Error in service while fetching messages: ${error}`);
       throw error;
     }
   }
@@ -111,7 +109,7 @@ export class MessageService {
       );
       return updatedMessage;
     } catch (error) {
-      this.logger.error(`Error in service while fetching messages: ${error}`);
+      this._logger.error(`Error in service while fetching messages: ${error}`);
       throw error;
     }
   }
@@ -131,7 +129,7 @@ export class MessageService {
       }
       await this.messageRepository.deleteById(message_id);
     } catch (error) {
-      this.logger.error(`Error in service while fetching messages: ${error}`);
+      this._logger.error(`Error in service while fetching messages: ${error}`);
       throw error;
     }
   }

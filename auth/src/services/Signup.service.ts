@@ -1,16 +1,17 @@
 import { Service } from "typedi";
 import jwt from "jsonwebtoken";
 import { Api409Error } from "@pdchat/common";
-import Logger from "../loaders/Logger";
+import { Logger } from "@pdchat/common";
 import { UserRepository } from "../repositories/user.repository";
 import config from "../config/config.global";
 
 @Service()
 export class SignupService {
-  constructor(
-    private readonly userRepository: UserRepository,
-    private readonly logger: Logger
-  ) {}
+  private readonly _logger: Logger;
+
+  constructor(private readonly _userRepository: UserRepository) {
+    this._logger = Logger.getInstance(config.servicename);
+  }
 
   public async signup(
     firstName: string,
@@ -21,7 +22,7 @@ export class SignupService {
     password: string
   ) {
     try {
-      const existingUserWithEmail = await this.userRepository.findUserByEmail(
+      const existingUserWithEmail = await this._userRepository.findUserByEmail(
         email
       );
 
@@ -30,13 +31,13 @@ export class SignupService {
       }
 
       const existingUserWithMobileNumber =
-        await this.userRepository.findUserByMobileNumber(mobileNumber);
+        await this._userRepository.findUserByMobileNumber(mobileNumber);
 
       if (existingUserWithMobileNumber) {
         throw new Api409Error("Mobile number already in use.");
       }
 
-      const user = await this.userRepository.createUser({
+      const user = await this._userRepository.createUser({
         firstName,
         lastName,
         image,
@@ -57,7 +58,7 @@ export class SignupService {
 
       return { user, userJwt };
     } catch (error) {
-      this.logger.error(
+      this._logger.error(
         `Error in service while fetching conversation by Id: ${error}`
       );
       throw error;

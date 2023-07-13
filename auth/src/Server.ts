@@ -2,18 +2,18 @@ import "reflect-metadata";
 import express, { Application } from "express";
 import http from "http";
 import DatabaseManager from "./loaders/DatabaseManager";
-
-import Logger from "./loaders/Logger";
-const logger = Logger.getInstance();
+import { Logger } from "@pdchat/common";
+import config from "./config/config.global";
 
 /**
  * Represents a server that listens on a specified port and handles HTTP requests.
  */
 class Server {
-  private app: Application;
-  private port: number;
-  private dbConnection: DatabaseManager;
-  private server!: http.Server;
+  private readonly _app: Application;
+  private readonly _port: number;
+  private readonly _dbConnection: DatabaseManager;
+  private _server!: http.Server;
+  private readonly _logger: Logger;
 
   /**
    * Creates a new Server instance.
@@ -21,10 +21,11 @@ class Server {
    * @param dbConnection - The database connection object.
    */
   constructor(port: number, dbConnection: any) {
-    this.app = express();
-    this.port = port;
-    this.dbConnection = dbConnection;
-    this.configureMiddlewaresAndRoutes(this.app);
+    this._app = express();
+    this._port = port;
+    this._dbConnection = dbConnection;
+    this._logger = Logger.getInstance(config.servicename);
+    this.configureMiddlewaresAndRoutes(this._app);
   }
 
   /**
@@ -42,22 +43,22 @@ class Server {
    */
   public up(): void {
     try {
-      this.server = this.app
-        .listen(this.port, async () => {
-          logger.info(`
+      this._server = this._app
+        .listen(this._port, async () => {
+          this._logger.info(`
         ################################################
-        🛡️  Server listening on port: ${this.port} 🛡️
+        🛡️  Server listening on port: ${this._port} 🛡️
         ################################################
       `);
           // Connect to the database
-          await this.dbConnection.connect();
+          await this._dbConnection.connect();
         })
         .on("error", (err) => {
-          logger.error(`${err}`);
+          this._logger.error(`${err}`);
           process.exit(1);
         });
     } catch (error: any) {
-      logger.error(error);
+      this._logger.error(error);
       throw new Error(error);
     }
   }
@@ -67,10 +68,10 @@ class Server {
    * Logs a message indicating that all services are shutdown.
    */
   public async shutdown(): Promise<void> {
-    if (this.server && this.dbConnection) {
-      await Promise.all([this.server.close(), this.dbConnection.disconnect()]);
+    if (this._server && this._dbConnection) {
+      await Promise.all([this._server.close(), this._dbConnection.disconnect()]);
 
-      logger.info(`
+      this._logger.info(`
         ################################################
         🛡️  All services are shutdown!! 🛡️
         ################################################

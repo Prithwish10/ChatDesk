@@ -13,6 +13,7 @@ if(!process.env) {
 }
 
 export default {
+  servicename: 'auth',
   port: process.env.PORT || 3000,
 
   /**
@@ -20,8 +21,8 @@ export default {
    */
   connections: {
     mongodb: {
-      databaseURL: process.env.MONGO_URL || "mongodb://auth-mongo-srv:27017",
-      databaseName: process.env.DB_NAME || "auth",
+      databaseURL: process.env.MONGO_URL,
+      databaseName: process.env.DB_NAME,
     },
   },
 

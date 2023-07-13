@@ -2,16 +2,17 @@ import { Service } from "typedi";
 import { Request, Response, NextFunction } from "express";
 import { ConversationService } from "../../services/Conversation.service";
 import { createConversationSchema } from "../../utils/validation/conversation.validation.schema";
-import Logger from "../../loaders/Logger";
+import { Logger } from "@pdchat/common";
 import { Conversation } from "../../interfaces/v1/Conversation";
 import { Participant } from "../../interfaces/v1/Participant";
+import config from "../../config/config.global";
 
 @Service()
 export class ConversationController {
-  constructor(
-    private readonly conversationService: ConversationService,
-    private readonly logger: Logger
-  ) {}
+  private readonly _logger: Logger;
+  constructor(private readonly conversationService: ConversationService) {
+    this._logger = Logger.getInstance(config.servicename);
+  }
 
   public async create(req: Request, res: Response, next: NextFunction) {
     try {
@@ -24,7 +25,7 @@ export class ConversationController {
         conversation: newConversation,
       });
     } catch (error) {
-      this.logger.error(
+      this._logger.error(
         `Error in controller while creating conversation: ${error} `
       );
       next(error);
@@ -63,14 +64,12 @@ export class ConversationController {
         ...userConversation,
       });
     } catch (error) {
-      this.logger.error(
+      this._logger.error(
         `Error in controller while fetching user conversations: ${error} `
       );
       next(error);
     }
   }
-
-  public async get(req: Request, res: Response, next: NextFunction) {}
 
   public async getById(req: Request, res: Response, next: NextFunction) {
     try {
@@ -84,7 +83,7 @@ export class ConversationController {
         conversation,
       });
     } catch (error) {
-      this.logger.error(
+      this._logger.error(
         `Error in controller while fetching conversation by Id: ${error} `
       );
       next(error);
@@ -104,7 +103,7 @@ export class ConversationController {
         conversation: updatedConversation,
       });
     } catch (error) {
-      this.logger.error(
+      this._logger.error(
         `Error in controller while updating conversation: ${error} `
       );
       next(error);
@@ -120,7 +119,7 @@ export class ConversationController {
         statusCode: 204,
       });
     } catch (error) {
-      this.logger.error(
+      this._logger.error(
         `Error in controller while deleting conversation: ${error} `
       );
       next(error);
@@ -145,7 +144,7 @@ export class ConversationController {
         conversation: conversationWithUpdatedParticipants,
       });
     } catch (error) {
-      this.logger.error(
+      this._logger.error(
         `Error in controller while add participants to conversation: ${error} `
       );
       next(error);
@@ -170,7 +169,7 @@ export class ConversationController {
         conversation: conversationWithUpdatedParticipants,
       });
     } catch (error) {
-      this.logger.error(
+      this._logger.error(
         `Error in controller while add participants to conversation: ${error} `
       );
       next(error);

@@ -25,10 +25,6 @@ export default (app: Router) => {
     await conversationController.create(req, res, next);
   });
 
-  route.get("/", async (req: Request, res: Response, next: NextFunction) => {
-    await conversationController.get(req, res, next);
-  });
-
   route.get("/:id", async (req: Request, res: Response, next: NextFunction) => {
     await conversationController.getById(req, res, next);
   });

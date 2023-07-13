@@ -1,15 +1,17 @@
 import { Service } from "typedi";
 import { Request, Response, NextFunction } from "express";
-import Logger from "../loaders/Logger";
+import { Logger } from "@pdchat/common";
 import { signinSchema } from "../utils/validations/signin.validation.schema";
 import { SigninService } from "../services/Signin.service";
+import config from "../config/config.global";
 
 @Service()
 export class SignInController {
-  constructor(
-    private readonly signinService: SigninService,
-    private readonly logger: Logger
-  ) {}
+  private readonly _logger: Logger;
+
+  constructor(private readonly _signinService: SigninService) {
+    this._logger = Logger.getInstance(config.servicename);
+  }
 
   /**
    * Handles user sign-in process.
@@ -28,7 +30,7 @@ export class SignInController {
     try {
       await signinSchema.validateAsync(req.body);
       const { email, password } = req.body;
-      const { user, userJwt } = await this.signinService.signin(
+      const { user, userJwt } = await this._signinService.signin(
         email,
         password
       );
@@ -43,7 +45,7 @@ export class SignInController {
         user,
       });
     } catch (error) {
-      this.logger.error(`Error in signup controller: ${error} `);
+      this._logger.error(`Error in signup controller: ${error} `);
       next(error);
     }
   }

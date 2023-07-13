@@ -1,20 +1,23 @@
 import { Service } from "typedi";
 import { Request, Response, NextFunction } from "express";
-import Logger from "../loaders/Logger";
+import { Logger } from "@pdchat/common";
+import config from "../config/config.global";
 
 @Service()
 export class SignoutController {
-  constructor(
-    private readonly logger: Logger
-  ) {}
+  private readonly _logger: Logger;
+
+  constructor() {
+    this._logger = Logger.getInstance(config.servicename);
+  }
 
   public signout(req: Request, res: Response, next: NextFunction) {
     try {
       req.session = null;
-      
+
       return res.send({});
     } catch (error) {
-      this.logger.error(`Error in signup controller: ${error} `);
+      this._logger.error(`Error in signup controller: ${error} `);
       next(error);
     }
   }
