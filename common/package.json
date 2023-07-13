@@ -1,6 +1,6 @@
 {
   "name": "@pdchat/common",
-  "version": "1.0.4",
+  "version": "1.0.9",
   "description": "",
   "main": "./build/index.js",
   "types": "./build/index.d.ts",
@@ -9,7 +9,8 @@
   ],
   "scripts": {
     "clean": "del ./build/*",
-    "build": "tsc -p ."
+    "build": "tsc -p .",
+    "pub": "git add . && git commit -m \"Updated common library\" && npm version patch && npm run build && npm publish"
   },
   "keywords": [],
   "author": "",

@@ -1,25 +1,25 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: auth-depl
+  name: chat-depl
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: auth
+      app: chat
   template:
     metadata:
       labels:
-        app: auth
+        app: chat
     spec:
       containers:
-        - name: auth
-          image: prithwishdas60/auth
+        - name: chat
+          image: prithwishdas60/chat
           env:
             - name: MONGO_URL
-              value: 'mongodb://auth-mongo-srv:27017'
+              value: 'mongodb://chat-mongo-srv:27017'
             - name: DB_NAME
-              value: 'auth'
+              value: 'chat'
             - name: JWT_KEY
               valueFrom:
                 secretKeyRef:
@@ -29,12 +29,12 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: auth-srv
+  name: chat-srv
 spec:
   selector:
-    app: auth
+    app: chat
   ports:
-    - name: auth
+    - name: chat
       protocol: TCP
       port: 3000
       targetPort: 3000

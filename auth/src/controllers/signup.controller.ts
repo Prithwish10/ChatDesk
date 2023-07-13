@@ -1,15 +1,17 @@
 import { Service } from "typedi";
 import { Request, Response, NextFunction } from "express";
-import Logger from "../loaders/Logger";
+import { Logger } from "@pdchat/common";
 import { signupSchema } from "../utils/validations/signup.validation.schema";
 import { SignupService } from "../services/Signup.service";
+import config from "../config/config.global";
 
 @Service()
 export class SignUpController {
-  constructor(
-    private readonly signupService: SignupService,
-    private readonly logger: Logger
-  ) {}
+  private readonly _logger: Logger;
+
+  constructor(private readonly _signupService: SignupService) {
+    this._logger = Logger.getInstance(config.servicename);
+  }
 
   public async signup(req: Request, res: Response, next: NextFunction) {
     try {
@@ -17,7 +19,7 @@ export class SignUpController {
       const { firstName, lastName, image, mobileNumber, email, password } =
         req.body;
 
-      const {user, userJwt} = await this.signupService.signup(
+      const { user, userJwt } = await this._signupService.signup(
         firstName,
         lastName,
         image,
@@ -27,8 +29,8 @@ export class SignUpController {
       );
 
       req.session = {
-        jwt: userJwt
-      }
+        jwt: userJwt,
+      };
 
       return res.status(201).json({
         success: true,
@@ -36,7 +38,7 @@ export class SignUpController {
         user,
       });
     } catch (error) {
-      this.logger.error(`Error in signup controller: ${error} `);
+      this._logger.error(`Error in signup controller: ${error} `);
       next(error);
     }
   }

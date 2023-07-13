@@ -1,11 +1,8 @@
-FROM node
+FROM node:alpine
 
-WORKDIR /chat
-
-COPY . /chat
-
+WORKDIR /app
+COPY package.json .
 RUN npm install
+COPY . .
 
-EXPOSE 8000
-
-CMD [ "npm", "run", "dev" ]
+CMD ["npm", "run", "dev"]

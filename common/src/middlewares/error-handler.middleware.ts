@@ -1,8 +1,9 @@
 import { Request, Response, NextFunction } from "express";
 import { BaseError } from "../errors/BaseError";
-import Logger from "../utils/Logger";
+import { Logger } from "../utils/Logger";
+import config from "../config/config.global";
 
-const logger = Logger.getInstance();
+const logger = Logger.getInstance(config.servicename);
 
 /**
  * Middleware to handle a 422 Unprocessable Entity error (validation error).

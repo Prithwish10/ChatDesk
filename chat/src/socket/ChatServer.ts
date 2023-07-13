@@ -1,16 +1,17 @@
 import { Server as SocketServer, Socket } from "socket.io";
-import Logger from "../loaders/Logger";
+import { Logger } from "@pdchat/common";
 import { Inject } from "typedi";
 import { ConversationRepository } from "../repositories/v1/Conversation.repository";
+import config from "../config/config.global";
 
 class ChatServer {
   private io: SocketServer;
-  @Inject()
-  private logger: Logger;
+  private readonly _logger: Logger;
   @Inject()
   private conversationRepository: ConversationRepository;
 
   constructor(server: any, pingTimeout: number, corsOrigin: string) {
+    this._logger = Logger.getInstance(config.servicename);
     this.io = new SocketServer(server, {
       pingTimeout,
       cors: {
@@ -21,13 +22,13 @@ class ChatServer {
 
   public configureSocketEvents(): void {
     this.io.on("connection", (socket: Socket) => {
-      this.logger.info(`User connected: ${socket.id}`);
+      this._logger.info(`User connected: ${socket.id}`);
 
       socket.on("add-user", (userId: string, username: string) => {});
 
       socket.on("join-conversation", (conversation_id: string, callback) => {
         socket.join(conversation_id);
-        this.logger.info(`User joined conversation: ${conversation_id}`);
+        this._logger.info(`User joined conversation: ${conversation_id}`);
         callback("Joined");
       });
 

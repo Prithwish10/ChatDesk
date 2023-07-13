@@ -1,16 +1,20 @@
-import { Inject, Service } from "typedi";
+import { Service } from "typedi";
 import { SortOrder } from "mongoose";
 import { Conversation } from "../../interfaces/v1/Conversation";
 import ConversationModel from "../../models/v1/Conversation.model";
 import { Participant } from "../../interfaces/v1/Participant";
-import Logger from "../../loaders/Logger";
+import { Logger } from "@pdchat/common";
 import MessageModel from "../../models/v1/Message.model";
 import UserModel from "../../models/v1/User.model";
-import { Api404Error } from "../../utils/error-handlers/Api404Error";
+import { Api404Error } from "@pdchat/common";
+import config from "../../config/config.global";
 
 @Service()
 export class ConversationRepository {
-  constructor(private readonly logger: Logger) {}
+  private readonly _logger: Logger;
+  constructor() {
+    this._logger = Logger.getInstance(config.servicename)
+  }
 
   /**
    * Creates a new conversation.
@@ -24,7 +28,7 @@ export class ConversationRepository {
       const newConversation = await ConversationModel.create(conversation);
       return newConversation;
     } catch (error: any) {
-      this.logger.error(`Error occured while creating conversation: ${error}`);
+      this._logger.error(`Error occured while creating conversation: ${error}`);
       throw error;
     }
   }
@@ -44,7 +48,7 @@ export class ConversationRepository {
 
       return conversation;
     } catch (error) {
-      this.logger.error(`Error occured while getting message by Id: ${error}`);
+      this._logger.error(`Error occured while getting message by Id: ${error}`);
       throw error;
     }
   }
@@ -66,7 +70,7 @@ export class ConversationRepository {
       );
       return updatedMessage;
     } catch (error) {
-      this.logger.error(`Error occured while updating message by Id: ${error}`);
+      this._logger.error(`Error occured while updating message by Id: ${error}`);
       throw error;
     }
   }
@@ -87,7 +91,7 @@ export class ConversationRepository {
       );
       return updatedMessage;
     } catch (error) {
-      this.logger.error(`Error occured while updating message by Id: ${error}`);
+      this._logger.error(`Error occured while updating message by Id: ${error}`);
       throw error;
     }
   }
@@ -124,7 +128,7 @@ export class ConversationRepository {
 
       return existingConversation;
     } catch (error: any) {
-      this.logger.error(
+      this._logger.error(
         `Error occured while checking whether conversation with same participants exists: ${error}`
       );
       throw error;
@@ -213,7 +217,7 @@ export class ConversationRepository {
         conversations: conversationsWithReadMessageCount,
       };
     } catch (error) {
-      this.logger.error(
+      this._logger.error(
         `Error occured while in repository while fetching user conversations: ${error}`
       );
       throw error;
@@ -236,7 +240,7 @@ export class ConversationRepository {
       participant.last_checked_conversation_at = new Date();
       await conversation?.save();
     } catch (error) {
-      this.logger.error(
+      this._logger.error(
         `Error occured while in repository while fetching user conversations: ${error}`
       );
       throw error;
@@ -277,7 +281,7 @@ export class ConversationRepository {
 
       return updatedConversation;
     } catch (error) {
-      this.logger.error(
+      this._logger.error(
         `Error occured while in repository while adding participants conversations: ${error}`
       );
       throw error;
@@ -310,7 +314,7 @@ export class ConversationRepository {
 
       return updatedConversation;
     } catch (error) {
-      this.logger.error(
+      this._logger.error(
         `Error occured while in repository while removing participants conversations: ${error}`
       );
       throw error;
@@ -329,7 +333,7 @@ export class ConversationRepository {
       const totalDocuments = await ConversationModel.countDocuments(query);
       return totalDocuments;
     } catch (error) {
-      this.logger.error(`Error occured while counting documents: ${error}`);
+      this._logger.error(`Error occured while counting documents: ${error}`);
       throw error;
     }
   }

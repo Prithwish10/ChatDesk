@@ -4,20 +4,23 @@ import mongoose, {
   Document,
   ConnectOptions,
 } from "mongoose";
-import Logger from "./Logger";
+import { Logger } from "@pdchat/common";
 import bindModels from "./modelBinder";
-const logger = Logger.getInstance();
+import config from "../config/config.global";
 
 class DatabaseManager {
   private static instance: DatabaseManager;
   private connection!: Connection;
+  private readonly _logger: Logger;
 
   /**
    * Private constructor to enforce singleton pattern.
    * @param url - The MongoDB connection URL.
    * @param dbName - The name of the database.
    */
-  private constructor(private url: string, private dbName: string) {}
+  private constructor(private url: string, private dbName: string) {
+    this._logger = Logger.getInstance(config.servicename);
+  }
 
   /**
    * Connect to the MongoDB database.
@@ -33,16 +36,18 @@ class DatabaseManager {
       } as ConnectOptions);
 
       this.connection = mongoose.connection;
-      logger.info(`
+      this._logger.info(`
       ################################################
       🛡️  Db connected successfully !! 🛡️
       ################################################
     `);
       // Bind the models
       const entities = await bindModels();
-      logger.info(`Discovered the following schema entities: ${entities}`);
+      this._logger.info(
+        `Discovered the following schema entities: ${entities}`
+      );
     } catch (error) {
-      logger.error(`Error connecting to the database:, ${error}`);
+      this._logger.error(`Error connecting to the database:, ${error}`);
       throw error;
     }
   }
@@ -51,9 +56,9 @@ class DatabaseManager {
    * Disconnect from the MongoDB database.
    */
   disconnect(): void {
-    if(this.connection) {
+    if (this.connection) {
       this.connection.close();
-      logger.info(`
+      this._logger.info(`
       ################################################
       🛡️  Db disconnected successfully !! 🛡️
       ################################################
@@ -68,7 +73,7 @@ class DatabaseManager {
    */
   getModel<T extends Document>(modelName: string): Model<T> {
     if (!this.connection) {
-      throw new Error('Database connection has not been established.');
+      throw new Error("Database connection has not been established.");
     }
     return this.connection.model<T>(modelName);
   }

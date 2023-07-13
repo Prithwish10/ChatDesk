@@ -1,16 +1,17 @@
 import { Service } from "typedi";
 import { Request, Response, NextFunction } from "express";
 import { MessageService } from "../../services/Message.service";
-import Logger from "../../loaders/Logger";
+import { Logger } from "@pdchat/common";
 import { createMessageSchema } from "../../utils/validation/message.validation.schema";
 import { Message } from "../../interfaces/v1/Message";
+import config from "../../config/config.global";
 
 @Service()
 export class MessageController {
-  constructor(
-    private readonly messageService: MessageService,
-    private readonly logger: Logger
-  ) {}
+  private readonly _logger: Logger;
+  constructor(private readonly messageService: MessageService) {
+    this._logger = Logger.getInstance(config.servicename);
+  }
 
   public async create(req: Request, res: Response, next: NextFunction) {
     try {
@@ -23,7 +24,7 @@ export class MessageController {
         message: newMessage,
       });
     } catch (error) {
-      this.logger.error(
+      this._logger.error(
         `Error in controller while creating message: ${error} `
       );
       next(error);
@@ -55,7 +56,7 @@ export class MessageController {
         ...messages,
       });
     } catch (error) {
-      this.logger.error(
+      this._logger.error(
         `Error in controller while creating message: ${error} `
       );
       next(error);
@@ -74,7 +75,7 @@ export class MessageController {
         message,
       });
     } catch (error) {
-      this.logger.error(
+      this._logger.error(
         `Error in controller while creating message: ${error} `
       );
       next(error);
@@ -94,7 +95,7 @@ export class MessageController {
         message: updatedMessage,
       });
     } catch (error) {
-      this.logger.error(
+      this._logger.error(
         `Error in controller while creating message: ${error} `
       );
       next(error);
@@ -110,7 +111,7 @@ export class MessageController {
         statusCode: 204,
       });
     } catch (error) {
-      this.logger.error(
+      this._logger.error(
         `Error in controller while creating message: ${error} `
       );
       next(error);
