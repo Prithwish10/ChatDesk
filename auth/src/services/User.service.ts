@@ -34,4 +34,41 @@ export class UserService {
       throw error;
     }
   }
+
+  public async search(
+    keyword: string,
+    userId: string,
+    currentPage: number,
+    pageSize: number,
+    order: string,
+    sort: string
+  ) {
+    try {
+      let response: any = {};
+      if (!keyword) {
+        response = await this._userRepository.getUserSearchHistory(
+          userId,
+          currentPage,
+          pageSize,
+          order,
+          sort
+        );
+      } else {
+        response = await this._userRepository.search(
+          keyword,
+          currentPage,
+          pageSize,
+          order,
+          sort
+        );        
+      }
+
+      return response;
+    } catch (error) {
+      this._logger.error(
+        `Error in service while fetching conversation by Id: ${error}`
+      );
+      throw error;
+    }
+  }
 }
