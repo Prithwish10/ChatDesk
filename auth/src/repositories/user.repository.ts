@@ -1,25 +1,20 @@
 import { Service } from "typedi";
-import { Logger } from "@pdchat/common";
+import { logger } from "../loaders/logger";
 import UserModel from "../models/User.model";
 import { User } from "../interfaces/User";
-import config from "../config/config.global";
 import SearchHistoryModel from "../models/Search-history.model";
 import { SortOrder } from "mongoose";
 
 @Service()
 export class UserRepository {
-  private readonly _logger: Logger;
-
-  constructor() {
-    this._logger = Logger.getInstance(config.servicename);
-  }
+  constructor() {}
 
   public async findUserByEmail(email: string) {
     try {
       const user = await UserModel.findOne({ email });
       return user;
     } catch (error) {
-      this._logger.error(
+      logger.error(
         `Error occured while fetching user by email: ${error}`
       );
       throw error;
@@ -31,7 +26,7 @@ export class UserRepository {
       const user = await UserModel.findOne({ mobileNumber });
       return user;
     } catch (error) {
-      this._logger.error(
+      logger.error(
         `Error occured while fetching user by mobile number: ${error}`
       );
       throw error;
@@ -43,7 +38,7 @@ export class UserRepository {
       const newUser = await UserModel.create(user);
       return newUser;
     } catch (error) {
-      this._logger.error(`Error occured while creating user: ${error}`);
+      logger.error(`Error occured while creating user: ${error}`);
       throw error;
     }
   }
@@ -72,7 +67,7 @@ export class UserRepository {
 
       return users;
     } catch (error) {
-      this._logger.error(`Error occured while searching user: ${error}`);
+      logger.error(`Error occured while searching user: ${error}`);
       throw error;
     }
   }
@@ -97,7 +92,7 @@ export class UserRepository {
 
       return userSearchHistory;
     } catch (error) {
-      this._logger.error(
+      logger.error(
         `Error occured while fetching user search history: ${error}`
       );
       throw error;
@@ -113,7 +108,7 @@ export class UserRepository {
 
       return searchHistory;
     } catch (error) {
-      this._logger.error(
+      logger.error(
         `Error occured while fetching user search history: ${error}`
       );
       throw error;

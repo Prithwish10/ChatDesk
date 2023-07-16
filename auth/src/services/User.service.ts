@@ -1,17 +1,13 @@
 import { Service } from "typedi";
 import jwt from "jsonwebtoken";
-import { Logger } from "@pdchat/common";
+import { logger } from "../loaders/logger";
 import { UserRepository } from "../repositories/user.repository";
 import config from "../config/config.global";
 import { UserPayload } from "../interfaces/UserPayload";
 
 @Service()
 export class UserService {
-  private readonly _logger: Logger;
-
-  constructor(private readonly _userRepository: UserRepository) {
-    this._logger = Logger.getInstance(config.servicename);
-  }
+  constructor(private readonly _userRepository: UserRepository) {}
 
   public async currentUser(jwtToken: string) {
     try {
@@ -28,7 +24,7 @@ export class UserService {
 
       return payload;
     } catch (error) {
-      this._logger.error(
+      logger.error(
         `Error in service while fetching conversation by Id: ${error}`
       );
       throw error;
@@ -60,12 +56,12 @@ export class UserService {
           pageSize,
           order,
           sort
-        );        
+        );
       }
 
       return response;
     } catch (error) {
-      this._logger.error(
+      logger.error(
         `Error in service while fetching conversation by Id: ${error}`
       );
       throw error;

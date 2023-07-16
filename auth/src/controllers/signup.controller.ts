@@ -1,17 +1,12 @@
 import { Service } from "typedi";
 import { Request, Response, NextFunction } from "express";
-import { Logger } from "@pdchat/common";
+import { logger } from "../loaders/logger";
 import { signupSchema } from "../utils/validations/signup.validation.schema";
 import { SignupService } from "../services/Signup.service";
-import config from "../config/config.global";
 
 @Service()
 export class SignUpController {
-  private readonly _logger: Logger;
-
-  constructor(private readonly _signupService: SignupService) {
-    this._logger = Logger.getInstance(config.servicename);
-  }
+  constructor(private readonly _signupService: SignupService) {}
 
   public async signup(req: Request, res: Response, next: NextFunction) {
     try {
@@ -38,7 +33,7 @@ export class SignUpController {
         user,
       });
     } catch (error) {
-      this._logger.error(`Error in signup controller: ${error} `);
+      logger.error(`Error in signup controller: ${error} `);
       next(error);
     }
   }

@@ -3,7 +3,7 @@ import { Listener } from './base-listener';
 import { UserCreatedEvent } from './user-created-event';
 import { Subjects } from './subjects';
 
-export class TicketCreatedListener extends Listener<UserCreatedEvent> {
+export class UserCreatedListener extends Listener<UserCreatedEvent> {
   subject: Subjects.UserCreated = Subjects.UserCreated;
   queueGroupName = 'payments-service';
 
