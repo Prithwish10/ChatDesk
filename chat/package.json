@@ -13,7 +13,7 @@
   "license": "ISC",
   "dependencies": {
     "@hapi/joi": "^17.1.1",
-    "@pdchat/common": "^1.0.10",
+    "@pdchat/common": "^1.0.11",
     "@types/cookie-session": "^2.0.44",
     "@types/jsonwebtoken": "^9.0.2",
     "cookie-session": "^2.0.0",
