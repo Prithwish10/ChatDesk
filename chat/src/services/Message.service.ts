@@ -1,23 +1,20 @@
 import { Service } from "typedi";
 import { MessageRepository } from "../repositories/v1/Message.repository";
-import { Logger } from "@pdchat/common";
+import { logger } from "../loaders/logger";
 import { Message } from "../interfaces/v1/Message";
 import { Api404Error } from "@pdchat/common";
-import config from "../config/config.global";
 
 @Service()
 export class MessageService {
   /**
    * This is a constructor function that takes in a message repository and a logger as parameters.
-   * @param {MessageRepository} messageRepository - It is a dependency injection of a
+   * @param {MessageRepository} _messageRepository - It is a dependency injection of a
    * MessageRepository, which is a class that handles the storage and retrieval of
    * message data. The "private readonly" keywords indicate that this parameter is a class
    * property that cannot be modified outside of the constructor.
    */
-  private readonly _logger: Logger;
-  constructor(private readonly messageRepository: MessageRepository) {
-    this._logger = Logger.getInstance(config.servicename);
-  }
+
+  constructor(private readonly _messageRepository: MessageRepository) {}
 
   /**
    * Creates a new message.
@@ -28,10 +25,10 @@ export class MessageService {
    */
   public async create(message: Message) {
     try {
-      const newMessage = await this.messageRepository.create(message);
+      const newMessage = await this._messageRepository.create(message);
       return newMessage;
     } catch (error) {
-      this._logger.error(`Error in service while creating message: ${error}`);
+      logger.error(`Error in service while creating message: ${error}`);
       throw error;
     }
   }
@@ -52,7 +49,7 @@ export class MessageService {
     deleted: number
   ) {
     try {
-      const messages = await this.messageRepository.getMessagesForAConversation(
+      const messages = await this._messageRepository.getMessagesForAConversation(
         conversation_id,
         sort,
         order,
@@ -62,7 +59,7 @@ export class MessageService {
       );
       return messages;
     } catch (error) {
-      this._logger.error(`Error in service while fetching messages: ${error}`);
+      logger.error(`Error in service while fetching messages: ${error}`);
       throw error;
     }
   }
@@ -77,13 +74,13 @@ export class MessageService {
    */
   public async getById(message_id: string) {
     try {
-      const message = await this.messageRepository.getById(message_id);
+      const message = await this._messageRepository.getById(message_id);
       if (!message || message.length === 0) {
         throw new Api404Error("Message no longer exist!");
       }
       return message;
     } catch (error) {
-      this._logger.error(`Error in service while fetching messages: ${error}`);
+      logger.error(`Error in service while fetching messages: ${error}`);
       throw error;
     }
   }
@@ -99,17 +96,17 @@ export class MessageService {
    */
   public async updateById(message_id: string, message: Message) {
     try {
-      const isMessagePresent = await this.messageRepository.getById(message_id);
+      const isMessagePresent = await this._messageRepository.getById(message_id);
       if (!isMessagePresent || isMessagePresent.length === 0) {
         throw new Api404Error("Message no longer exist!");
       }
-      const updatedMessage = await this.messageRepository.updateById(
+      const updatedMessage = await this._messageRepository.updateById(
         message_id,
         message
       );
       return updatedMessage;
     } catch (error) {
-      this._logger.error(`Error in service while fetching messages: ${error}`);
+      logger.error(`Error in service while fetching messages: ${error}`);
       throw error;
     }
   }
@@ -123,13 +120,13 @@ export class MessageService {
    */
   public async deleteById(message_id: string) {
     try {
-      const isMessagePresent = await this.messageRepository.getById(message_id);
+      const isMessagePresent = await this._messageRepository.getById(message_id);
       if (!isMessagePresent) {
         throw new Api404Error("Message no longer exist!");
       }
-      await this.messageRepository.deleteById(message_id);
+      await this._messageRepository.deleteById(message_id);
     } catch (error) {
-      this._logger.error(`Error in service while fetching messages: ${error}`);
+      logger.error(`Error in service while fetching messages: ${error}`);
       throw error;
     }
   }

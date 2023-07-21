@@ -1,18 +1,14 @@
 import { Service } from "typedi";
 import jwt from "jsonwebtoken";
 import { Api400Error } from "@pdchat/common";
-import { Logger } from "@pdchat/common";
+import { logger } from "../loaders/logger";
 import { UserRepository } from "../repositories/user.repository";
 import config from "../config/config.global";
 import { PasswordManager } from "./PasswordManager.service";
 
 @Service()
 export class SigninService {
-  private readonly _logger: Logger;
-
-  constructor(private readonly _userRepository: UserRepository) {
-    this._logger = Logger.getInstance(config.servicename);
-  }
+  constructor(private readonly _userRepository: UserRepository) {}
 
   public async signin(email: string, password: string) {
     try {
@@ -43,7 +39,7 @@ export class SigninService {
 
       return { user: existingUser, userJwt };
     } catch (error) {
-      this._logger.error(
+      logger.error(
         `Error in service while fetching conversation by Id: ${error}`
       );
       throw error;

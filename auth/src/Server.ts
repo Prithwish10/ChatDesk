@@ -2,8 +2,9 @@ import "reflect-metadata";
 import express, { Application } from "express";
 import http from "http";
 import DatabaseManager from "./loaders/DatabaseManager";
-import { Logger } from "@pdchat/common";
+import { logger } from "./loaders/logger";
 import config from "./config/config.global";
+import { natsWrapper } from "./loaders/NatsWrapper";
 
 /**
  * Represents a server that listens on a specified port and handles HTTP requests.
@@ -13,7 +14,6 @@ class Server {
   private readonly _port: number;
   private readonly _dbConnection: DatabaseManager;
   private _server!: http.Server;
-  private readonly _logger: Logger;
 
   /**
    * Creates a new Server instance.
@@ -24,7 +24,6 @@ class Server {
     this._app = express();
     this._port = port;
     this._dbConnection = dbConnection;
-    this._logger = Logger.getInstance(config.servicename);
     this.configureMiddlewaresAndRoutes(this._app);
   }
 
@@ -41,11 +40,24 @@ class Server {
    * Logs a message indicating that the server is running.
    * Throws an error if an error occurs during server startup.
    */
-  public up(): void {
+  public async up(): Promise<void> {
     try {
+      await natsWrapper.connect(
+        config.connections.nats.natsClusterId!,
+        config.connections.nats.natsClientId!,
+        config.connections.nats.natsURL!
+      );
+
+      natsWrapper.client.on("close", () => {
+        logger.info("NATS connection closed!");
+        process.exit();
+      });
+      // process.on("SIGINT", () => natsWrapper.client.close());
+      // process.on("SIGTERM", () => natsWrapper.client.close());
+
       this._server = this._app
         .listen(this._port, async () => {
-          this._logger.info(`
+          logger.info(`
         ################################################
         🛡️  Server listening on port: ${this._port} 🛡️
         ################################################
@@ -54,11 +66,11 @@ class Server {
           await this._dbConnection.connect();
         })
         .on("error", (err) => {
-          this._logger.error(`${err}`);
+          logger.error(`${err}`);
           process.exit(1);
         });
     } catch (error: any) {
-      this._logger.error(error);
+      logger.error(error);
       throw new Error(error);
     }
   }
@@ -69,9 +81,12 @@ class Server {
    */
   public async shutdown(): Promise<void> {
     if (this._server && this._dbConnection) {
-      await Promise.all([this._server.close(), this._dbConnection.disconnect()]);
+      await Promise.all([
+        this._server.close(),
+        this._dbConnection.disconnect(),
+      ]);
 
-      this._logger.info(`
+      logger.info(`
         ################################################
         🛡️  All services are shutdown!! 🛡️
         ################################################

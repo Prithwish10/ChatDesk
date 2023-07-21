@@ -1,32 +1,29 @@
 import { Service } from "typedi";
 import { ConversationRepository } from "../repositories/v1/Conversation.repository";
 import { Conversation } from "../interfaces/v1/Conversation";
-import { Api400Error, Api404Error } from "@pdchat/common";
-import { Logger } from "@pdchat/common";
+import { Api400Error, Api401Error, Api404Error } from "@pdchat/common";
+import { logger } from "../loaders/logger";
 import { Participant } from "../interfaces/v1/Participant";
-import config from "../config/config.global";
 
 @Service()
 export class ConversationService {
   /**
    * This is a constructor function that takes in a ConversationRepository and a Logger as parameters
    * and assigns them to private readonly properties.
-   * @param {ConversationRepository} conversationRepository - It is a dependency injection of a
+   * @param {ConversationRepository} _conversationRepository - It is a dependency injection of a
    * ConversationRepository, which is a class that handles the storage and retrieval of
    * conversation data. The "private readonly" keywords indicate that this parameter is a class
    * property that cannot be modified outside of the constructor.
    */
-  private readonly _logger: Logger;
-  constructor(private readonly conversationRepository: ConversationRepository) {
-    this._logger = Logger.getInstance(config.servicename);
-  }
+  constructor(
+    private readonly _conversationRepository: ConversationRepository
+  ) {}
 
   /**
    * Creates a new conversation with the provided participants.
    *
    * @param conversation - The conversation object containing participants.
-   * @returns The newly created conversation.
-   * @throws Api400Error if a conversation with the same participants already exists.
+   * @returns The newly created/previous conversation.
    * @throws Error if an error occurs while creating the conversation.
    */
   public async create(conversation: Conversation) {
@@ -47,26 +44,25 @@ export class ConversationService {
 
       // Check if a conversation with the same participants already exists
       const existingConversation =
-        await this.conversationRepository.isConversationWithSameParticipantsExists(
+        await this._conversationRepository.isConversationWithSameParticipantsExists(
           participants,
           isGroup
         );
       if (existingConversation) {
-        throw new Api400Error("Conversation already exist");
+        // throw new Api400Error("Conversation already exist");
+        return { conversation: existingConversation, isNew: false };
       }
 
-      const newConversation = await this.conversationRepository.create(
+      const newConversation = await this._conversationRepository.create(
         conversation
       );
 
-      return newConversation;
+      return { conversation: newConversation, isNew: true };
     } catch (error: any) {
-      this._logger.error(`Error in service while creating document: ${error}`);
+      logger.error(`Error in service while creating document: ${error}`);
       throw error;
     }
   }
-
-  public async get() {}
 
   /**
    * Retrieves user conversations based on the provided parameters.
@@ -90,7 +86,7 @@ export class ConversationService {
   ) {
     try {
       const totalUserConversations =
-        await this.conversationRepository.getUserConversations(
+        await this._conversationRepository.getUserConversations(
           user_id,
           sort,
           order,
@@ -101,7 +97,7 @@ export class ConversationService {
 
       return totalUserConversations;
     } catch (error) {
-      this._logger.error(
+      logger.error(
         `Error in service while creating conversation: ${error}`
       );
       throw error;
@@ -118,7 +114,7 @@ export class ConversationService {
    */
   public async getById(conversation_id: string) {
     try {
-      const conversation = await this.conversationRepository.getById(
+      const conversation = await this._conversationRepository.getById(
         conversation_id
       );
       if (!conversation || conversation.deleted === 1) {
@@ -127,7 +123,7 @@ export class ConversationService {
 
       return conversation;
     } catch (error) {
-      this._logger.error(
+      logger.error(
         `Error in service while fetching conversation by Id: ${error}`
       );
       throw error;
@@ -145,20 +141,20 @@ export class ConversationService {
    */
   public async updateById(conversation_id: string, conversation: Conversation) {
     try {
-      const isConversationPresent = await this.conversationRepository.getById(
+      const isConversationPresent = await this._conversationRepository.getById(
         conversation_id
       );
       if (!isConversationPresent || isConversationPresent.deleted === 1) {
         throw new Api404Error("Conversation no longer exist!");
       }
-      const updatedConversation = await this.conversationRepository.updateById(
+      const updatedConversation = await this._conversationRepository.updateById(
         conversation_id,
         conversation
       );
 
       return updatedConversation;
     } catch (error) {
-      this._logger.error(
+      logger.error(
         `Error in service while updating conversation: ${error}`
       );
       throw error;
@@ -174,16 +170,16 @@ export class ConversationService {
    */
   public async deleteById(conversation_id: string): Promise<void> {
     try {
-      const isConversationPresent = await this.conversationRepository.getById(
+      const isConversationPresent = await this._conversationRepository.getById(
         conversation_id
       );
       if (!isConversationPresent || isConversationPresent.deleted === 1) {
         throw new Api404Error("Conversation no longer exist!");
       }
 
-      await this.conversationRepository.deleteById(conversation_id);
+      await this._conversationRepository.deleteById(conversation_id);
     } catch (error) {
-      this._logger.error(
+      logger.error(
         `Error in service while soft deleting conversation: ${error}`
       );
       throw error;
@@ -201,24 +197,34 @@ export class ConversationService {
    */
   public async addParticipantsToConversation(
     conversation_id: string,
-    participants: Participant[]
+    participants: Participant[],
+    currentUser_id: string
   ) {
     try {
-      const isConversationPresent = await this.conversationRepository.getById(
+      const isConversationPresent = await this._conversationRepository.getById(
         conversation_id
       );
       if (!isConversationPresent || isConversationPresent.deleted === 1) {
         throw new Api404Error("Conversation no longer exist!");
       }
+
+      const user = isConversationPresent.participants.find((participant) => {
+        return participant.user_id.toString() === currentUser_id;
+      });
+
+      if (!user || (user && !user.isAdmin)) {
+        throw new Api401Error("You are not an admin.");
+      }
+
       const conversationWithUpdatedParticipants =
-        await this.conversationRepository.addParticipantsToConversation(
+        await this._conversationRepository.addParticipantsToConversation(
           conversation_id,
           participants
         );
 
       return conversationWithUpdatedParticipants;
     } catch (error) {
-      this._logger.error(
+      logger.error(
         `Error in service while adding participants to a conversation: ${error}`
       );
       throw error;
@@ -236,24 +242,34 @@ export class ConversationService {
    */
   public async removeParticipantsToConversation(
     conversation_id: string,
-    participant_id: string
+    participant_id: string,
+    currentUser_id: string
   ) {
     try {
-      const isConversationPresent = await this.conversationRepository.getById(
+      const isConversationPresent = await this._conversationRepository.getById(
         conversation_id
       );
       if (!isConversationPresent || isConversationPresent.deleted === 1) {
         throw new Api404Error("Conversation no longer exist!");
       }
+
+      const user = isConversationPresent.participants.find((participant) => {
+        return participant.user_id.toString() === currentUser_id;
+      });
+
+      if (!user || (user && !user.isAdmin)) {
+        throw new Api401Error("You are not an admin.");
+      }
+
       const conversationWithUpdatedParticipants =
-        await this.conversationRepository.removeParticipantFromConversation(
+        await this._conversationRepository.removeParticipantFromConversation(
           conversation_id,
           participant_id
         );
 
       return conversationWithUpdatedParticipants;
     } catch (error) {
-      this._logger.error(
+      logger.error(
         `Error in service while removing participants from a conversation: ${error}`
       );
       throw error;

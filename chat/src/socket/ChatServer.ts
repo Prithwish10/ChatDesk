@@ -1,18 +1,15 @@
 import { Server as SocketServer, Socket } from "socket.io";
-import { Logger } from "@pdchat/common";
+import { logger } from "../loaders/logger";
 import { Inject } from "typedi";
 import { ConversationRepository } from "../repositories/v1/Conversation.repository";
-import config from "../config/config.global";
 
 class ChatServer {
-  private io: SocketServer;
-  private readonly _logger: Logger;
+  private _io: SocketServer;
   @Inject()
-  private conversationRepository: ConversationRepository;
+  private _conversationRepository: ConversationRepository;
 
   constructor(server: any, pingTimeout: number, corsOrigin: string) {
-    this._logger = Logger.getInstance(config.servicename);
-    this.io = new SocketServer(server, {
+    this._io = new SocketServer(server, {
       pingTimeout,
       cors: {
         origin: corsOrigin,
@@ -21,14 +18,14 @@ class ChatServer {
   }
 
   public configureSocketEvents(): void {
-    this.io.on("connection", (socket: Socket) => {
-      this._logger.info(`User connected: ${socket.id}`);
+    this._io.on("connection", (socket: Socket) => {
+      logger.info(`User connected: ${socket.id}`);
 
       socket.on("add-user", (userId: string, username: string) => {});
 
       socket.on("join-conversation", (conversation_id: string, callback) => {
         socket.join(conversation_id);
-        this._logger.info(`User joined conversation: ${conversation_id}`);
+        logger.info(`User joined conversation: ${conversation_id}`);
         callback("Joined");
       });
 
@@ -51,7 +48,7 @@ class ChatServer {
       socket.on(
         "last-checked-conversation",
         (conversation_id: string, user_id: string) => {
-          this.conversationRepository.updateParticipantsLastCheckedTime(
+          this._conversationRepository.updateParticipantsLastCheckedTime(
             conversation_id,
             user_id
           );
@@ -59,7 +56,7 @@ class ChatServer {
       );
 
       socket.on("disconnect", () => {
-        console.log(`User disconnected: ${socket.id}`);
+        logger.info(`User disconnected: ${socket.id}`);
       });
     });
   }

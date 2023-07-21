@@ -12,7 +12,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@pdchat/common": "^1.0.9",
+    "@pdchat/common": "^1.0.12",
     "@types/cookie-session": "^2.0.44",
     "@types/jsonwebtoken": "^9.0.2",
     "@types/mongo-sanitize": "^1.0.1",
@@ -28,6 +28,7 @@
     "mongo-sanitize": "^1.1.0",
     "mongoose": "^7.3.1",
     "morgan": "^1.10.0",
+    "node-nats-streaming": "^0.3.2",
     "reflect-metadata": "^0.1.13",
     "ts-node": "^10.9.1",
     "typedi": "^0.10.0",

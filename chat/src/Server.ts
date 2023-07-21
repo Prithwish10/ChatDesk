@@ -1,7 +1,7 @@
 import "reflect-metadata";
 import express, { Application } from "express";
 import http from "http";
-import { Logger } from "@pdchat/common";
+import { logger } from "./loaders/logger";
 import DatabaseManager from "./loaders/DatabaseManager";
 import config from "./config/config.global";
 import ChatServer from "./socket/ChatServer";
@@ -13,7 +13,6 @@ class Server {
   private readonly _app: Application;
   private readonly _port: number;
   private readonly _dbConnection: DatabaseManager;
-  private readonly _logger: Logger;
   private server!: http.Server;
   private _chatServer: ChatServer;
 
@@ -26,7 +25,6 @@ class Server {
     this._app = express();
     this._port = port;
     this._dbConnection = dbConnection;
-    this._logger = Logger.getInstance(config.servicename);
     this.configureMiddlewaresAndRoutes(this._app);
   }
 
@@ -56,7 +54,7 @@ class Server {
     try {
       this.server = this._app
         .listen(this._port, async () => {
-          this._logger.info(`
+          logger.info(`
         ################################################
         🛡️  Server listening on port: ${this._port} 🛡️
         ################################################
@@ -65,13 +63,13 @@ class Server {
           await this._dbConnection.connect();
         })
         .on("error", (err) => {
-          this._logger.error(`${err}`);
+          logger.error(`${err}`);
           process.exit(1);
         });
 
       this.configureSocketServer();
     } catch (error: any) {
-      this._logger.error(error);
+      logger.error(error);
       throw new Error(error);
     }
   }
@@ -84,7 +82,7 @@ class Server {
     if (this._dbConnection && this.server) {
       await Promise.all([this.server.close(), this._dbConnection.disconnect()]);
 
-      this._logger.info(`
+      logger.info(`
         ################################################
         🛡️  All services are shutdown!! 🛡️
         ################################################

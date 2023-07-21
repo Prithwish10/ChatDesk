@@ -2,30 +2,36 @@ import { Service } from "typedi";
 import { Request, Response, NextFunction } from "express";
 import { ConversationService } from "../../services/Conversation.service";
 import { createConversationSchema } from "../../utils/validation/conversation.validation.schema";
-import { Logger } from "@pdchat/common";
+import { logger } from "../../loaders/logger";
 import { Conversation } from "../../interfaces/v1/Conversation";
 import { Participant } from "../../interfaces/v1/Participant";
-import config from "../../config/config.global";
 
 @Service()
 export class ConversationController {
-  private readonly _logger: Logger;
-  constructor(private readonly conversationService: ConversationService) {
-    this._logger = Logger.getInstance(config.servicename);
-  }
+  constructor(private readonly _conversationService: ConversationService) {}
 
   public async create(req: Request, res: Response, next: NextFunction) {
     try {
       await createConversationSchema.validateAsync(req.body);
-      const newConversation = await this.conversationService.create(req.body);
+      const { conversation, isNew } = await this._conversationService.create(
+        req.body
+      );
+
+      if (!isNew) {
+        return res.status(200).json({
+          success: true,
+          statusCode: 200,
+          conversation,
+        });
+      }
 
       return res.status(201).json({
         success: true,
         statusCode: 201,
-        conversation: newConversation,
+        conversation,
       });
     } catch (error) {
-      this._logger.error(
+      logger.error(
         `Error in controller while creating conversation: ${error} `
       );
       next(error);
@@ -48,7 +54,7 @@ export class ConversationController {
       }
 
       const userConversation =
-        await this.conversationService.getUserConversations(
+        await this._conversationService.getUserConversations(
           req.params.id,
           sort,
           order,
@@ -64,7 +70,7 @@ export class ConversationController {
         ...userConversation,
       });
     } catch (error) {
-      this._logger.error(
+      logger.error(
         `Error in controller while fetching user conversations: ${error} `
       );
       next(error);
@@ -73,7 +79,7 @@ export class ConversationController {
 
   public async getById(req: Request, res: Response, next: NextFunction) {
     try {
-      const conversation = await this.conversationService.getById(
+      const conversation = await this._conversationService.getById(
         req.params.id as string
       );
 
@@ -83,7 +89,7 @@ export class ConversationController {
         conversation,
       });
     } catch (error) {
-      this._logger.error(
+      logger.error(
         `Error in controller while fetching conversation by Id: ${error} `
       );
       next(error);
@@ -92,7 +98,7 @@ export class ConversationController {
 
   public async updateById(req: Request, res: Response, next: NextFunction) {
     try {
-      const updatedConversation = await this.conversationService.updateById(
+      const updatedConversation = await this._conversationService.updateById(
         req.params.id as string,
         req.body as Conversation
       );
@@ -103,7 +109,7 @@ export class ConversationController {
         conversation: updatedConversation,
       });
     } catch (error) {
-      this._logger.error(
+      logger.error(
         `Error in controller while updating conversation: ${error} `
       );
       next(error);
@@ -112,14 +118,14 @@ export class ConversationController {
 
   public async deleteById(req: Request, res: Response, next: NextFunction) {
     try {
-      await this.conversationService.deleteById(req.params.id as string);
+      await this._conversationService.deleteById(req.params.id as string);
 
       return res.status(204).json({
         success: true,
         statusCode: 204,
       });
     } catch (error) {
-      this._logger.error(
+      logger.error(
         `Error in controller while deleting conversation: ${error} `
       );
       next(error);
@@ -133,9 +139,10 @@ export class ConversationController {
   ) {
     try {
       const conversationWithUpdatedParticipants =
-        await this.conversationService.addParticipantsToConversation(
+        await this._conversationService.addParticipantsToConversation(
           req.params.id as string,
-          req.body as Participant[]
+          req.body as Participant[],
+          req.currentUser!.id as string
         );
 
       return res.status(201).json({
@@ -144,7 +151,7 @@ export class ConversationController {
         conversation: conversationWithUpdatedParticipants,
       });
     } catch (error) {
-      this._logger.error(
+      logger.error(
         `Error in controller while add participants to conversation: ${error} `
       );
       next(error);
@@ -158,9 +165,10 @@ export class ConversationController {
   ) {
     try {
       const conversationWithUpdatedParticipants =
-        await this.conversationService.removeParticipantsToConversation(
+        await this._conversationService.removeParticipantsToConversation(
           req.params.conversation_id as string,
-          req.params.user_id as string
+          req.params.user_id as string,
+          req.currentUser!.id as string
         );
 
       return res.status(200).json({
@@ -169,7 +177,7 @@ export class ConversationController {
         conversation: conversationWithUpdatedParticipants,
       });
     } catch (error) {
-      this._logger.error(
+      logger.error(
         `Error in controller while add participants to conversation: ${error} `
       );
       next(error);

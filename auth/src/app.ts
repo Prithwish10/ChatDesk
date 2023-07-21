@@ -10,6 +10,7 @@ const server = new Server(
     config.connections.mongodb.databaseName as string
   )
 );
+
 server.up();
 
 export default server;

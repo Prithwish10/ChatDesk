@@ -16,6 +16,14 @@ spec:
         - name: chat
           image: prithwishdas60/chat
           env:
+            - name: NATS_URL
+              value: 'http://nats-srv:4222'
+            - name: NATS_CLUSTER_ID
+              value: chat
+            - name: NATS_CLIENT_ID
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.name
             - name: MONGO_URL
               value: 'mongodb://chat-mongo-srv:27017'
             - name: DB_NAME

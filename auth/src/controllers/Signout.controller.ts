@@ -1,15 +1,10 @@
 import { Service } from "typedi";
 import { Request, Response, NextFunction } from "express";
-import { Logger } from "@pdchat/common";
-import config from "../config/config.global";
+import { logger } from "../loaders/logger";
 
 @Service()
 export class SignoutController {
-  private readonly _logger: Logger;
-
-  constructor() {
-    this._logger = Logger.getInstance(config.servicename);
-  }
+  constructor() {}
 
   public signout(req: Request, res: Response, next: NextFunction) {
     try {
@@ -17,7 +12,7 @@ export class SignoutController {
 
       return res.send({});
     } catch (error) {
-      this._logger.error(`Error in signup controller: ${error} `);
+      logger.error(`Error in signup controller: ${error} `);
       next(error);
     }
   }
