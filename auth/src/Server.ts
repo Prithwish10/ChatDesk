@@ -35,10 +35,6 @@ class Server {
     await require("./loaders/express").default({ app });
   }
 
-  private async loadDependencyInjectors() {
-    require("./loaders/dependencyInjector");
-  }
-
   /**
    * Starts the server by listening on the specified port and establishing a database connection.
    * Logs a message indicating that the server is running.
@@ -46,7 +42,11 @@ class Server {
    */
   public async up(): Promise<void> {
     try {
-      await natsWrapper.connect("chat", "ahdgewj", "http://nats-srv:4222");
+      await natsWrapper.connect(
+        config.connections.nats.natsClusterId!,
+        config.connections.nats.natsClientId!,
+        config.connections.nats.natsURL!
+      );
 
       natsWrapper.client.on("close", () => {
         logger.info("NATS connection closed!");
@@ -54,7 +54,6 @@ class Server {
       });
       // process.on("SIGINT", () => natsWrapper.client.close());
       // process.on("SIGTERM", () => natsWrapper.client.close());
-      // this.loadDependencyInjectors();
 
       this._server = this._app
         .listen(this._port, async () => {

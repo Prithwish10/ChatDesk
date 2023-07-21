@@ -4,23 +4,19 @@ import mongoose, {
   Document,
   ConnectOptions,
 } from "mongoose";
-import { Logger } from "@pdchat/common";
+import { logger } from "./logger";
 import bindModels from "./modelBinder";
-import config from "../config/config.global";
 
 class DatabaseManager {
   private static instance: DatabaseManager;
   private connection!: Connection;
-  private readonly _logger: Logger;
 
   /**
    * Private constructor to enforce singleton pattern.
    * @param url - The MongoDB connection URL.
    * @param dbName - The name of the database.
    */
-  private constructor(private url: string, private dbName: string) {
-    this._logger = Logger.getInstance(config.servicename);
-  }
+  private constructor(private url: string, private dbName: string) {}
 
   /**
    * Connect to the MongoDB database.
@@ -36,18 +32,18 @@ class DatabaseManager {
       } as ConnectOptions);
 
       this.connection = mongoose.connection;
-      this._logger.info(`
+      logger.info(`
       ################################################
       🛡️  Db connected successfully !! 🛡️
       ################################################
     `);
       // Bind the models
       const entities = await bindModels();
-      this._logger.info(
+      logger.info(
         `Discovered the following schema entities: ${entities}`
       );
     } catch (error) {
-      this._logger.error(`Error connecting to the database:, ${error}`);
+      logger.error(`Error connecting to the database:, ${error}`);
       throw error;
     }
   }
@@ -58,7 +54,7 @@ class DatabaseManager {
   disconnect(): void {
     if (this.connection) {
       this.connection.close();
-      this._logger.info(`
+      logger.info(`
       ################################################
       🛡️  Db disconnected successfully !! 🛡️
       ################################################

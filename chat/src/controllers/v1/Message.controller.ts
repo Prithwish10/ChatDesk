@@ -1,22 +1,18 @@
 import { Service } from "typedi";
 import { Request, Response, NextFunction } from "express";
 import { MessageService } from "../../services/Message.service";
-import { Logger } from "@pdchat/common";
+import { logger } from "../../loaders/logger";
 import { createMessageSchema } from "../../utils/validation/message.validation.schema";
 import { Message } from "../../interfaces/v1/Message";
-import config from "../../config/config.global";
 
 @Service()
 export class MessageController {
-  private readonly _logger: Logger;
-  constructor(private readonly messageService: MessageService) {
-    this._logger = Logger.getInstance(config.servicename);
-  }
+  constructor(private readonly _messageService: MessageService) {}
 
   public async create(req: Request, res: Response, next: NextFunction) {
     try {
       await createMessageSchema.validateAsync(req.body);
-      const newMessage = await this.messageService.create(req.body);
+      const newMessage = await this._messageService.create(req.body);
 
       return res.status(201).json({
         success: true,
@@ -24,7 +20,7 @@ export class MessageController {
         message: newMessage,
       });
     } catch (error) {
-      this._logger.error(
+      logger.error(
         `Error in controller while creating message: ${error} `
       );
       next(error);
@@ -41,7 +37,7 @@ export class MessageController {
       if (limit > 100) {
         limit = 30;
       }
-      const messages = await this.messageService.getMessagesForAConversation(
+      const messages = await this._messageService.getMessagesForAConversation(
         req.query.conversation_id as string,
         sort,
         order,
@@ -56,7 +52,7 @@ export class MessageController {
         ...messages,
       });
     } catch (error) {
-      this._logger.error(
+      logger.error(
         `Error in controller while creating message: ${error} `
       );
       next(error);
@@ -65,7 +61,7 @@ export class MessageController {
 
   public async getById(req: Request, res: Response, next: NextFunction) {
     try {
-      const message = await this.messageService.getById(
+      const message = await this._messageService.getById(
         req.params.id as string
       );
 
@@ -75,7 +71,7 @@ export class MessageController {
         message,
       });
     } catch (error) {
-      this._logger.error(
+      logger.error(
         `Error in controller while creating message: ${error} `
       );
       next(error);
@@ -84,7 +80,7 @@ export class MessageController {
 
   public async updateById(req: Request, res: Response, next: NextFunction) {
     try {
-      const updatedMessage = await this.messageService.updateById(
+      const updatedMessage = await this._messageService.updateById(
         req.params.id as string,
         req.body as Message
       );
@@ -95,7 +91,7 @@ export class MessageController {
         message: updatedMessage,
       });
     } catch (error) {
-      this._logger.error(
+      logger.error(
         `Error in controller while creating message: ${error} `
       );
       next(error);
@@ -104,14 +100,14 @@ export class MessageController {
 
   public async deleteById(req: Request, res: Response, next: NextFunction) {
     try {
-      await this.messageService.deleteById(req.params.id as string);
+      await this._messageService.deleteById(req.params.id as string);
 
       return res.status(204).json({
         success: true,
         statusCode: 204,
       });
     } catch (error) {
-      this._logger.error(
+      logger.error(
         `Error in controller while creating message: ${error} `
       );
       next(error);

@@ -1,9 +1,6 @@
 import fs from "fs/promises";
 import path from "path";
-import { Logger } from "@pdchat/common";
-import config from "../config/config.global";
-
-const logger = Logger.getInstance(config.servicename);;
+import { logger } from "./logger";
 
 async function bindModels(): Promise<string[]> {
   try {

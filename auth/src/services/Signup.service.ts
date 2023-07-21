@@ -1,10 +1,11 @@
 import { Service } from "typedi";
+import mongoose from "mongoose";
 import jwt from "jsonwebtoken";
 import { Api409Error } from "@pdchat/common";
 import { logger } from "../loaders/logger";
 import { UserRepository } from "../repositories/user.repository";
 import config from "../config/config.global";
-import { UserCreatedPublisher } from "../events/publishers/Ticket-created-publisher";
+import { UserCreatedPublisher } from "../events/publishers/User-created-publisher";
 import { natsWrapper } from "../loaders/NatsWrapper";
 
 @Service()
@@ -19,6 +20,7 @@ export class SignupService {
     email: string,
     password: string
   ) {
+    const SESSION = await mongoose.startSession();
     try {
       const existingUserWithEmail = await this._userRepository.findUserByEmail(
         email
@@ -34,6 +36,8 @@ export class SignupService {
       if (existingUserWithMobileNumber) {
         throw new Api409Error("Mobile number already in use.");
       }
+
+      SESSION.startTransaction();
 
       const user = await this._userRepository.createUser({
         firstName,
@@ -62,14 +66,20 @@ export class SignupService {
         mobileNumber: user.mobileNumber,
       });
 
-      logger.info('User signed up successfully!');
+      await SESSION.commitTransaction();
+      logger.info("User signed up successfully!");
 
       return { user, userJwt };
     } catch (error) {
+      // CATCH ANY ERROR DUE TO TRANSACTION
+      await SESSION.abortTransaction();
       logger.error(
         `Error in service while fetching conversation by Id: ${error}`
       );
       throw error;
+    } finally {
+      // FINALIZE SESSION
+      SESSION.endSession()
     }
   }
 }

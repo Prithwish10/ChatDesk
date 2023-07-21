@@ -1,16 +1,12 @@
 import { Service } from "typedi";
-import { Logger } from "@pdchat/common";
+import { logger } from "../../loaders/logger";
 import { Message } from "../../interfaces/v1/Message";
 import MessageModel from "../../models/v1/Message.model";
 import { SortOrder } from "mongoose";
-import config from "../../config/config.global";
 
 @Service()
 export class MessageRepository {
-  private readonly _logger: Logger;
-  constructor() {
-    this._logger = Logger.getInstance(config.servicename);
-  }
+  constructor() {}
 
   /**
    * Creates a new message.
@@ -26,7 +22,7 @@ export class MessageRepository {
 
       return newMessage;
     } catch (error) {
-      this._logger.error(`Error occured while creating message: ${error}`);
+      logger.error(`Error occured while creating message: ${error}`);
       throw error;
     }
   }
@@ -73,7 +69,7 @@ export class MessageRepository {
         messages,
       };
     } catch (error) {
-      this._logger.error(`Error occured while fetching messages: ${error}`);
+      logger.error(`Error occured while fetching messages: ${error}`);
       throw error;
     }
   }
@@ -90,7 +86,7 @@ export class MessageRepository {
       const message = await MessageModel.find({ _id: message_id, deleted: 0 });
       return message;
     } catch (error) {
-      this._logger.error(`Error occured while getting message by Id: ${error}`);
+      logger.error(`Error occured while getting message by Id: ${error}`);
       throw error;
     }
   }
@@ -112,7 +108,9 @@ export class MessageRepository {
       );
       return updatedMessage;
     } catch (error) {
-      this._logger.error(`Error occured while updating message by Id: ${error}`);
+      logger.error(
+        `Error occured while updating message by Id: ${error}`
+      );
       throw error;
     }
   }
@@ -133,7 +131,9 @@ export class MessageRepository {
       );
       return updatedMessage;
     } catch (error) {
-      this._logger.error(`Error occured while updating message by Id: ${error}`);
+      logger.error(
+        `Error occured while updating message by Id: ${error}`
+      );
       throw error;
     }
   }
@@ -143,7 +143,7 @@ export class MessageRepository {
       const totalDocuments = await MessageModel.countDocuments(query);
       return totalDocuments;
     } catch (error) {
-      this._logger.error(`Error occured while counting documents: ${error}`);
+      logger.error(`Error occured while counting documents: ${error}`);
       throw error;
     }
   }
