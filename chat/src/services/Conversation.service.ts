@@ -4,6 +4,9 @@ import { Conversation } from "../interfaces/v1/Conversation";
 import { Api400Error, Api401Error, Api404Error } from "@pdchat/common";
 import { logger } from "../loaders/logger";
 import { Participant } from "../interfaces/v1/Participant";
+import { ConversationCreatedPublisher } from "../events/publishers/conversation-created-publisher";
+import { natsWrapper } from "../loaders/NatsWrapper";
+import mongoose from "mongoose";
 
 @Service()
 export class ConversationService {
@@ -52,15 +55,39 @@ export class ConversationService {
         // throw new Api400Error("Conversation already exist");
         return { conversation: existingConversation, isNew: false };
       }
+    } catch (error: any) {
+      logger.error(`Error in service while creating document: ${error}`);
+      throw error;
+    }
+
+    const SESSION = await mongoose.startSession();
+    try {
+      SESSION.startTransaction();
 
       const newConversation = await this._conversationRepository.create(
         conversation
       );
 
+      await new ConversationCreatedPublisher(natsWrapper.client).publish({
+        id: newConversation.id,
+        participants: newConversation.participants,
+        group_name: newConversation.group_name,
+        isGroup: newConversation.isGroup,
+        deleted: newConversation.deleted as number,
+      });
+
+      await SESSION.commitTransaction();
+      logger.info("Conversation event sent successfully!");
+
       return { conversation: newConversation, isNew: true };
-    } catch (error: any) {
-      logger.error(`Error in service while creating document: ${error}`);
+    } catch (error) {
+      // catch any error due to transaction
+      await SESSION.abortTransaction();
+      logger.error(`Error in service while creating conversation: ${error}`);
       throw error;
+    } finally {
+      // finalize session
+      SESSION.endSession();
     }
   }
 
@@ -97,9 +124,7 @@ export class ConversationService {
 
       return totalUserConversations;
     } catch (error) {
-      logger.error(
-        `Error in service while creating conversation: ${error}`
-      );
+      logger.error(`Error in service while creating conversation: ${error}`);
       throw error;
     }
   }
@@ -154,9 +179,7 @@ export class ConversationService {
 
       return updatedConversation;
     } catch (error) {
-      logger.error(
-        `Error in service while updating conversation: ${error}`
-      );
+      logger.error(`Error in service while updating conversation: ${error}`);
       throw error;
     }
   }

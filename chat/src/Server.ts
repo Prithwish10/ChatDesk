@@ -5,6 +5,9 @@ import { logger } from "./loaders/logger";
 import DatabaseManager from "./loaders/DatabaseManager";
 import config from "./config/config.global";
 import ChatServer from "./socket/ChatServer";
+import { natsWrapper } from "./loaders/NatsWrapper";
+import { UserCreatedListener } from "./events/listeners/user-created-listener";
+import { UserUpdatedListener } from "./events/listeners/user-updated-listener";
 
 /**
  * Represents a server that listens on a specified port and handles HTTP requests.
@@ -50,8 +53,24 @@ class Server {
    * Logs a message indicating that the server is running.
    * Throws an error if an error occurs during server startup.
    */
-  public up(): void {
+  public async up(): Promise<void> {
     try {
+      await natsWrapper.connect(
+        config.connections.nats.natsClusterId!,
+        config.connections.nats.natsClientId!,
+        config.connections.nats.natsURL!
+      );
+
+      natsWrapper.client.on("close", () => {
+        logger.info("NATS connection closed!");
+        process.exit();
+      });
+      process.on("SIGINT", () => natsWrapper.client.close());
+      process.on("SIGTERM", () => natsWrapper.client.close());
+
+      new UserCreatedListener(natsWrapper.client).listen();
+      new UserUpdatedListener(natsWrapper.client).listen();
+
       this.server = this._app
         .listen(this._port, async () => {
           logger.info(`

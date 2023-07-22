@@ -24,3 +24,10 @@ spec:
                 name: chat-srv
                 port:
                   number: 3000
+          - path: /api/v1/search/?(.*)
+            pathType: Prefix
+            backend:
+              service:
+                name: search-srv
+                port:
+                  number: 3000

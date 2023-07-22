@@ -14,7 +14,7 @@ const participantSchema = new mongoose.Schema<Participant>({
   },
   status: {
     type: String,
-    required: true,
+    required: false,
     enum: Object.values(ParticipantStatus),
     default: ParticipantStatus.Active,
   },

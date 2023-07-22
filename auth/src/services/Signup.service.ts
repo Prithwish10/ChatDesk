@@ -20,7 +20,6 @@ export class SignupService {
     email: string,
     password: string
   ) {
-    const SESSION = await mongoose.startSession();
     try {
       const existingUserWithEmail = await this._userRepository.findUserByEmail(
         email
@@ -36,7 +35,15 @@ export class SignupService {
       if (existingUserWithMobileNumber) {
         throw new Api409Error("Mobile number already in use.");
       }
+    } catch (error) {
+      logger.error(
+        `Error in service while fetching conversation by Id: ${error}`
+      );
+      throw error;
+    }
 
+    const SESSION = await mongoose.startSession();
+    try {
       SESSION.startTransaction();
 
       const user = await this._userRepository.createUser({
@@ -67,19 +74,19 @@ export class SignupService {
       });
 
       await SESSION.commitTransaction();
-      logger.info("User signed up successfully!");
+      logger.info("User signup event sent successfully!");
 
       return { user, userJwt };
     } catch (error) {
-      // CATCH ANY ERROR DUE TO TRANSACTION
+      // catch any error due to transaction
       await SESSION.abortTransaction();
       logger.error(
         `Error in service while fetching conversation by Id: ${error}`
       );
       throw error;
     } finally {
-      // FINALIZE SESSION
-      SESSION.endSession()
+      // finalize session
+      SESSION.endSession();
     }
   }
 }
