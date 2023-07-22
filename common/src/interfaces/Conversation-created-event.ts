@@ -7,7 +7,7 @@ export interface ConversationCreatedEvent {
     id: string;
     participants: Participant[],
     isGroup: boolean,
-    group_name: string;
+    group_name?: string;
     group_photo?: string;
     deleted: number;
   };
