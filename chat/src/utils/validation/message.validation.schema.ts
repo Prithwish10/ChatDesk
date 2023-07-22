@@ -1,4 +1,4 @@
-import Joi from "@hapi/joi";
+import Joi from "joi";
 
 const createMessageSchema = Joi.object({
     _id: Joi.string().min(2).optional(),

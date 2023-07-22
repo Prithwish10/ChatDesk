@@ -52,8 +52,8 @@ class Server {
         logger.info("NATS connection closed!");
         process.exit();
       });
-      // process.on("SIGINT", () => natsWrapper.client.close());
-      // process.on("SIGTERM", () => natsWrapper.client.close());
+      process.on("SIGINT", () => natsWrapper.client.close());
+      process.on("SIGTERM", () => natsWrapper.client.close());
 
       this._server = this._app
         .listen(this._port, async () => {
