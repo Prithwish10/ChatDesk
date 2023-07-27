@@ -38,7 +38,7 @@ export default {
       natsURL: process.env.NATS_URL,
       natsClusterId: process.env.NATS_CLUSTER_ID,
       natsClientId: process.env.NATS_CLIENT_ID,
-    },
+    }
   },
 
   jwtSecret: process.env.JWT_KEY,

@@ -6,8 +6,6 @@ import { ConversationRepository } from "../../repositories/Conversation.reposito
 import { Types } from "mongoose";
 import { logger } from "../../loaders/logger";
 
-// const conversationRepository = Container.get(ConversationRepository);
-
 export class ConversationCreatedListener extends Listener<ConversationCreatedEvent> {
   subject: Subjects.ConversationCreated = Subjects.ConversationCreated;
   queueGroupName: string = queueGroupName;

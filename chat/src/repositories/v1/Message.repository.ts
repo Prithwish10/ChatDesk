@@ -11,14 +11,21 @@ export class MessageRepository {
   /**
    * Creates a new message.
    *
-   * @param message - The message object to create.
-   * @returns A Promise that resolves to the created message.
-   * @throws Throws an error if there was a problem creating the message.
-   */
-  public async create(message: Message) {
+   * @param {Message} message - The Message object containing the details of the message to be created.
+   * @returns {Promise<Message>} A Promise that resolves to the newly created Message object.
+   * @throws {Error} If there's an error during the message creation process.
+   **/
+  public async create(message: Message): Promise<Message> {
     try {
       let newMessage = await MessageModel.create(message);
-      newMessage = await newMessage.populate("sender_id", "username email");
+      newMessage = await newMessage.populate({
+        path: "sender_id",
+        select: "firstName lastName email mobileNumber"
+      })
+       newMessage = await newMessage.populate({
+         path: "parent_message_id",
+         select: "sender_id content attachments",
+       });
 
       return newMessage;
     } catch (error) {
@@ -30,16 +37,23 @@ export class MessageRepository {
   /**
    * Retrieves messages for a specific conversation.
    *
-   * @param conversation_id - The ID of the conversation to fetch messages for.
-   * @returns A Promise that resolves to the messages for the specified conversation.
-   * @throws Throws an error if there was a problem fetching the messages.
+   * @param {string} conversation_id - The ID of the conversation for which messages are to be retrieved.
+   * @param {string} [sort="created_at"] - The field used for sorting the messages (default: "created_at").
+   * @param {string} [order="desc"] - The sort order ("asc" for ascending, "desc" for descending) (default: "desc").
+   * @param {number} [page=1] - The page number for pagination (default: 1).
+   * @param {number} [limit=20] - The maximum number of messages to retrieve per page (default: 20).
+   * @param {number} [deleted=0] - Filter deleted messages (0 for false, 1 for true) (default: 0).
+   * @returns {Promise<Object>} A Promise that resolves to an object containing the messages for the conversation,
+   *                            along with pagination details (totalPages, currentPage, totalMessages).
+   * @throws {Error} If there's an error during the message retrieval process.
+   *
    */
   public async getMessagesForAConversation(
     conversation_id: string,
     sort = "created_at",
     order = "desc",
     page = 1,
-    limit = 20,
+    limit = 40,
     deleted = 0
   ) {
     try {
@@ -56,7 +70,18 @@ export class MessageRepository {
       const skip = (page - 1) * limit;
 
       const messages = await MessageModel.find(fetchMessageQuery)
-        .populate("sender_id", "username email")
+        .populate({
+          path: "sender_id",
+          select: "firstName lastName email mobileNumber",
+        })
+        .populate({
+          path: "parent_message_id",
+          select: "sender_id content attachments",
+          populate: {
+            path: "sender_id",
+            select: "firstName lastName email mobileNumber",
+          },
+        })
         .sort(sortConfig)
         .skip(skip)
         .limit(limit)
@@ -77,9 +102,10 @@ export class MessageRepository {
   /**
    * Retrieves a message by its ID.
    *
-   * @param message_id - The ID of the message to fetch.
-   * @returns A Promise that resolves to the message with the specified ID.
-   * @throws Throws an error if there was a problem fetching the message.
+   * @param {string} message_id - The ID of the message to be retrieved.
+   * @returns {Promise<Message|null>} A Promise that resolves to the retrieved Message object, or null if not found.
+   * @throws {Error} If there's an error during the message retrieval process.
+   *
    */
   public async getById(message_id: string) {
     try {
@@ -92,25 +118,29 @@ export class MessageRepository {
   }
 
   /**
-   * Updates a message by its ID.
+   * Update Message by ID
    *
-   * @param message_id - The ID of the message to update.
-   * @param message - The updated message object.
-   * @returns A Promise that resolves to the updated message.
-   * @throws Throws an error if there was a problem updating the message.
-   */
-  public async updateById(message_id: string, message: Message) {
+   * This method updates a specific message identified by the given message ID with the provided Message object.
+   * The message is updated based on the fields present in the provided message object.
+   *
+   * @param {string} message_id - The ID of the message to be updated.
+   * @param {Message} message - The Message object containing the updated message details.
+   * @returns {Promise<Message>} A Promise that resolves to the updated Message object after the update.
+   * @throws {Error} If there's an error during the message update process.
+   **/
+  public async updateById(
+    message_id: string,
+    message: Message
+  ): Promise<Message | null> {
     try {
       const updatedMessage = await MessageModel.findByIdAndUpdate(
         { _id: message_id },
-        message,
+        { $set: message },
         { new: true }
       );
       return updatedMessage;
     } catch (error) {
-      logger.error(
-        `Error occured while updating message by Id: ${error}`
-      );
+      logger.error(`Error occured while updating message by Id: ${error}`);
       throw error;
     }
   }
@@ -118,11 +148,11 @@ export class MessageRepository {
   /**
    * Deletes a message by its ID (soft delete).
    *
-   * @param message_id - The ID of the message to delete.
-   * @returns A Promise that resolves to the deleted message.
-   * @throws Throws an error if there was a problem deleting the message.
+   * @param {string} message_id - The ID of the message to be deleted.
+   * @returns {Promise<Message | null>} A Promise that resolves to the updated Message object after the soft deletion.
+   * @throws {Error} If there's an error during the message update process.
    */
-  public async deleteById(message_id: string) {
+  public async deleteById(message_id: string): Promise<Message | null> {
     try {
       const updatedMessage = await MessageModel.findByIdAndUpdate(
         { _id: message_id },
@@ -131,14 +161,22 @@ export class MessageRepository {
       );
       return updatedMessage;
     } catch (error) {
-      logger.error(
-        `Error occured while updating message by Id: ${error}`
-      );
+      logger.error(`Error occured while updating message by Id: ${error}`);
       throw error;
     }
   }
 
-  private async countDocuments(query: any) {
+  /**
+   * Count Documents
+   *
+   * This private method counts the number of documents in the MessageModel collection that match the provided query.
+   * It is used internally to determine the total count of messages for pagination purposes.
+   *
+   * @param {any} query - The query object to filter the documents for counting.
+   * @returns {Promise<number>} A Promise that resolves to the total count of documents that match the query.
+   * @throws {Error} If there's an error during the document counting process.
+   */
+  private async countDocuments(query: any): Promise<number> {
     try {
       const totalDocuments = await MessageModel.countDocuments(query);
       return totalDocuments;

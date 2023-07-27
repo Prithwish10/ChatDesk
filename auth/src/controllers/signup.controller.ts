@@ -8,7 +8,22 @@ import { SignupService } from "../services/Signup.service";
 export class SignUpController {
   constructor(private readonly _signupService: SignupService) {}
 
-  public async signup(req: Request, res: Response, next: NextFunction) {
+  /**
+   * Controller function to handle user signup request.
+   * Validates the request body against the signupSchema, and then invokes the signup service to create a new user account.
+   * If signup is successful, the function sets the user's session with the generated JWT and returns the user data in the response.
+   * @async
+   * @param {Request} req - The Express Request object representing the HTTP request.
+   * @param {Response} res - The Express Response object representing the HTTP response.
+   * @param {NextFunction} next - The Express NextFunction middleware for passing control to the next middleware.
+   * @returns {Promise<Response | void>} A Promise that resolves to the Express Response object containing the response data.
+   * @throws {Error} If any error occurs during the signup process, it is passed to the Express `next` function for error handling.
+   */
+  public async signup(
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<Response | void> {
     try {
       await signupSchema.validateAsync(req.body);
       const { firstName, lastName, image, mobileNumber, email, password } =

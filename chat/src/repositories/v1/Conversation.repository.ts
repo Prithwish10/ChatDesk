@@ -183,7 +183,7 @@ export class ConversationRepository {
 
       userConversations = await UserModel.populate(userConversations, {
         path: "participants.user_id",
-        select: "username email",
+        select: "firstName lastName email mobileNumber",
       });
 
       // Retrieve unread message counts for each conversation using MessageModel.

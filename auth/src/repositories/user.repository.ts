@@ -2,26 +2,38 @@ import { Service } from "typedi";
 import { logger } from "../loaders/logger";
 import UserModel from "../models/User.model";
 import { User } from "../interfaces/User";
-import SearchHistoryModel from "../models/Search-history.model";
-import { SortOrder } from "mongoose";
 
 @Service()
 export class UserRepository {
   constructor() {}
 
-  public async findUserByEmail(email: string) {
+  /**
+   * Finds a user by their email address.
+   * @async
+   * @param {string} email - The email address of the user to find.
+   * @returns {Promise<User | null>} A Promise that resolves to the found user object if successful, or null if no user is found.
+   * @throws {Error} Any error that occurs during the database query process.
+   */
+  public async findUserByEmail(email: string): Promise<User | null> {
     try {
       const user = await UserModel.findOne({ email });
       return user;
     } catch (error) {
-      logger.error(
-        `Error occured while fetching user by email: ${error}`
-      );
+      logger.error(`Error occured while fetching user by email: ${error}`);
       throw error;
     }
   }
 
-  public async findUserByMobileNumber(mobileNumber: string) {
+  /**
+   * Finds a user by their mobile number.
+   * @async
+   * @param {string} mobileNumber - The mobile number of the user to find.
+   * @returns {Promise<User | null>} A Promise that resolves to the found user object if successful, or null if no user is found.
+   * @throws {Error} Any error that occurs during the database query process.
+   */
+  public async findUserByMobileNumber(
+    mobileNumber: string
+  ): Promise<User | null> {
     try {
       const user = await UserModel.findOne({ mobileNumber });
       return user;
@@ -33,84 +45,19 @@ export class UserRepository {
     }
   }
 
-  public async createUser(user: User) {
+  /**
+   * Creates a new user in the database.
+   * @async
+   * @param {User} user - An object representing the user to be created, with properties like `email`, `mobileNumber`, and any other required fields.
+   * @returns {Promise<User>} A Promise that resolves to the newly created user object if successful.
+   * @throws {Error} Any error that occurs during the database creation process.
+   */
+  public async createUser(user: User): Promise<User> {
     try {
       const newUser = await UserModel.create(user);
       return newUser;
     } catch (error) {
       logger.error(`Error occured while creating user: ${error}`);
-      throw error;
-    }
-  }
-
-  public async search(
-    keyword: string,
-    currentPage: number,
-    pageSize: number,
-    order: string,
-    sort: string
-  ) {
-    try {
-      const sortConfig: { [key: string]: SortOrder } = {};
-      sortConfig[sort] = order === "asc" ? 1 : -1;
-      const regex = new RegExp("^" + keyword, "i");
-
-      const users = await UserModel.find({
-        $or: [
-          { firstName: { $regex: regex } },
-          { lastName: { $regex: regex } },
-        ],
-      })
-        .skip((currentPage - 1) * pageSize)
-        .sort(sortConfig)
-        .limit(pageSize);
-
-      return users;
-    } catch (error) {
-      logger.error(`Error occured while searching user: ${error}`);
-      throw error;
-    }
-  }
-
-  public async getUserSearchHistory(
-    userId: string,
-    currentPage: number,
-    pageSize: number,
-    order: string,
-    sort: string
-  ) {
-    try {
-      const sortConfig: { [key: string]: SortOrder } = {};
-      sortConfig[sort] = order === "asc" ? 1 : -1;
-
-      const userSearchHistory = await SearchHistoryModel.find({
-        userId: userId,
-      })
-        .skip((currentPage - 1) * pageSize)
-        .sort(sortConfig)
-        .limit(pageSize);
-
-      return userSearchHistory;
-    } catch (error) {
-      logger.error(
-        `Error occured while fetching user search history: ${error}`
-      );
-      throw error;
-    }
-  }
-
-  public async createUserSearchHistory(userId: string, searchedUserId: string) {
-    try {
-      const searchHistory = await SearchHistoryModel.create({
-        userId,
-        searchedUserId,
-      });
-
-      return searchHistory;
-    } catch (error) {
-      logger.error(
-        `Error occured while fetching user search history: ${error}`
-      );
       throw error;
     }
   }
