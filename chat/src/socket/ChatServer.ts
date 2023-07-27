@@ -2,6 +2,8 @@ import { Server as SocketServer, Socket } from "socket.io";
 import { logger } from "../loaders/logger";
 import { Inject } from "typedi";
 import { ConversationRepository } from "../repositories/v1/Conversation.repository";
+import { Participant } from "../interfaces/v1/Participant";
+import { User } from "../interfaces/v1/User";
 
 class ChatServer {
   private _io: SocketServer;
@@ -11,9 +13,10 @@ class ChatServer {
   constructor(server: any, pingTimeout: number, corsOrigin: string) {
     this._io = new SocketServer(server, {
       pingTimeout,
-      cors: {
-        origin: corsOrigin,
-      },
+
+      // cors: {
+      //   origin: corsOrigin,
+      // },
     });
   }
 
@@ -21,7 +24,50 @@ class ChatServer {
     this._io.on("connection", (socket: Socket) => {
       logger.info(`User connected: ${socket.id}`);
 
-      socket.on("add-user", (userId: string, username: string) => {});
+      // Add the user to the list of active users
+      socket.on("add-user", (user: User) => {
+        (socket as any).user = user;
+        socket.emit("connected");
+      });
+
+      // Create a new conversation
+      socket.on(
+        "create-conversation",
+        (conversationId: string, participants: Participant[]) => {
+          // Inform every participants about the new conversation and share the conversationId
+          participants.forEach((participant: Participant) => {
+            socket
+              .to(participant.user_id.toString())
+              .emit("new-conversation", conversationId);
+          });
+        }
+      );
+
+      socket.on("get-conversation-list", async (conversationId: string) => {
+        const conversation = await this._conversationRepository.getById(
+          conversationId
+        );
+        const participants = conversation?.participants;
+
+        if (!participants || participants.length === 0) {
+          return;
+        }
+
+        // Emit the updated conversation order to all participants of the conversation
+        for (
+          let participant = 0;
+          participant < participants.length;
+          participant++
+        ) {
+          const conversations =
+            await this._conversationRepository.getUserConversations(
+              participants[participant].user_id.toString()
+            );
+          // Get the userSocketId from the Redis store
+          const userSocketId = '123';
+          socket.to(userSocketId).emit("get-conversation-list", conversations);
+        }
+      });
 
       socket.on("join-conversation", (conversation_id: string, callback) => {
         socket.join(conversation_id);

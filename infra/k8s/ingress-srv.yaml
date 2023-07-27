@@ -5,6 +5,8 @@ metadata:
   annotations:
     kubernetes.io/ingress.class: nginx
     nginx.ingress.kubernetes.io/use-regex: "true"
+    # Adding the annotation to enable WebSocket support
+    nginx.ingress.kubernetes.io/websocket-services: "chat-srv"
 spec:
   rules:
     - host: "chatdesk.dev"
@@ -29,5 +31,13 @@ spec:
             backend:
               service:
                 name: search-srv
+                port:
+                  number: 3000
+           # Path for socket.io
+          - path: /socket.io/?(.*)
+            pathType: Prefix
+            backend:
+              service:
+                name: chat-srv
                 port:
                   number: 3000

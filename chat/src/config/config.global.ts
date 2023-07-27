@@ -52,8 +52,9 @@ export default {
   },
 
   socket: {
-    corsOrigin: process.env.CORS_ORIGIN || "http://localhost:4000",
+    corsOrigin: process.env.CORS_ORIGIN || "http://chat-srv:3000",
     pingTimeout: process.env.PING_TIMEOUT || 60000,
+    pingInterval: 25000,
   },
 
   /**

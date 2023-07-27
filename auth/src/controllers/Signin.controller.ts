@@ -16,12 +16,17 @@ export class SignInController {
    * Sends a success response to the client with user information.
    * If an error occurs, logs the error and passes it to the next error-handling middleware or error handler.
    *
-   * @param req - Express.js request object.
-   * @param res - Express.js response object.
-   * @param next - Callback function to pass control to the next middleware or error handler.
-   * @returns If sign-in is successful, sends a success response to the client. Otherwise, passes the error to the next error-handling middleware or error handler.
+   * @param {Request} req - The Express Request object representing the HTTP request.
+   * @param {Response} res - The Express Response object representing the HTTP response.
+   * @param {NextFunction} next - The Express NextFunction middleware for passing control to the next middleware.
+   * @returns {Promise<Response | void>} A Promise that resolves to the Express Response object containing the response data.
+   * @throws {Error} If any error occurs during the signin process, it is passed to the Express `next` function for error handling.
    */
-  public async signin(req: Request, res: Response, next: NextFunction) {
+  public async signin(
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<Response | void> {
     try {
       await signinSchema.validateAsync(req.body);
       const { email, password } = req.body;

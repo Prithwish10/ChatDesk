@@ -8,6 +8,7 @@ export interface Conversation {
   group_photo?: string,
   deleted: Number,
   created_at?: Date,
-  updated_at?: Date
-  last_message_timestamp: Date
+  updated_at?: Date,
+  last_message_timestamp: Date,
+  last_message: string
 }
