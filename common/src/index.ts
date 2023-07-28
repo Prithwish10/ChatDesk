@@ -19,4 +19,6 @@ export * from "./interfaces/User-updated-event";
 export * from "./interfaces/Conversation-created-event";
 export * from "./interfaces/Conversation-updated-event";
 export * from "./interfaces/Conversation-deleted-event";
+export * from "./interfaces/Participants-added-event";
+export * from "./interfaces/Participant-removed-event";
 export * from "./enums/subjects";
