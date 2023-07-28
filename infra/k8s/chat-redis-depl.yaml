@@ -1,0 +1,30 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: chat-redis-depl
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: chat-redis
+  template:
+    metadata:
+      labels:
+        app: chat-redis
+    spec:
+      containers:
+        - name: chat-redis
+          image: redis
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: chat-redis-srv
+spec:
+  selector:
+    app: chat-redis
+  ports:
+    - name: db
+      protocol: TCP
+      port: 6379
+      targetPort: 6379
