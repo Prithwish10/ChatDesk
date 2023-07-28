@@ -7,6 +7,8 @@ import { Participant } from "../interfaces/v1/Participant";
 import { ConversationCreatedPublisher } from "../events/publishers/conversation-created-publisher";
 import { natsWrapper } from "../loaders/NatsWrapper";
 import mongoose from "mongoose";
+import { ConversationUpdatedPublisher } from "../events/publishers/conversation-updated-publisher";
+import { ConversationDeletedPublisher } from "../events/publishers/conversation-deleted-publisher";
 
 @Service()
 export class ConversationService {
@@ -73,17 +75,18 @@ export class ConversationService {
         participants: newConversation.participants,
         group_name: newConversation.group_name,
         isGroup: newConversation.isGroup,
-        deleted: newConversation.deleted as number,
+        deleted: newConversation.deleted,
       });
 
       await SESSION.commitTransaction();
-      logger.info("Conversation event sent successfully!");
+      logger.info("Conversation created event sent successfully!");
 
       return { conversation: newConversation, isNew: true };
     } catch (error) {
       // catch any error due to transaction
       await SESSION.abortTransaction();
       logger.error(`Error in service while creating conversation: ${error}`);
+
       throw error;
     } finally {
       // finalize session
@@ -172,15 +175,41 @@ export class ConversationService {
       if (!isConversationPresent || isConversationPresent.deleted === 1) {
         throw new Api404Error("Conversation no longer exist!");
       }
+    } catch (error) {
+      logger.error(
+        `Error in service while updating conversation and sending created event: ${error}`
+      );
+      throw error;
+    }
+
+    const SESSION = await mongoose.startSession();
+    try {
+      SESSION.startTransaction();
       const updatedConversation = await this._conversationRepository.updateById(
         conversation_id,
         conversation
       );
 
+      await new ConversationUpdatedPublisher(natsWrapper.client).publish({
+        id: conversation_id,
+        ...conversation,
+      });
+
+      await SESSION.commitTransaction();
+      logger.info("Conversation updated event sent successfully!");
+
       return updatedConversation;
     } catch (error) {
-      logger.error(`Error in service while updating conversation: ${error}`);
+      // catch any error due to transaction
+      await SESSION.abortTransaction();
+      logger.error(
+        `Error in service while updating conversation and sending update event: ${error}`
+      );
+
       throw error;
+    } finally {
+      // finalize session
+      SESSION.endSession();
     }
   }
 
@@ -199,13 +228,36 @@ export class ConversationService {
       if (!isConversationPresent || isConversationPresent.deleted === 1) {
         throw new Api404Error("Conversation no longer exist!");
       }
-
-      await this._conversationRepository.deleteById(conversation_id);
     } catch (error) {
       logger.error(
         `Error in service while soft deleting conversation: ${error}`
       );
       throw error;
+    }
+
+    const SESSION = await mongoose.startSession();
+    try {
+      SESSION.startTransaction();
+
+      await this._conversationRepository.deleteById(conversation_id);
+
+      await new ConversationDeletedPublisher(natsWrapper.client).publish({
+        id: conversation_id,
+      });
+
+      await SESSION.commitTransaction();
+      logger.info("Conversation deleted event sent successfully!");
+    } catch (error) {
+      // catch any error due to transaction
+      await SESSION.abortTransaction();
+      logger.error(
+        `Error in service while deleting conversation and sending delete event: ${error}`
+      );
+
+      throw error;
+    } finally {
+      // finalize session
+      SESSION.endSession();
     }
   }
 
@@ -263,7 +315,7 @@ export class ConversationService {
    * @throws Api404Error if the conversation doesn't exist or is deleted.
    * @throws Error if an error occurs while removing the participant from the conversation.
    */
-  public async removeParticipantsToConversation(
+  public async removeParticipantsFromConversation(
     conversation_id: string,
     participant_id: string,
     currentUser_id: string

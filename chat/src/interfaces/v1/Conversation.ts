@@ -6,7 +6,7 @@ export interface Conversation {
   isGroup: boolean,
   group_name?: string,
   group_photo?: string,
-  deleted: Number,
+  deleted: number,
   created_at?: Date,
   updated_at?: Date,
   last_message_timestamp: Date,
