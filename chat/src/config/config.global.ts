@@ -21,6 +21,9 @@ if (!process.env.NATS_CLUSTER_ID) {
 if (!process.env.NATS_CLUSTER_ID) {
   throw new Error("NATS Cluster Id must be defined");
 }
+if (!process.env.REDIS_HOST) {
+  throw new Error("Redis Host must be defined");
+}
 
 export default {
   servicename: "chat",
@@ -31,14 +34,18 @@ export default {
    */
   connections: {
     mongodb: {
-      databaseURL: process.env.MONGO_URL || "mongodb://chat-mongo-srv:27017",
-      databaseName: process.env.DB_NAME || "chat",
+      databaseURL: process.env.MONGO_URL,
+      databaseName: process.env.DB_NAME,
     },
     nats: {
       natsURL: process.env.NATS_URL,
       natsClusterId: process.env.NATS_CLUSTER_ID,
       natsClientId: process.env.NATS_CLIENT_ID,
     },
+    redis: {
+      host: process.env.REDIS_HOST,
+      port: process.env.REDIS_PORT || 6379
+    }
   },
 
   jwtSecret: process.env.JWT_KEY,
