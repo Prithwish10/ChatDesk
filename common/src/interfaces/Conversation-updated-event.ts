@@ -5,7 +5,7 @@ export interface ConversationUpdatedEvent {
   subject: Subjects.ConversationUpdated;
   data: {
     id: string;
-    participants: Participant;
+    participants: Participant[];
     group_name?: string;
     group_photo?: string;
     deleted: number;
