@@ -4,5 +4,7 @@ export enum Subjects {
   UserDeleted = "user:Deleted",
   ConversationCreated = "conversation:created",
   ConversationUpdated = "conversation:updated",
-  ConversationDeleted = "conversation:Deleted",
+  ConversationDeleted = "conversation:deleted",
+  ParticipantRemoved = "participant:removed",
+  ParticipantsAdded = "participants:added"
 }
