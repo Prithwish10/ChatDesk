@@ -5,6 +5,6 @@ export interface ParticipantRemovedEvent {
   subject: Subjects.ParticipantRemoved;
   data: {
     id: string;
-    participants: Participant;
+    participantId: string;
   };
 }
