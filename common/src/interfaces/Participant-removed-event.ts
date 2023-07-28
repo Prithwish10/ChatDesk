@@ -4,7 +4,8 @@ import { Participant } from "./Participant";
 export interface ParticipantRemovedEvent {
   subject: Subjects.ParticipantRemoved;
   data: {
-    id: string;
+    conversationId: string;
     participantId: string;
+    version: number;
   };
 }

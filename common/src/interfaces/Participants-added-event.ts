@@ -4,7 +4,8 @@ import { Participant } from "./Participant";
 export interface ParticipantsAddedEvent {
   subject: Subjects.ParticipantsAdded;
   data: {
-    id: string;
+    corversationId: string;
     participants: Participant[];
+    version: number;
   };
 }

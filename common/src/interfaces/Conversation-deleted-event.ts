@@ -4,5 +4,6 @@ export interface ConversationDeletedEvent {
   subject: Subjects.ConversationDeleted;
   data: {
     id: string;
+    version: number;
   };
 }

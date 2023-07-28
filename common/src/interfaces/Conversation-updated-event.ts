@@ -9,5 +9,6 @@ export interface ConversationUpdatedEvent {
     group_name?: string;
     group_photo?: string;
     deleted: number;
+    version: number;
   };
 }
