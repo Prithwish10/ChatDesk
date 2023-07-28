@@ -28,6 +28,8 @@ spec:
               value: 'mongodb://chat-mongo-srv:27017'
             - name: DB_NAME
               value: 'chat'
+            - name: REDIS_HOST
+              value: chat-redis-srv
             - name: JWT_KEY
               valueFrom:
                 secretKeyRef:
