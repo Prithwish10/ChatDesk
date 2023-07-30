@@ -165,7 +165,7 @@ export class ConversationController {
   ) {
     try {
       const conversationWithUpdatedParticipants =
-        await this._conversationService.removeParticipantsToConversation(
+        await this._conversationService.removeParticipantsFromConversation(
           req.params.conversation_id as string,
           req.params.user_id as string,
           req.currentUser!.id as string

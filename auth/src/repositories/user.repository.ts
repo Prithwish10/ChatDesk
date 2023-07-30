@@ -54,8 +54,10 @@ export class UserRepository {
    */
   public async createUser(user: User): Promise<User> {
     try {
-      const newUser = await UserModel.create(user);
-      return newUser;
+      // const newUser = await UserModel.create(user);
+      const newUser = new UserModel(user);
+      let savedUser = await newUser.save()
+      return savedUser;
     } catch (error) {
       logger.error(`Error occured while creating user: ${error}`);
       throw error;

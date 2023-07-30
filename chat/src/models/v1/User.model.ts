@@ -1,5 +1,6 @@
 import mongoose from "mongoose";
 import { User } from "../../interfaces/v1/User";
+import { updateIfCurrentPlugin } from "mongoose-update-if-current";
 
 const userSchema = new mongoose.Schema<User>(
   {
@@ -36,5 +37,8 @@ const userSchema = new mongoose.Schema<User>(
     },
   }
 );
+
+userSchema.set('versionKey', 'version');
+userSchema.plugin(updateIfCurrentPlugin);
 
 export default mongoose.model<User>("User", userSchema);

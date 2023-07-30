@@ -8,6 +8,7 @@ import { natsWrapper } from "./loaders/NatsWrapper";
 import { UserCreatedListener } from "./events/listeners/user-created-listener";
 import { UserUpdatedListener } from "./events/listeners/user-updated-listener";
 import { ConversationCreatedListener } from "./events/listeners/conversation-created-listener";
+import { ConversationUpdatedListener } from "./events/listeners/conversation-updated-listener";
 
 /**
  * Represents a server that listens on a specified port and handles HTTP requests.
@@ -61,6 +62,7 @@ class Server {
       new UserCreatedListener(natsWrapper.client).listen();
       new UserUpdatedListener(natsWrapper.client).listen();
       new ConversationCreatedListener(natsWrapper.client).listen();
+      new ConversationUpdatedListener(natsWrapper.client).listen();
 
       this._server = this._app
         .listen(this._port, async () => {

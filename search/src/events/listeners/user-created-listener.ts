@@ -20,14 +20,19 @@ export class UserCreatedListener extends Listener<UserCreatedEvent> {
   async onMessage(data: UserCreatedEvent["data"], msg: Message): Promise<void> {
     const { id, firstName, lastName, mobileNumber, email } = data;
 
-    await this._userRepository.create({
-      _id: new Types.ObjectId(id),
-      firstName,
-      lastName,
-      mobileNumber,
-      email,
-    });
-    logger.info("Acknowledging the user creation.");
+    try {
+      await this._userRepository.create({
+        _id: new Types.ObjectId(id),
+        firstName,
+        lastName,
+        mobileNumber,
+        email,
+      });
+      logger.info("Acknowledging the user creation.");
+    } catch (error) {
+      logger.info(`Error occured in User Created Listener: ${error}`);
+      throw error;
+    }
 
     msg.ack();
   }

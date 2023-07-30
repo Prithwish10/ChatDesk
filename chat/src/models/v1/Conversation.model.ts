@@ -1,6 +1,7 @@
 import mongoose from "mongoose";
 import { Conversation } from "../../interfaces/v1/Conversation";
 import ParticipantSchema from "./Participant.model";
+import { updateIfCurrentPlugin } from "mongoose-update-if-current";
 
 const conversationSchema = new mongoose.Schema<Conversation>(
   {
@@ -50,5 +51,8 @@ const conversationSchema = new mongoose.Schema<Conversation>(
     },
   }
 );
+
+conversationSchema.set("versionKey", "version");
+conversationSchema.plugin(updateIfCurrentPlugin);
 
 export default mongoose.model<Conversation>("Conversation", conversationSchema);

@@ -23,15 +23,20 @@ export class ConversationCreatedListener extends Listener<ConversationCreatedEve
     const { id, participants, isGroup, group_name, group_photo, deleted } =
       data;
 
-    await this._conversationRepository.create({
-      _id: new Types.ObjectId(id),
-      participants,
-      isGroup,
-      group_name,
-      group_photo,
-      deleted,
-    });
-    logger.info("Acknowledging the conversation creation.");
+    try {
+      await this._conversationRepository.create({
+        _id: new Types.ObjectId(id),
+        participants,
+        isGroup,
+        group_name,
+        group_photo,
+        deleted,
+      });
+      logger.info("Acknowledging the conversation creation.");
+    } catch (error) {
+      logger.info(`Error occured in Conversation Created Listener: ${error}`);
+      throw error;
+    }
 
     msg.ack();
   }

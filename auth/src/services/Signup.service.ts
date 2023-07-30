@@ -85,6 +85,7 @@ export class SignupService {
         lastName: user.lastName,
         email: user.email,
         mobileNumber: user.mobileNumber,
+        version: user.version!
       });
 
       await SESSION.commitTransaction();
