@@ -24,18 +24,23 @@ export class UserUpdatedListener extends Listener<UserUpdatedEvent> {
   async onMessage(data: UserUpdatedEvent["data"], msg: Message): Promise<void> {
     const { id, firstName, lastName, mobileNumber, email } = data;
 
-    const user = await this._userRepository.findById(id);
-    if (!user) {
-      throw new Api404Error("User not found.");
-    }
+    try {
+      const user = await this._userRepository.findById(id);
+      if (!user) {
+        throw new Api404Error("User not found.");
+      }
 
-    await this._userRepository.update(id, {
-      firstName,
-      lastName,
-      mobileNumber,
-      email,
-    });
-    logger.info("Acknowledging the user updation.");
+      await this._userRepository.update(id, {
+        firstName,
+        lastName,
+        mobileNumber,
+        email,
+      });
+      logger.info("Acknowledging the user updation.");
+    } catch (error) {
+      logger.info(`Error occured in User Updated Listener: ${error}`);
+      throw error;
+    }
 
     msg.ack();
   }

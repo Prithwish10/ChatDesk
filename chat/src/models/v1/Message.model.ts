@@ -2,6 +2,7 @@ import mongoose from "mongoose";
 import { Message } from "../../interfaces/v1/Message";
 import ReactionSchema from "./Reaction.model";
 import AttachmentModel from "./Attachment.model";
+import { updateIfCurrentPlugin } from "mongoose-update-if-current";
 
 const messageSchema = new mongoose.Schema<Message>(
   {
@@ -57,6 +58,10 @@ const messageSchema = new mongoose.Schema<Message>(
     },
   }
 );
+
+
+messageSchema.set("versionKey", "version");
+messageSchema.plugin(updateIfCurrentPlugin);
 
 messageSchema.pre("save", async function (next) {
   const message = this as Message;

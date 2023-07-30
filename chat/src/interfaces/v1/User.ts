@@ -7,6 +7,7 @@ export interface User {
   image?: string;
   email: string;
   mobileNumber: string;
+  version?: number;
 }
 
 export interface UpdateUser {

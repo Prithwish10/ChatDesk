@@ -8,4 +8,5 @@ export interface User {
   mobileNumber: string;
   email: string;
   password: string;
+  version?: number;
 }

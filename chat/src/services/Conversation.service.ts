@@ -76,6 +76,7 @@ export class ConversationService {
         group_name: newConversation.group_name,
         isGroup: newConversation.isGroup,
         deleted: newConversation.deleted,
+        version: newConversation.version!,
       });
 
       await SESSION.commitTransaction();
@@ -191,7 +192,8 @@ export class ConversationService {
       );
 
       await new ConversationUpdatedPublisher(natsWrapper.client).publish({
-        id: conversation_id,
+        id: updatedConversation!._id!.toString(),
+        version: updatedConversation?.version!,
         ...conversation,
       });
 
@@ -221,8 +223,9 @@ export class ConversationService {
    * @throws Throws an error if there was a problem deleting the conversation.
    */
   public async deleteById(conversation_id: string): Promise<void> {
+    let isConversationPresent: any;
     try {
-      const isConversationPresent = await this._conversationRepository.getById(
+      isConversationPresent = await this._conversationRepository.getById(
         conversation_id
       );
       if (!isConversationPresent || isConversationPresent.deleted === 1) {
@@ -243,6 +246,7 @@ export class ConversationService {
 
       await new ConversationDeletedPublisher(natsWrapper.client).publish({
         id: conversation_id,
+        version: isConversationPresent!.version!,
       });
 
       await SESSION.commitTransaction();
