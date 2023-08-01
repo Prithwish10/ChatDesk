@@ -1,4 +1,5 @@
 import { Service } from "typedi";
+import {Types} from "mongoose";
 import { ConversationRepository } from "../repositories/v1/Conversation.repository";
 import {
   ConversationAttrs,
@@ -36,9 +37,10 @@ export class ConversationService {
    * @returns The newly created/previous conversation.
    * @throws Error if an error occurs while creating the conversation.
    */
-  public async create(conversation: ConversationAttrs) {
+  public async create(conversation: ConversationAttrs, currentUserId: string) {
     try {
       const { isGroup, participants } = conversation;
+      conversation.createdBy = new Types.ObjectId(currentUserId);
 
       if (!isGroup && participants.length > 2) {
         throw new Api400Error(
@@ -58,6 +60,7 @@ export class ConversationService {
           participants,
           isGroup
         );
+
       if (existingConversation) {
         const conversationWithPopulatedParticipants =
           await this._conversationRepository.populateUserInParticipants(

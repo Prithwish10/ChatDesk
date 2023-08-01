@@ -1,4 +1,4 @@
-import mongoose from "mongoose";
+import mongoose, {Types} from "mongoose";
 import { Participant } from "./Participant";
 
 // An interface that describes the properties required to create a new Conversation.
@@ -10,6 +10,7 @@ export interface ConversationAttrs {
   deleted: number;
   last_message_timestamp: Date;
   last_message: string;
+  createdBy: Types.ObjectId;
 }
 
 // An interface that describes the properties that a Conversation Model has.

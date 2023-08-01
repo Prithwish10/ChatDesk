@@ -8,6 +8,7 @@ export interface MessageAttrs {
   conversation_id: Types.ObjectId;
   sender_id: Types.ObjectId;
   content: string;
+  type: string;
   attachments?: Attachment[];
   parent_message_id?: Types.ObjectId | null;
   deleted: number;

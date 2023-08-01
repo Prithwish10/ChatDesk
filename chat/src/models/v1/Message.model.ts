@@ -3,6 +3,8 @@ import { MessageAttrs, MessageDoc, MessageModel } from "../../interfaces/v1/Mess
 import ReactionSchema from "./Reaction.model";
 import AttachmentModel from "./Attachment.model";
 import { updateIfCurrentPlugin } from "mongoose-update-if-current";
+import { ParticipantStatus } from "../../enums/ParticipantStatus";
+import { MessageType } from "../../enums/MessageType";
 
 const messageSchema = new mongoose.Schema<MessageDoc>(
   {
@@ -20,6 +22,12 @@ const messageSchema = new mongoose.Schema<MessageDoc>(
       type: String,
       trim: true,
       required: true,
+    },
+    type: {
+      type: String,
+      required: true,
+      enum: Object.values(MessageType),
+      default: MessageType.General
     },
     attachments: {
       type: [AttachmentModel],

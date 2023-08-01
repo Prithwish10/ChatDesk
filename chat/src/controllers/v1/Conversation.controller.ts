@@ -15,7 +15,8 @@ export class ConversationController {
     try {
       await createConversationSchema.validateAsync(req.body);
       const { conversation, isNew } = await this._conversationService.create(
-        req.body
+        req.body,
+        req.currentUser!.id
       );
 
       if (!isNew) {

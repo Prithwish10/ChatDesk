@@ -36,6 +36,11 @@ const conversationSchema = new mongoose.Schema(
       type: Date,
       default: Date.now,
     },
+    createdBy: {
+      type: mongoose.Schema.Types.ObjectId,
+      required: true,
+      ref: "User",
+    },
     last_message_timestamp: {
       type: Date,
       default: Date.now,
