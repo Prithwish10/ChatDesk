@@ -1,6 +1,7 @@
 import mongoose from "mongoose";
 import { ConversationAttrs, ConversationDoc, ConversationModel } from "../interfaces/Conversation";
 import ParticipantSchema from "./Participant.model";
+import { updateIfCurrentPlugin } from "mongoose-update-if-current";
 
 const conversationSchema = new mongoose.Schema({
   participants: {
@@ -29,6 +30,9 @@ const conversationSchema = new mongoose.Schema({
     required: true,
   },
 });
+
+conversationSchema.set("versionKey", "version");
+conversationSchema.plugin(updateIfCurrentPlugin);
 
 conversationSchema.statics.build = (attrs: ConversationAttrs) => {
   return new Conversation(attrs);

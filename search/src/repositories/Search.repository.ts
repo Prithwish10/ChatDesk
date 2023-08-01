@@ -57,6 +57,7 @@ export class SearchRepository {
       const groups = await Conversation.find({
         $and: [
           { isGroup: true },
+          { deleted: 0 },
           { "participants.user_id": new Types.ObjectId(currentUserId) },
           { group_name: { $regex: regex } },
         ],

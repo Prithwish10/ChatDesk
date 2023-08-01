@@ -11,6 +11,7 @@ import { ConversationCreatedListener } from "./events/listeners/conversation-cre
 import { ConversationUpdatedListener } from "./events/listeners/conversation-updated-listener";
 import { ParticipantsAddedListener } from "./events/listeners/participants-added-listener";
 import { ParticipantsRemovedListener } from "./events/listeners/participant-removed-listener";
+import { ConversationDeletedListener } from "./events/listeners/conversation-deleted-listener";
 
 /**
  * Represents a server that listens on a specified port and handles HTTP requests.
@@ -65,6 +66,7 @@ class Server {
       new UserUpdatedListener(natsWrapper.client).listen();
       new ConversationCreatedListener(natsWrapper.client).listen();
       new ConversationUpdatedListener(natsWrapper.client).listen();
+      new ConversationDeletedListener(natsWrapper.client).listen();
       new ParticipantsAddedListener(natsWrapper.client).listen();
       new ParticipantsRemovedListener(natsWrapper.client).listen();
 

@@ -33,7 +33,7 @@ export class ConversationDeletedListener extends Listener<ConversationDeletedEve
       }
 
       await this._conversationRepository.deleteByConversation(conversation);
-      logger.info("Acknowledging the conversation updation.");
+      logger.info("Acknowledging the conversation deletion.");
     } catch (error) {
       logger.info(`Error occured in Conversation Deleted Listener: ${error}`);
       throw error;

@@ -1,5 +1,6 @@
 import mongoose from "mongoose";
 import { UserAttrs, UserDoc, UserModel } from "../interfaces/User";
+import { updateIfCurrentPlugin } from "mongoose-update-if-current";
 
 const userSchema = new mongoose.Schema(
   {
@@ -36,6 +37,9 @@ const userSchema = new mongoose.Schema(
     },
   }
 );
+
+userSchema.set("versionKey", "version");
+userSchema.plugin(updateIfCurrentPlugin);
 
 userSchema.statics.build = (attrs: UserAttrs) => {
   return new User(attrs);
