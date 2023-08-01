@@ -94,7 +94,7 @@ class ChatServer {
       socket.on(
         "last-checked-conversation",
         (conversation_id: string, user_id: string) => {
-          this._conversationRepository.updateParticipantsLastCheckedTime(
+          this._conversationRepository.updateParticipantsLastCheckedTimeByConversationId(
             conversation_id,
             user_id
           );

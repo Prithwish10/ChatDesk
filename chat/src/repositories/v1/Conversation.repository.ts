@@ -1,10 +1,13 @@
 import { Service } from "typedi";
 import { SortOrder } from "mongoose";
-import { Conversation } from "../../interfaces/v1/Conversation";
-import ConversationModel from "../../models/v1/Conversation.model";
+import {
+  ConversationAttrs,
+  ConversationDoc,
+} from "../../interfaces/v1/Conversation";
+import { Conversation } from "../../models/v1/Conversation.model";
 import { Participant } from "../../interfaces/v1/Participant";
 import { logger } from "../../loaders/logger";
-import MessageModel from "../../models/v1/Message.model";
+import { Message } from "../../models/v1/Message.model";
 import UserModel from "../../models/v1/User.model";
 import { Api404Error } from "@pdchat/common";
 
@@ -12,84 +15,89 @@ import { Api404Error } from "@pdchat/common";
 export class ConversationRepository {
   constructor() {}
 
-  /**
-   * Creates a new conversation.
-   *
-   * @param conversation - The conversation object to create.
-   * @returns A Promise that resolves to the created conversation.
-   * @throws Throws an error if there was a problem creating the conversation.
-   */
-  public async create(conversation: Conversation) {
+  public async create(
+    conversation: ConversationAttrs
+  ): Promise<ConversationDoc> {
     try {
-      const newConversation = await ConversationModel.create(conversation);
-      return newConversation;
+      const newConversation = Conversation.build(conversation);
+      const savedConversation = await newConversation.save();
+
+      return savedConversation;
     } catch (error: any) {
       logger.error(`Error occured while creating conversation: ${error}`);
       throw error;
     }
   }
 
-  /**
-   * Retrieves a conversation by its ID.
-   *
-   * @param conversation_id - The ID of the conversation to fetch.
-   * @returns A Promise that resolves to the conversation with the specified ID.
-   * @throws Throws an error if there was a problem fetching the conversation.
-   */
-  public async getById(conversation_id: string) {
+  public async populateUserInParticipants(conversation: ConversationDoc) {
     try {
-      const conversation = await ConversationModel.findById(conversation_id);
+      const populatedConversation = await conversation.populate(
+        "participants.user_id"
+      );
+      return populatedConversation;
+    } catch (error) {
+      logger.error(`Error occured while populating participants in conversation: ${error}`);
+      throw error;
+    }
+  }
+
+  public async getConversationByIdAlongWithUsers(
+    conversationId: string
+  ): Promise<ConversationDoc | null> {
+    try {
+      const conversation = await Conversation.findById(conversationId).populate(
+        "participants.user_id"
+      );
 
       return conversation;
     } catch (error) {
-      logger.error(`Error occured while getting message by Id: ${error}`);
-      throw error;
-    }
-  }
-
-  /**
-   * Updates a conversation by its ID.
-   *
-   * @param conversation_id - The ID of the conversation to update.
-   * @param conversation - The updated conversation object.
-   * @returns A Promise that resolves to the updated conversation.
-   * @throws Throws an error if there was a problem updating the conversation.
-   */
-  public async updateById(conversation_id: string, conversation: Conversation) {
-    try {
-      const updatedMessage = await ConversationModel.findByIdAndUpdate(
-        { _id: conversation_id },
-        conversation,
-        { new: true }
-      );
-      return updatedMessage;
-    } catch (error) {
       logger.error(
-        `Error occured while updating message by Id: ${error}`
+        `Error occured while fedtching conversation by Id: ${error}`
       );
       throw error;
     }
   }
 
-  /**
-   * Deletes a conversation by its ID (soft delete).
-   *
-   * @param conversation_id - The ID of the conversation to delete.
-   * @returns A Promise that resolves to the deleted conversation.
-   * @throws Throws an error if there was a problem deleting the conversation.
-   */
-  public async deleteById(conversation_id: string) {
+  public async getById(
+    conversationId: string
+  ): Promise<ConversationDoc | null> {
     try {
-      const updatedMessage = await ConversationModel.findByIdAndUpdate(
-        { _id: conversation_id },
-        { deleted: 1 }, // Soft delete
-        { new: true }
-      );
-      return updatedMessage;
+      const conversation = await Conversation.findById(conversationId);
+
+      return conversation;
     } catch (error) {
       logger.error(
-        `Error occured while updating message by Id: ${error}`
+        `Error occured while fedtching conversation by Id: ${error}`
       );
+      throw error;
+    }
+  }
+
+  public async updateByConversation(
+    conversationById: ConversationDoc,
+    conversation: Partial<ConversationAttrs>
+  ): Promise<ConversationDoc> {
+    try {
+      conversationById.set(conversation);
+      await conversationById.save();
+
+      return conversationById;
+    } catch (error) {
+      logger.error(`Error occured while updating conversation: ${error}`);
+      throw error;
+    }
+  }
+
+  public async deleteByConversation(
+    conversationById: ConversationDoc
+  ): Promise<ConversationDoc> {
+    try {
+      conversationById.set({ deleted: 1 });
+      await conversationById.save();
+
+      return conversationById;
+    } catch (error) {
+      logger.error(`Error occured while updating message by Id: ${error}`);
       throw error;
     }
   }
@@ -105,7 +113,7 @@ export class ConversationRepository {
   public async isConversationWithSameParticipantsExists(
     participants: Participant[],
     isGroup: boolean
-  ) {
+  ): Promise<ConversationDoc | null> {
     try {
       const participantQueries = participants.map((participant) => ({
         $elemMatch: {
@@ -122,7 +130,7 @@ export class ConversationRepository {
         ],
       };
 
-      const existingConversation = await ConversationModel.findOne(query);
+      const existingConversation = await Conversation.findOne(query);
 
       return existingConversation;
     } catch (error: any) {
@@ -174,7 +182,7 @@ export class ConversationRepository {
 
       let userConversations: any;
 
-      userConversations = await ConversationModel.find(participantQuery)
+      userConversations = await Conversation.find(participantQuery)
         .populate("participants")
         .sort(sortConfig)
         .skip(skip)
@@ -196,10 +204,10 @@ export class ConversationRepository {
           ).last_checked_conversation_at;
 
           // Count the number of unread messages in the conversation
-          const unreadMessageCount = await MessageModel.countDocuments({
+          const unreadMessageCount = await Message.countDocuments({
             conversation_id: userConversation._id,
             sender_id: { $ne: user_id },
-            created_at: { $gt: lastCheckedTimestamp },
+            createdAt: { $gt: lastCheckedTimestamp },
           });
 
           return {
@@ -222,12 +230,36 @@ export class ConversationRepository {
     }
   }
 
-  public async updateParticipantsLastCheckedTime(
-    conversation_id: string,
+  public async updateParticipantsLastCheckedTimeByConversation(
+    conversationById: ConversationDoc,
     participant_id: string
-  ) {
+  ): Promise<ConversationDoc> {
     try {
-      const conversation = await this.getById(conversation_id);
+      const participant = conversationById?.participants.find(
+        (participant) => participant.user_id.toString() === participant_id
+      );
+      if (!participant) {
+        throw new Api404Error("Participant not found in the conversaation");
+      }
+
+      participant.last_checked_conversation_at = new Date();
+      await conversationById?.save();
+
+      return conversationById;
+    } catch (error) {
+      logger.error(
+        `Error occured while in repository while fetching user conversations: ${error}`
+      );
+      throw error;
+    }
+  }
+
+  public async updateParticipantsLastCheckedTimeByConversationId(
+    conversationId: string,
+    participant_id: string
+  ): Promise<void> {
+    try {
+      const conversation = await this.getById(conversationId);
       const participant = conversation?.participants.find(
         (participant) => participant.user_id.toString() === participant_id
       );
@@ -254,30 +286,28 @@ export class ConversationRepository {
    * @throws Throws an error if there was a problem adding participant to the conversation.
    */
   public async addParticipantsToConversation(
-    conversation_id: string,
+    conversationById: ConversationDoc,
     participants: Participant[]
-  ) {
+  ): Promise<ConversationDoc> {
     try {
-      const conversation = await this.getById(conversation_id);
-
       const existingParticipants = new Set(
-        conversation?.participants.map((existingParticipant) =>
-          existingParticipant.user_id.toString()
+        conversationById?.participants.map((existingParticipant) =>
+          existingParticipant.user_id.id.toString()
         )
       );
 
       // Add new participants to the conversation if they don't already exist
       const newParticipants = participants.filter(
         (participant) =>
-          !existingParticipants.has(participant.user_id.toString())
+          !existingParticipants.has(participant.user_id.id.toString())
       );
 
-      conversation?.participants.push(...newParticipants);
+      conversationById.participants.push(...newParticipants);
 
       // Save the updated conversation
-      const updatedConversation = await conversation?.save();
+      await conversationById.save();
 
-      return updatedConversation;
+      return conversationById;
     } catch (error) {
       logger.error(
         `Error occured while in repository while adding participants conversations: ${error}`
@@ -295,21 +325,18 @@ export class ConversationRepository {
    * @throws Throws an error if there was a problem removing participant from the conversation.
    */
   public async removeParticipantFromConversation(
-    conversation_id: string,
+    conversationById: ConversationDoc,
     participant_id: string
-  ) {
+  ): Promise<ConversationDoc> {
     try {
-      const updatedConversation = await ConversationModel.findByIdAndUpdate(
-        conversation_id,
-        {
-          $pull: { participants: { user_id: participant_id } },
-        },
-        {
-          new: true,
-        }
-      ).populate("participants");
+      conversationById.participants = conversationById.participants.filter(
+        (participant) => participant.user_id.id.toString() !== participant_id
+      );
 
-      return updatedConversation;
+      // Save the updated conversation
+      await conversationById.save();
+
+      return conversationById;
     } catch (error) {
       logger.error(
         `Error occured while in repository while removing participants conversations: ${error}`
@@ -325,12 +352,31 @@ export class ConversationRepository {
    * @returns The total number of documents that match the given query.
    * @throws Throws an error if there was a problem counting the documents.
    */
-  private async countDocuments(query: any) {
+  private async countDocuments(query: any): Promise<number> {
     try {
-      const totalDocuments = await ConversationModel.countDocuments(query);
+      const totalDocuments = await Conversation.countDocuments(query);
       return totalDocuments;
     } catch (error) {
       logger.error(`Error occured while counting documents: ${error}`);
+      throw error;
+    }
+  }
+
+  public async getConversationByParticipant(
+    conversationId: string,
+    userId: string
+  ): Promise<ConversationDoc | null> {
+    try {
+      const conversation = await Conversation.findOne({
+        _id: conversationId,
+        "participants.user_id": userId,
+      });
+
+      return conversation;
+    } catch (error) {
+      logger.error(
+        `Error occured while fetching participant by user_id: ${error}`
+      );
       throw error;
     }
   }

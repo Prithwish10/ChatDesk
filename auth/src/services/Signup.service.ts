@@ -7,7 +7,7 @@ import { UserRepository } from "../repositories/user.repository";
 import config from "../config/config.global";
 import { UserCreatedPublisher } from "../events/publishers/User-created-publisher";
 import { natsWrapper } from "../loaders/NatsWrapper";
-import { User } from "../interfaces/User";
+import { UserAttrs } from "../interfaces/User";
 
 @Service()
 export class SignupService {
@@ -22,7 +22,7 @@ export class SignupService {
    * @param {string} mobileNumber - The mobile number of the user.
    * @param {string} email - The email address of the user.
    * @param {string} password - The plaintext password provided by the user for the new account.
-   * @returns {Promise<{ user: User, userJwt: string }>} A Promise that resolves to an object containing the newly created user and their corresponding JWT (JSON Web Token) after successful signup.
+   * @returns {Promise<{ user: UserAttrs, userJwt: string }>} A Promise that resolves to an object containing the newly created user and their corresponding JWT (JSON Web Token) after successful signup.
    * @throws {Api409Error} If there is an existing user with the same email or mobile number, indicating a conflict.
    * @throws {Error} Any other error that occurs during the signup process.
    */
@@ -33,7 +33,7 @@ export class SignupService {
     mobileNumber: string,
     email: string,
     password: string
-  ): Promise<{ user: User; userJwt: string }> {
+  ): Promise<{ user: UserAttrs; userJwt: string }> {
     try {
       const existingUserWithEmail = await this._userRepository.findUserByEmail(
         email

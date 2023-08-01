@@ -1,8 +1,10 @@
 import { Service } from "typedi";
-import usersModel from "../models/users.model";
+import { User } from "../models/users.model";
 import { SortOrder, Types } from "mongoose";
-import conversationModel from "../models/conversation.model";
+import { Conversation } from "../models/conversation.model";
 import { logger } from "../loaders/logger";
+import { UserDoc } from "../interfaces/User";
+import { ConversationDoc } from "../interfaces/Conversation";
 
 @Service()
 export class SearchRepository {
@@ -14,21 +16,20 @@ export class SearchRepository {
     itemsPerPage: number,
     sort: string,
     order: string
-  ) {
+  ): Promise<UserDoc[] | null> {
     try {
       const sortConfig: { [key: string]: SortOrder } = {};
       sortConfig[sort] = order === "asc" ? 1 : -1;
       const regex = new RegExp("^" + keyword, "i");
 
-      const users = await usersModel
-        .find({
-          $or: [
-            { firstName: { $regex: regex } },
-            { lastName: { $regex: regex } },
-            { mobileNumber: { $regex: regex } },
-            { email: { $regex: regex } },
-          ],
-        })
+      const users = await User.find({
+        $or: [
+          { firstName: { $regex: regex } },
+          { lastName: { $regex: regex } },
+          { mobileNumber: { $regex: regex } },
+          { email: { $regex: regex } },
+        ],
+      })
         .skip((currentPage - 1) * itemsPerPage)
         .limit(itemsPerPage)
         .sort(sortConfig);
@@ -47,20 +48,20 @@ export class SearchRepository {
     itemsPerPage: number,
     sort: string,
     order: string
-  ) {
+  ): Promise<ConversationDoc[] | null> {
     try {
       const sortConfig: { [key: string]: SortOrder } = {};
       sortConfig[sort] = order === "asc" ? 1 : -1;
       const regex = new RegExp("^" + groupName, "i");
 
-      const groups = await conversationModel
-        .find({
-          $and: [
-            { isGroup: true },
-            { "participants.user_id": new Types.ObjectId(currentUserId) },
-            { group_name: { $regex: regex } },
-          ],
-        })
+      const groups = await Conversation.find({
+        $and: [
+          { isGroup: true },
+          { "participants.user_id": new Types.ObjectId(currentUserId) },
+          { group_name: { $regex: regex } },
+        ],
+      })
+        .populate("participants.user_id")
         .skip((currentPage - 1) * itemsPerPage)
         .limit(itemsPerPage)
         .sort(sortConfig);

@@ -3,8 +3,9 @@ import { Request, Response, NextFunction } from "express";
 import { ConversationService } from "../../services/Conversation.service";
 import { createConversationSchema } from "../../utils/validation/conversation.validation.schema";
 import { logger } from "../../loaders/logger";
-import { Conversation } from "../../interfaces/v1/Conversation";
+import { ConversationAttrs } from "../../interfaces/v1/Conversation";
 import { Participant } from "../../interfaces/v1/Participant";
+import { addParticipantsToConversationSchema } from "../../utils/validation/participant-added.validation.schema";
 
 @Service()
 export class ConversationController {
@@ -100,7 +101,7 @@ export class ConversationController {
     try {
       const updatedConversation = await this._conversationService.updateById(
         req.params.id as string,
-        req.body as Conversation
+        req.body as ConversationAttrs
       );
 
       return res.status(200).json({
@@ -138,16 +139,18 @@ export class ConversationController {
     next: NextFunction
   ) {
     try {
+      await addParticipantsToConversationSchema.validateAsync(req.body);
+
       const conversationWithUpdatedParticipants =
         await this._conversationService.addParticipantsToConversation(
           req.params.id as string,
-          req.body as Participant[],
+          req.body.participants as Participant[],
           req.currentUser!.id as string
         );
 
-      return res.status(201).json({
+      return res.status(200).json({
         success: true,
-        statusCode: 201,
+        statusCode: 200,
         conversation: conversationWithUpdatedParticipants,
       });
     } catch (error) {

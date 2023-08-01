@@ -1,18 +1,21 @@
 import { Service } from "typedi";
 import { SortOrder, Types } from "mongoose";
-import conversationModel from "../models/conversation.model";
+import { Conversation } from "../models/conversation.model";
 import { logger } from "../loaders/logger";
-import { Conversation } from "../interfaces/Conversation";
+import { ConversationAttrs, ConversationDoc } from "../interfaces/Conversation";
 import { Participant } from "../interfaces/Participant";
 
 @Service()
 export class ConversationRepository {
   constructor() {}
 
-  public async create(conversation: Conversation) {
+  public async create(
+    conversation: ConversationAttrs
+  ): Promise<ConversationDoc> {
     try {
-      const newConversation = await conversationModel.create(conversation);
-      return newConversation;
+      const newConversation = Conversation.build(conversation);
+      const savedConversation = await newConversation.save();
+      return savedConversation;
     } catch (error) {
       logger.error("Error occured while creating conversation");
       throw error;
@@ -26,20 +29,19 @@ export class ConversationRepository {
     itemsPerPage: number,
     sort: string,
     order: string
-  ) {
+  ): Promise<ConversationDoc[] | null> {
     try {
       const sortConfig: { [key: string]: SortOrder } = {};
       sortConfig[sort] = order === "asc" ? 1 : -1;
       const regex = new RegExp("^" + groupName, "i");
 
-      const groups = await conversationModel
-        .find({
-          $and: [
-            { isGroup: true },
-            { "participants.user_id": new Types.ObjectId(currentUserId) },
-            { group_name: { $regex: regex } },
-          ],
-        })
+      const groups = await Conversation.find({
+        $and: [
+          { isGroup: true },
+          { "participants.user_id": new Types.ObjectId(currentUserId) },
+          { group_name: { $regex: regex } },
+        ],
+      })
         .skip((currentPage - 1) * itemsPerPage)
         .limit(itemsPerPage)
         .sort(sortConfig);
@@ -53,54 +55,57 @@ export class ConversationRepository {
     }
   }
 
-  public async getById(conversation_id: string) {
+  public async getById(
+    conversationId: string
+  ): Promise<ConversationDoc | null> {
     try {
-      const conversation = await conversationModel.findById(conversation_id);
+      const conversation = await Conversation.findById(
+        conversationId
+      ).populate("participants");
 
       return conversation;
     } catch (error) {
-      logger.error(`Error occured while getting message by Id: ${error}`);
+      logger.error(`Error occured while getting conversation by Id: ${error}`);
       throw error;
     }
   }
 
-  public async updateById(conversation_id: string, conversation: Conversation) {
+  public async updateByConversation(
+    conversationById: ConversationDoc,
+    conversation: Partial<ConversationAttrs>
+  ): Promise<ConversationDoc> {
     try {
-      const updatedMessage = await conversationModel.findByIdAndUpdate(
-        { _id: conversation_id },
-        conversation,
-        { new: true }
-      );
-      return updatedMessage;
+      conversationById.set(conversation);
+      await conversationById.save();
+
+      return conversationById;
     } catch (error) {
-      logger.error(`Error occured while updating message by Id: ${error}`);
+      logger.error(`Error occured while updating conversation by Id: ${error}`);
       throw error;
     }
   }
 
-  public async deleteById(conversation_id: string) {
+  public async deleteByConversation(
+    conversationById: ConversationDoc
+  ): Promise<ConversationDoc> {
     try {
-      const updatedMessage = await conversationModel.findByIdAndUpdate(
-        { _id: conversation_id },
-        { deleted: 1 }, // Soft delete
-        { new: true }
-      );
-      return updatedMessage;
+      conversationById.set({ deleted: 1 });
+      await conversationById.save();
+
+      return conversationById;
     } catch (error) {
-      logger.error(`Error occured while updating message by Id: ${error}`);
+      logger.error(`Error occured while updating conversation by Id: ${error}`);
       throw error;
     }
   }
 
   public async addParticipantsToConversation(
-    conversation_id: string,
+    conversationById: ConversationDoc,
     participants: Participant[]
-  ) {
+  ): Promise<ConversationDoc> {
     try {
-      const conversation = await this.getById(conversation_id);
-
       const existingParticipants = new Set(
-        conversation?.participants.map((existingParticipant) =>
+        conversationById.participants.map((existingParticipant) =>
           existingParticipant.user_id.toString()
         )
       );
@@ -111,12 +116,12 @@ export class ConversationRepository {
           !existingParticipants.has(participant.user_id.toString())
       );
 
-      conversation?.participants.push(...newParticipants);
+      conversationById.participants.push(...newParticipants);
 
       // Save the updated conversation
-      const updatedConversation = await conversation?.save();
+      await conversationById.save();
 
-      return updatedConversation;
+      return conversationById;
     } catch (error) {
       logger.error(
         `Error occured while in repository while adding participants conversations: ${error}`
@@ -126,23 +131,19 @@ export class ConversationRepository {
   }
 
   public async removeParticipantFromConversation(
-    conversation_id: string,
+    conversationById: ConversationDoc,
     participant_id: string
-  ) {
+  ): Promise<ConversationDoc> {
     try {
-      const updatedConversation = await conversationModel
-        .findByIdAndUpdate(
-          conversation_id,
-          {
-            $pull: { participants: { user_id: participant_id } },
-          },
-          {
-            new: true,
-          }
-        )
-        .populate("participants");
+      conversationById.participants =
+        conversationById.participants.filter(
+          (participant) => participant.user_id.toString() !== participant_id
+        );
 
-      return updatedConversation;
+      // Save the updated conversation
+      await conversationById.save();
+
+      return conversationById;
     } catch (error) {
       logger.error(
         `Error occured while in repository while removing participants conversations: ${error}`

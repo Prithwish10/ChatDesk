@@ -32,7 +32,7 @@ export class ConversationDeletedListener extends Listener<ConversationDeletedEve
         throw new Api404Error("Conversation not found.");
       }
 
-      await this._conversationRepository.deleteById(id);
+      await this._conversationRepository.deleteByConversation(conversation);
       logger.info("Acknowledging the conversation updation.");
     } catch (error) {
       logger.info(`Error occured in Conversation Deleted Listener: ${error}`);

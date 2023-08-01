@@ -1,10 +1,10 @@
 import mongoose from "mongoose";
-import { Message } from "../../interfaces/v1/Message";
+import { MessageAttrs, MessageDoc, MessageModel } from "../../interfaces/v1/Message";
 import ReactionSchema from "./Reaction.model";
 import AttachmentModel from "./Attachment.model";
 import { updateIfCurrentPlugin } from "mongoose-update-if-current";
 
-const messageSchema = new mongoose.Schema<Message>(
+const messageSchema = new mongoose.Schema<MessageDoc>(
   {
     conversation_id: {
       type: mongoose.Schema.Types.ObjectId,
@@ -40,11 +40,11 @@ const messageSchema = new mongoose.Schema<Message>(
       type: [ReactionSchema],
       required: false,
     },
-    created_at: {
+    createdAt: {
       type: Date,
       default: Date.now,
     },
-    updated_at: {
+    updatedAt: {
       type: Date,
       default: Date.now,
     },
@@ -64,14 +64,14 @@ messageSchema.set("versionKey", "version");
 messageSchema.plugin(updateIfCurrentPlugin);
 
 messageSchema.pre("save", async function (next) {
-  const message = this as Message;
+  const message = this as MessageDoc;
 
   // Update the last_message & last_message_timestamp in the associated conversation
   await mongoose.model("Conversation").updateOne(
     { _id: message.conversation_id },
     {
       $set: {
-        last_message_timestamp: message.created_at,
+        last_message_timestamp: message.createdAt,
         last_message: message.content,
       },
     }
@@ -80,4 +80,13 @@ messageSchema.pre("save", async function (next) {
   next();
 });
 
-export default mongoose.model<Message>("Message", messageSchema);
+messageSchema.statics.build = (attrs: MessageAttrs) => {
+  return new Message(attrs);
+};
+
+const Message = mongoose.model<MessageDoc, MessageModel>(
+  "Message",
+  messageSchema
+);
+
+export { Message };

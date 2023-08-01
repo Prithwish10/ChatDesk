@@ -1,6 +1,9 @@
 import { Service } from "typedi";
 import { ConversationRepository } from "../repositories/v1/Conversation.repository";
-import { Conversation } from "../interfaces/v1/Conversation";
+import {
+  ConversationAttrs,
+  ConversationDoc,
+} from "../interfaces/v1/Conversation";
 import { Api400Error, Api401Error, Api404Error } from "@pdchat/common";
 import { logger } from "../loaders/logger";
 import { Participant } from "../interfaces/v1/Participant";
@@ -9,6 +12,8 @@ import { natsWrapper } from "../loaders/NatsWrapper";
 import mongoose from "mongoose";
 import { ConversationUpdatedPublisher } from "../events/publishers/conversation-updated-publisher";
 import { ConversationDeletedPublisher } from "../events/publishers/conversation-deleted-publisher";
+import { ParticipantsAddedPublisher } from "../events/publishers/participants-added-publisher";
+import { ParticipantRemovedPublisher } from "../events/publishers/participant-removed-publisher";
 
 @Service()
 export class ConversationService {
@@ -31,7 +36,7 @@ export class ConversationService {
    * @returns The newly created/previous conversation.
    * @throws Error if an error occurs while creating the conversation.
    */
-  public async create(conversation: Conversation) {
+  public async create(conversation: ConversationAttrs) {
     try {
       const { isGroup, participants } = conversation;
 
@@ -54,8 +59,14 @@ export class ConversationService {
           isGroup
         );
       if (existingConversation) {
-        // throw new Api400Error("Conversation already exist");
-        return { conversation: existingConversation, isNew: false };
+        const conversationWithPopulatedParticipants =
+          await this._conversationRepository.populateUserInParticipants(
+            existingConversation
+          );
+        return {
+          conversation: conversationWithPopulatedParticipants,
+          isNew: false,
+        };
       }
     } catch (error: any) {
       logger.error(`Error in service while creating document: ${error}`);
@@ -70,6 +81,14 @@ export class ConversationService {
         conversation
       );
 
+      const conversationById = await this._conversationRepository.getById(
+        newConversation.id
+      );
+      const conversationWithPopulatedParticipants =
+        await this._conversationRepository.populateUserInParticipants(
+          conversationById!
+        );
+
       await new ConversationCreatedPublisher(natsWrapper.client).publish({
         id: newConversation.id,
         participants: newConversation.participants,
@@ -82,7 +101,10 @@ export class ConversationService {
       await SESSION.commitTransaction();
       logger.info("Conversation created event sent successfully!");
 
-      return { conversation: newConversation, isNew: true };
+      return {
+        conversation: conversationWithPopulatedParticipants,
+        isNew: true,
+      };
     } catch (error) {
       // catch any error due to transaction
       await SESSION.abortTransaction();
@@ -143,9 +165,10 @@ export class ConversationService {
    */
   public async getById(conversation_id: string) {
     try {
-      const conversation = await this._conversationRepository.getById(
-        conversation_id
-      );
+      const conversation =
+        await this._conversationRepository.getConversationByIdAlongWithUsers(
+          conversation_id
+        );
       if (!conversation || conversation.deleted === 1) {
         throw new Api404Error("Conversation no longer exist!");
       }
@@ -168,11 +191,16 @@ export class ConversationService {
    * @throws Throws a 404 error if the conversation does not exist.
    * @throws Throws an error if there was a problem updating the conversation.
    */
-  public async updateById(conversation_id: string, conversation: Conversation) {
+  public async updateById(
+    conversation_id: string,
+    conversation: ConversationAttrs
+  ) {
+    let isConversationPresent: ConversationDoc | null;
     try {
-      const isConversationPresent = await this._conversationRepository.getById(
-        conversation_id
-      );
+      isConversationPresent =
+        await this._conversationRepository.getConversationByIdAlongWithUsers(
+          conversation_id
+        );
       if (!isConversationPresent || isConversationPresent.deleted === 1) {
         throw new Api404Error("Conversation no longer exist!");
       }
@@ -186,10 +214,11 @@ export class ConversationService {
     const SESSION = await mongoose.startSession();
     try {
       SESSION.startTransaction();
-      const updatedConversation = await this._conversationRepository.updateById(
-        conversation_id,
-        conversation
-      );
+      const updatedConversation =
+        await this._conversationRepository.updateByConversation(
+          isConversationPresent,
+          conversation
+        );
 
       await new ConversationUpdatedPublisher(natsWrapper.client).publish({
         id: updatedConversation!._id!.toString(),
@@ -223,11 +252,12 @@ export class ConversationService {
    * @throws Throws an error if there was a problem deleting the conversation.
    */
   public async deleteById(conversation_id: string): Promise<void> {
-    let isConversationPresent: any;
+    let isConversationPresent: ConversationDoc | null;
     try {
-      isConversationPresent = await this._conversationRepository.getById(
-        conversation_id
-      );
+      isConversationPresent =
+        await this._conversationRepository.getConversationByIdAlongWithUsers(
+          conversation_id
+        );
       if (!isConversationPresent || isConversationPresent.deleted === 1) {
         throw new Api404Error("Conversation no longer exist!");
       }
@@ -242,7 +272,9 @@ export class ConversationService {
     try {
       SESSION.startTransaction();
 
-      await this._conversationRepository.deleteById(conversation_id);
+      await this._conversationRepository.deleteByConversation(
+        isConversationPresent
+      );
 
       await new ConversationDeletedPublisher(natsWrapper.client).publish({
         id: conversation_id,
@@ -279,34 +311,61 @@ export class ConversationService {
     participants: Participant[],
     currentUser_id: string
   ) {
+    let isConversationPresent: ConversationDoc | null;
     try {
-      const isConversationPresent = await this._conversationRepository.getById(
-        conversation_id
-      );
+      isConversationPresent =
+        await this._conversationRepository.getConversationByIdAlongWithUsers(
+          conversation_id
+        );
       if (!isConversationPresent || isConversationPresent.deleted === 1) {
         throw new Api404Error("Conversation no longer exist!");
       }
 
       const user = isConversationPresent.participants.find((participant) => {
-        return participant.user_id.toString() === currentUser_id;
+        return participant.user_id.id.toString() === currentUser_id;
       });
 
       if (!user || (user && !user.isAdmin)) {
         throw new Api401Error("You are not an admin.");
       }
-
-      const conversationWithUpdatedParticipants =
-        await this._conversationRepository.addParticipantsToConversation(
-          conversation_id,
-          participants
-        );
-
-      return conversationWithUpdatedParticipants;
     } catch (error) {
       logger.error(
         `Error in service while adding participants to a conversation: ${error}`
       );
       throw error;
+    }
+
+    const SESSION = await mongoose.startSession();
+    try {
+      SESSION.startTransaction();
+
+      const conversationWithUpdatedParticipants =
+        await this._conversationRepository.addParticipantsToConversation(
+          isConversationPresent,
+          participants
+        );
+
+      await new ParticipantsAddedPublisher(natsWrapper.client).publish({
+        conversationId: conversation_id,
+        participants: participants,
+        version: conversationWithUpdatedParticipants!.version!,
+      });
+
+      await SESSION.commitTransaction();
+      logger.info("Participants Adedd event sent successfully!");
+
+      return conversationWithUpdatedParticipants;
+    } catch (error) {
+      // catch any error due to transaction
+      await SESSION.abortTransaction();
+      logger.error(
+        `Error in service while adding participants to conversation and sending add participant event: ${error}`
+      );
+
+      throw error;
+    } finally {
+      // finalize session
+      SESSION.endSession();
     }
   }
 
@@ -324,34 +383,73 @@ export class ConversationService {
     participant_id: string,
     currentUser_id: string
   ) {
+    let isConversationPresent: ConversationDoc | null;
     try {
-      const isConversationPresent = await this._conversationRepository.getById(
-        conversation_id
-      );
+      isConversationPresent =
+        await this._conversationRepository.getConversationByIdAlongWithUsers(
+          conversation_id
+        );
       if (!isConversationPresent || isConversationPresent.deleted === 1) {
         throw new Api404Error("Conversation no longer exist!");
       }
 
+      const isParticipantPresent =
+        await this._conversationRepository.getConversationByParticipant(
+          conversation_id,
+          participant_id
+        );
+
+      if (!isParticipantPresent) {
+        throw new Api400Error(
+          "Participant does not exist in the conversation."
+        );
+      }
+
       const user = isConversationPresent.participants.find((participant) => {
-        return participant.user_id.toString() === currentUser_id;
+        return participant.user_id.id.toString() === currentUser_id;
       });
 
       if (!user || (user && !user.isAdmin)) {
         throw new Api401Error("You are not an admin.");
       }
-
-      const conversationWithUpdatedParticipants =
-        await this._conversationRepository.removeParticipantFromConversation(
-          conversation_id,
-          participant_id
-        );
-
-      return conversationWithUpdatedParticipants;
     } catch (error) {
       logger.error(
         `Error in service while removing participants from a conversation: ${error}`
       );
       throw error;
+    }
+
+    const SESSION = await mongoose.startSession();
+    try {
+      SESSION.startTransaction();
+
+      const conversationWithUpdatedParticipants =
+        await this._conversationRepository.removeParticipantFromConversation(
+          isConversationPresent,
+          participant_id
+        );
+
+      await new ParticipantRemovedPublisher(natsWrapper.client).publish({
+        conversationId: conversation_id,
+        participantId: participant_id,
+        version: conversationWithUpdatedParticipants!.version!,
+      });
+
+      await SESSION.commitTransaction();
+      logger.info("Participants Removed event sent successfully!");
+
+      return conversationWithUpdatedParticipants;
+    } catch (error) {
+      // catch any error due to transaction
+      await SESSION.abortTransaction();
+      logger.error(
+        `Error in service while removing participants to conversation and sending remove participant event: ${error}`
+      );
+
+      throw error;
+    } finally {
+      // finalize session
+      SESSION.endSession();
     }
   }
 }

@@ -1,7 +1,7 @@
 import { Service } from "typedi";
 import { MessageRepository } from "../repositories/v1/Message.repository";
 import { logger } from "../loaders/logger";
-import { Message } from "../interfaces/v1/Message";
+import { MessageAttrs } from "../interfaces/v1/Message";
 import { Api404Error } from "@pdchat/common";
 
 @Service()
@@ -23,10 +23,11 @@ export class MessageService {
    * @returns A Promise that resolves to the created message.
    * @throws Throws an error if there was a problem creating the message.
    */
-  public async create(message: Message) {
+  public async create(message: MessageAttrs) {
     try {
       const newMessage = await this._messageRepository.create(message);
-      return newMessage;
+      const messageWithPopulatedData = await this._messageRepository.populateSenderIdInCreatedMessageParent(newMessage);
+      return messageWithPopulatedData;
     } catch (error) {
       logger.error(`Error in service while creating message: ${error}`);
       throw error;
@@ -36,12 +37,12 @@ export class MessageService {
   /**
    * Retrieves messages for a specific conversation.
    *
-   * @param conversation_id - The ID of the conversation to fetch messages for.
+   * @param conversationId - The ID of the conversation to fetch messages for.
    * @returns A Promise that resolves to the messages for the specified conversation.
    * @throws Throws an error if there was a problem fetching the messages.
    */
   public async getMessagesForAConversation(
-    conversation_id: string,
+    conversationId: string,
     sort: string,
     order: string,
     page: number,
@@ -49,14 +50,15 @@ export class MessageService {
     deleted: number
   ) {
     try {
-      const messages = await this._messageRepository.getMessagesForAConversation(
-        conversation_id,
-        sort,
-        order,
-        page,
-        limit,
-        deleted
-      );
+      const messages =
+        await this._messageRepository.getMessagesForAConversation(
+          conversationId,
+          sort,
+          order,
+          page,
+          limit,
+          deleted
+        );
       return messages;
     } catch (error) {
       logger.error(`Error in service while fetching messages: ${error}`);
@@ -67,15 +69,15 @@ export class MessageService {
   /**
    * Retrieves a message by its ID.
    *
-   * @param message_id - The ID of the message to fetch.
+   * @param messageId - The ID of the message to fetch.
    * @returns A Promise that resolves to the message with the specified ID.
    * @throws Throws a 404 error if the message does not exist.
    * @throws Throws an error if there was a problem fetching the message.
    */
-  public async getById(message_id: string) {
+  public async getById(messageId: string) {
     try {
-      const message = await this._messageRepository.getById(message_id);
-      if (!message || message.length === 0) {
+      const message = await this._messageRepository.getById(messageId);
+      if (!message) {
         throw new Api404Error("Message no longer exist!");
       }
       return message;
@@ -88,20 +90,22 @@ export class MessageService {
   /**
    * Updates a message by its ID.
    *
-   * @param message_id - The ID of the message to update.
+   * @param messageId - The ID of the message to update.
    * @param message - The updated message object.
    * @returns A Promise that resolves to the updated message.
    * @throws Throws a 404 error if the message does not exist.
    * @throws Throws an error if there was a problem updating the message.
    */
-  public async updateById(message_id: string, message: Message) {
+  public async updateById(messageId: string, message: MessageAttrs) {
     try {
-      const isMessagePresent = await this._messageRepository.getById(message_id);
-      if (!isMessagePresent || isMessagePresent.length === 0) {
+      const isMessagePresent = await this._messageRepository.getById(
+        messageId
+      );
+      if (!isMessagePresent) {
         throw new Api404Error("Message no longer exist!");
       }
-      const updatedMessage = await this._messageRepository.updateById(
-        message_id,
+      const updatedMessage = await this._messageRepository.updateByMessageDoc(
+        isMessagePresent,
         message
       );
       return updatedMessage;
@@ -114,17 +118,19 @@ export class MessageService {
   /**
    * Deletes a message by its ID.
    *
-   * @param message_id - The ID of the message to delete.
+   * @param messageId - The ID of the message to delete.
    * @throws Throws a 404 error if the message does not exist.
    * @throws Throws an error if there was a problem deleting the message.
    */
-  public async deleteById(message_id: string) {
+  public async deleteById(messageId: string) {
     try {
-      const isMessagePresent = await this._messageRepository.getById(message_id);
+      const isMessagePresent = await this._messageRepository.getById(
+        messageId
+      );
       if (!isMessagePresent) {
         throw new Api404Error("Message no longer exist!");
       }
-      await this._messageRepository.deleteById(message_id);
+      await this._messageRepository.deleteByMessageDoc(isMessagePresent);
     } catch (error) {
       logger.error(`Error in service while fetching messages: ${error}`);
       throw error;

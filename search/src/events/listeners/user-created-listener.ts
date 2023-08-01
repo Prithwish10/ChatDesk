@@ -2,7 +2,7 @@ import { Message, Stan } from "node-nats-streaming";
 import Container from "typedi";
 import { Subjects, Listener, UserCreatedEvent } from "@pdchat/common";
 import { queueGroupName } from "./queue-group-name";
-import usersModel from "../../models/users.model";
+import { User } from "../../models/users.model";
 import { UserRepository } from "../../repositories/User.repository";
 import { Types } from "mongoose";
 import { logger } from "../../loaders/logger";

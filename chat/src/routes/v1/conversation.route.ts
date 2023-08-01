@@ -108,7 +108,7 @@ export default (app: Router) => {
   /**
    * Add Participants to Conversation Route
    *
-   * This route handler is designed to handle POST requests to the "conversations/:id/participants" endpoint.
+   * This route handler is designed to handle PATCH requests to the "conversations/:id/participants" endpoint.
    * It adds participants to a conversation with the specified ID, subject to authentication and authorization checks.
    *
    * @param {Request} req - The Express request object containing information about the incoming HTTP request.
@@ -119,7 +119,7 @@ export default (app: Router) => {
    * @throws {Error} If the user is not authenticated, and `requireAuth` middleware denies access.
    * @throws {Error} If there's an error during the process of adding participants in the `conversationController`.
    **/
-  route.post(
+  route.patch(
     "/:id/participants",
     currentUser,
     requireAuth,
@@ -135,7 +135,7 @@ export default (app: Router) => {
   /**
    * Remove Participant from Conversation Route
    *
-   * This route handler is designed to handle DELETE requests to the "conversations/:conversation_id/participants/:user_id" endpoint.
+   * This route handler is designed to handle PATCH requests to the "conversations/:conversation_id/participants/:user_id" endpoint.
    * It removes a specific participant with the given user ID from the conversation specified by conversation ID.
    * The route is subject to authentication and authorization checks.
    *
@@ -147,7 +147,7 @@ export default (app: Router) => {
    * @throws {Error} If the user is not authenticated, and `requireAuth` middleware denies access.
    * @throws {Error} If there's an error during the process of removing a participant in the `conversationController`.
    **/
-  route.delete(
+  route.patch(
     "/:conversation_id/participants/:user_id",
     currentUser,
     requireAuth,

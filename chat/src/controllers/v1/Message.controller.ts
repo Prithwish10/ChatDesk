@@ -3,7 +3,7 @@ import { Request, Response, NextFunction } from "express";
 import { MessageService } from "../../services/Message.service";
 import { logger } from "../../loaders/logger";
 import { createMessageSchema } from "../../utils/validation/message.validation.schema";
-import { Message } from "../../interfaces/v1/Message";
+import { MessageAttrs } from "../../interfaces/v1/Message";
 
 @Service()
 export class MessageController {
@@ -82,7 +82,7 @@ export class MessageController {
     try {
       const updatedMessage = await this._messageService.updateById(
         req.params.id as string,
-        req.body as Message
+        req.body as MessageAttrs
       );
 
       return res.status(200).json({
