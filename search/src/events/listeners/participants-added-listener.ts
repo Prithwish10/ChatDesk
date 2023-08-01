@@ -24,12 +24,14 @@ export class ParticipantsAddedListener extends Listener<ParticipantsAddedEvent> 
     data: ParticipantsAddedEvent["data"],
     msg: Message
   ): Promise<void> {
-    const { conversationId, participants } = data;
+    const { conversationId, participants, version } = data;
 
     try {
-      const conversation = await this._conversationRepository.getById(
-        conversationId
-      );
+      const conversation =
+        await this._conversationRepository.findByIdAndPreviousVersion(
+          conversationId,
+          version
+        );
       if (!conversation) {
         throw new Api404Error("Conversation not found.");
       }

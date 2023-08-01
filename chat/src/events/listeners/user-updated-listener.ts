@@ -17,14 +17,14 @@ export class UserUpdatedListener extends Listener<UserUpdatedEvent> {
   queueGroupName: string = queueGroupName;
 
   async onMessage(data: UserUpdatedEvent["data"], msg: Message): Promise<void> {
-    const { id, firstName, lastName, mobileNumber, email } = data;
+    const { id, firstName, lastName, mobileNumber, email, version } = data;
 
-    const user = await userRepository.findById(id);
+    const user = await userRepository.findByIdAndPreviousVersion(id, version);
     if (!user) {
       throw new Api404Error("User not found.");
     }
 
-    await userRepository.update(id, {
+    await userRepository.updateByUserDoc(user, {
       firstName,
       lastName,
       mobileNumber,

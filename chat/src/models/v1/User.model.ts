@@ -1,8 +1,9 @@
 import mongoose from "mongoose";
-import { User } from "../../interfaces/v1/User";
+import { UserAttrs, UserDoc, UserModel } from "../../interfaces/v1/User";
 import { updateIfCurrentPlugin } from "mongoose-update-if-current";
+import { Event } from "../../interfaces/v1/Event";
 
-const userSchema = new mongoose.Schema<User>(
+const userSchema = new mongoose.Schema<UserDoc>(
   {
     firstName: {
       type: String,
@@ -38,7 +39,20 @@ const userSchema = new mongoose.Schema<User>(
   }
 );
 
-userSchema.set('versionKey', 'version');
+userSchema.set("versionKey", "version");
 userSchema.plugin(updateIfCurrentPlugin);
 
-export default mongoose.model<User>("User", userSchema);
+userSchema.statics.findByEvent = (event: Event) => {
+  return User.findOne({
+    _id: event.id,
+    version: event.version - 1
+  });
+}
+
+userSchema.statics.build = (attrs: UserAttrs) => {
+  return new User(attrs);
+};
+
+const User = mongoose.model<UserDoc, UserModel>("User", userSchema);
+
+export { User };

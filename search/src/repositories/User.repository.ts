@@ -31,15 +31,14 @@ export class UserRepository {
       sortConfig[sort] = order === "asc" ? 1 : -1;
       const regex = new RegExp("^" + keyword, "i");
 
-      const users = await User
-        .find({
-          $or: [
-            { firstName: { $regex: regex } },
-            { lastName: { $regex: regex } },
-            { mobileNumber: { $regex: regex } },
-            { email: { $regex: regex } },
-          ],
-        })
+      const users = await User.find({
+        $or: [
+          { firstName: { $regex: regex } },
+          { lastName: { $regex: regex } },
+          { mobileNumber: { $regex: regex } },
+          { email: { $regex: regex } },
+        ],
+      })
         .skip((currentPage - 1) * itemsPerPage)
         .limit(itemsPerPage)
         .sort(sortConfig);
@@ -62,12 +61,33 @@ export class UserRepository {
     }
   }
 
-  public async update(id: string, fetchedUserById: UserDoc, user: Partial<UserAttrs>): Promise<void> {
+  public async findByIdAndPreviousVersion(
+    id: string,
+    version: number
+  ): Promise<UserDoc | null> {
     try {
-      const updatedUser = fetchedUserById.set(user);
-      await updatedUser.save();
+      const user = await User.findByEvent({ id, version });
+
+      return user;
     } catch (error) {
-      logger.error(`Error occured while fetching user by Id: ${id}`);
+      logger.error(
+        `Error occured while fetching user by Id: ${id} and version: ${version}`
+      );
+      throw error;
+    }
+  }
+
+  public async update(
+    fetchedUserById: UserDoc,
+    user: Partial<UserAttrs>
+  ): Promise<UserDoc> {
+    try {
+      fetchedUserById.set(user);
+      await fetchedUserById.save();
+
+      return fetchedUserById;
+    } catch (error) {
+      logger.error("Error occured while updating user by Id");
       throw error;
     }
   }

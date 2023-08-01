@@ -8,7 +8,7 @@ import { Conversation } from "../../models/v1/Conversation.model";
 import { Participant } from "../../interfaces/v1/Participant";
 import { logger } from "../../loaders/logger";
 import { Message } from "../../models/v1/Message.model";
-import UserModel from "../../models/v1/User.model";
+import { User } from "../../models/v1/User.model";
 import { Api404Error } from "@pdchat/common";
 
 @Service()
@@ -36,7 +36,9 @@ export class ConversationRepository {
       );
       return populatedConversation;
     } catch (error) {
-      logger.error(`Error occured while populating participants in conversation: ${error}`);
+      logger.error(
+        `Error occured while populating participants in conversation: ${error}`
+      );
       throw error;
     }
   }
@@ -189,7 +191,7 @@ export class ConversationRepository {
         .limit(limit)
         .lean();
 
-      userConversations = await UserModel.populate(userConversations, {
+      userConversations = await User.populate(userConversations, {
         path: "participants.user_id",
         select: "firstName lastName email mobileNumber",
       });

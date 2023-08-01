@@ -1,4 +1,5 @@
 import mongoose, { Types } from "mongoose";
+import { Event } from "./Event";
 
 // An interface that describes the properties required to create a new User.
 export interface UserAttrs {
@@ -14,6 +15,7 @@ export interface UserAttrs {
 // An interface that describes the properties that a User Model has.
 export interface UserModel extends mongoose.Model<UserDoc> {
   build(attrs: UserAttrs): UserDoc;
+  findByEvent(attrs: Event): Promise<UserDoc | null>;
 }
 
 // An interface that describes the properties that a User Document has.

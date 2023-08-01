@@ -24,10 +24,14 @@ export class ConversationDeletedListener extends Listener<ConversationDeletedEve
     data: ConversationDeletedEvent["data"],
     msg: Message
   ): Promise<void> {
-    const { id } = data;
+    const { id, version } = data;
 
     try {
-      const conversation = await this._conversationRepository.getById(id);
+      const conversation =
+        await this._conversationRepository.findByIdAndPreviousVersion(
+          id,
+          version
+        );
       if (!conversation) {
         throw new Api404Error("Conversation not found.");
       }

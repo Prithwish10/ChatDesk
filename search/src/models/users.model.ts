@@ -1,5 +1,6 @@
 import mongoose from "mongoose";
 import { UserAttrs, UserDoc, UserModel } from "../interfaces/User";
+import { Event } from "../interfaces/Event";
 import { updateIfCurrentPlugin } from "mongoose-update-if-current";
 
 const userSchema = new mongoose.Schema(
@@ -40,6 +41,13 @@ const userSchema = new mongoose.Schema(
 
 userSchema.set("versionKey", "version");
 userSchema.plugin(updateIfCurrentPlugin);
+
+userSchema.statics.findByEvent = (event: Event) => {
+  return User.findOne({
+    _id: event.id,
+    version: event.version - 1,
+  });
+};
 
 userSchema.statics.build = (attrs: UserAttrs) => {
   return new User(attrs);

@@ -36,10 +36,12 @@ export class MessageRepository {
 
   public async populateSenderIdInCreatedMessageParent(message: MessageDoc) {
     try {
-      const populatedMessage = await message.populate("parent_message_id.sender_id");
+      const populatedMessage = await message.populate(
+        "parent_message_id.sender_id"
+      );
       return populatedMessage;
-    } catch(error) {
-       logger.error(`Error occured while populating message: ${error}`);
+    } catch (error) {
+      logger.error(`Error occured while populating message: ${error}`);
       throw error;
     }
   }
@@ -135,7 +137,7 @@ export class MessageRepository {
    *
    * @param {MessageDoc} messageById - The message document to be updated.
    * @param {Message} message - The Message object containing the updated message details.
-   * @returns {Promise<MessageDoc>} A Promise that resolves to the updated Message object after the update.
+   * @returns {Promise<MessageDoc | null>} A Promise that resolves to the updated Message object after the update.
    * @throws {Error} If there's an error during the message update process.
    **/
   public async updateByMessageDoc(
@@ -143,11 +145,6 @@ export class MessageRepository {
     message: MessageAttrs
   ): Promise<MessageDoc | null> {
     try {
-      // const updatedMessage = await Message.findByIdAndUpdate(
-      //   { _id: messageId },
-      //   { $set: message },
-      //   { new: true }
-      // );
       messageById.set(message);
       await messageById.save();
 

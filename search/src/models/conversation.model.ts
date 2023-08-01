@@ -2,6 +2,7 @@ import mongoose from "mongoose";
 import { ConversationAttrs, ConversationDoc, ConversationModel } from "../interfaces/Conversation";
 import ParticipantSchema from "./Participant.model";
 import { updateIfCurrentPlugin } from "mongoose-update-if-current";
+import { Event } from "../interfaces/Event";
 
 const conversationSchema = new mongoose.Schema({
   participants: {
@@ -33,6 +34,13 @@ const conversationSchema = new mongoose.Schema({
 
 conversationSchema.set("versionKey", "version");
 conversationSchema.plugin(updateIfCurrentPlugin);
+
+conversationSchema.statics.findByEvent = (event: Event) => {
+  return Conversation.findOne({
+    _id: event.id,
+    version: event.version - 1,
+  });
+};
 
 conversationSchema.statics.build = (attrs: ConversationAttrs) => {
   return new Conversation(attrs);
