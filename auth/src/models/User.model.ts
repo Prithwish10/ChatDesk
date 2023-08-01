@@ -1,9 +1,9 @@
 import mongoose from "mongoose";
-import { User } from "../interfaces/User";
+import { UserAttrs, UserDoc, UserModel } from "../interfaces/User";
 import { PasswordManager } from "../services/PasswordManager.service";
 import { updateIfCurrentPlugin } from "mongoose-update-if-current";
 
-const userSchema = new mongoose.Schema<User>(
+const userSchema = new mongoose.Schema(
   {
     firstName: {
       type: String,
@@ -31,6 +31,14 @@ const userSchema = new mongoose.Schema<User>(
       type: String,
       required: true,
     },
+    createdAt: {
+      type: Date,
+      default: Date.now(),
+    },
+    UpdatedAt: {
+      type: Date,
+      default: Date.now(),
+    },
   },
   {
     toJSON: {
@@ -44,8 +52,17 @@ const userSchema = new mongoose.Schema<User>(
   }
 );
 
-userSchema.set('versionKey', 'version');
+userSchema.statics.build = (attrs: UserAttrs) => {
+  return new User(attrs);
+};
+
+userSchema.set("versionKey", "version");
 userSchema.plugin(updateIfCurrentPlugin);
+
+userSchema.pre("updateOne", function (next) {
+  this.updateOne({}, { $set: { updatedAt: new Date() } });
+  next();
+});
 
 userSchema.pre("save", async function (done) {
   if (this.isModified("password")) {
@@ -56,4 +73,6 @@ userSchema.pre("save", async function (done) {
   done();
 });
 
-export default mongoose.model<User>("User", userSchema);
+const User = mongoose.model<UserDoc, UserModel>("User", userSchema);
+
+export { User };

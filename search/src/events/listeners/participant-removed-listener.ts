@@ -24,16 +24,16 @@ export class ParticipantsRemovedListener extends Listener<ParticipantRemovedEven
     data: ParticipantRemovedEvent["data"],
     msg: Message
   ): Promise<void> {
-    const { id, participantId } = data;
+    const { conversationId, participantId } = data;
 
     try {
-      const conversation = await this._conversationRepository.getById(id);
+      const conversation = await this._conversationRepository.getById(conversationId);
       if (!conversation) {
         throw new Api404Error("Conversation not found.");
       }
 
       await this._conversationRepository.removeParticipantFromConversation(
-        id,
+        conversation,
         participantId
       );
       logger.info("Acknowledging the participant removed.");

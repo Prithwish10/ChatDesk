@@ -30,7 +30,7 @@ export class UserUpdatedListener extends Listener<UserUpdatedEvent> {
         throw new Api404Error("User not found.");
       }
 
-      await this._userRepository.update(id, {
+      await this._userRepository.update(id, user, {
         firstName,
         lastName,
         mobileNumber,

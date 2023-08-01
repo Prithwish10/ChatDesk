@@ -1,9 +1,13 @@
 import mongoose from "mongoose";
-import { Conversation } from "../../interfaces/v1/Conversation";
+import {
+  ConversationAttrs,
+  ConversationDoc,
+  ConversationModel,
+} from "../../interfaces/v1/Conversation";
 import ParticipantSchema from "./Participant.model";
 import { updateIfCurrentPlugin } from "mongoose-update-if-current";
 
-const conversationSchema = new mongoose.Schema<Conversation>(
+const conversationSchema = new mongoose.Schema(
   {
     participants: {
       required: true,
@@ -28,9 +32,14 @@ const conversationSchema = new mongoose.Schema<Conversation>(
       default: 0,
       required: true,
     },
-    created_at: {
+    createdAt: {
       type: Date,
       default: Date.now,
+    },
+    createdBy: {
+      type: mongoose.Schema.Types.ObjectId,
+      required: true,
+      ref: "User",
     },
     last_message_timestamp: {
       type: Date,
@@ -39,8 +48,8 @@ const conversationSchema = new mongoose.Schema<Conversation>(
     last_message: {
       type: String,
       trim: true,
-      default: ''
-    }
+      default: "",
+    },
   },
   {
     toJSON: {
@@ -55,4 +64,13 @@ const conversationSchema = new mongoose.Schema<Conversation>(
 conversationSchema.set("versionKey", "version");
 conversationSchema.plugin(updateIfCurrentPlugin);
 
-export default mongoose.model<Conversation>("Conversation", conversationSchema);
+conversationSchema.statics.build = (attrs: ConversationAttrs) => {
+  return new Conversation(attrs);
+};
+
+const Conversation = mongoose.model<ConversationDoc, ConversationModel>(
+  "Conversation",
+  conversationSchema
+);
+
+export { Conversation };
