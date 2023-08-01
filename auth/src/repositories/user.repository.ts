@@ -56,6 +56,7 @@ export class UserRepository {
     try {
       const newUser = User.build(user);
       let savedUser = await newUser.save();
+      
       return savedUser;
     } catch (error) {
       logger.error(`Error occured while creating user: ${error}`);

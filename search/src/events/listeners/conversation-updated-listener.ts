@@ -25,10 +25,15 @@ export class ConversationUpdatedListener extends Listener<ConversationUpdatedEve
     data: ConversationUpdatedEvent["data"],
     msg: Message
   ): Promise<void> {
-    const { id, participants, group_name, group_photo, deleted } = data;
+    const { id, participants, group_name, group_photo, deleted, version } =
+      data;
 
     try {
-      const conversation = await this._conversationRepository.getById(id);
+      const conversation =
+        await this._conversationRepository.findByIdAndPreviousVersion(
+          id,
+          version
+        );
       if (!conversation) {
         throw new Api404Error("Conversation not found.");
       }
@@ -62,8 +67,7 @@ export class ConversationUpdatedListener extends Listener<ConversationUpdatedEve
       logger.info("Acknowledging the conversation updation.");
     } catch (error) {
       logger.info(`Error occured in Conversation Updated Listener: ${error}`);
-      //   throw error;
-      return;
+      throw error;
     }
 
     msg.ack();

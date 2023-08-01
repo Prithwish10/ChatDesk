@@ -1,9 +1,10 @@
 import mongoose, { Types } from "mongoose";
 import { Participant } from "./Participant";
+import { Event } from "./Event";
 
 // An interface that describes the properties required to create a new Conversation.
 export interface ConversationAttrs {
-  _id?: Types.ObjectId
+  _id?: Types.ObjectId;
   participants: Participant[];
   isGroup?: boolean;
   group_name?: string;
@@ -14,6 +15,7 @@ export interface ConversationAttrs {
 // An interface that describes the properties that a Conversation Model has.
 export interface ConversationModel extends mongoose.Model<ConversationDoc> {
   build(attrs: ConversationAttrs): ConversationDoc;
+  findByEvent(attrs: Event): Promise<ConversationDoc | null>;
 }
 
 // An interface that describes the properties that a User Document has.

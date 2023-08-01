@@ -60,13 +60,26 @@ export class ConversationRepository {
     conversationId: string
   ): Promise<ConversationDoc | null> {
     try {
-      const conversation = await Conversation.findById(
-        conversationId
-      ).populate("participants");
+      const conversation = await Conversation.findById(conversationId).populate(
+        "participants"
+      );
 
       return conversation;
     } catch (error) {
-      logger.error(`Error occured while getting conversation by Id: ${error}`);
+      logger.error(`Error occured while fetching conversation by Id: ${error}`);
+      throw error;
+    }
+  }
+
+  public async findByIdAndPreviousVersion(id: string, version: number) {
+    try {
+      const user = await Conversation.findByEvent({ id, version });
+
+      return user;
+    } catch (error) {
+      logger.error(
+        `Error occured while fetching conversation by Id: ${id} and version: ${version}`
+      );
       throw error;
     }
   }
@@ -136,10 +149,9 @@ export class ConversationRepository {
     participant_id: string
   ): Promise<ConversationDoc> {
     try {
-      conversationById.participants =
-        conversationById.participants.filter(
-          (participant) => participant.user_id.toString() !== participant_id
-        );
+      conversationById.participants = conversationById.participants.filter(
+        (participant) => participant.user_id.toString() !== participant_id
+      );
 
       // Save the updated conversation
       await conversationById.save();

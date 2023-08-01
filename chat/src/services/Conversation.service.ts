@@ -1,11 +1,11 @@
 import { Service } from "typedi";
-import {Types} from "mongoose";
+import { Types } from "mongoose";
 import { ConversationRepository } from "../repositories/v1/Conversation.repository";
 import {
   ConversationAttrs,
   ConversationDoc,
 } from "../interfaces/v1/Conversation";
-import { Api400Error, Api401Error, Api404Error } from "@pdchat/common";
+import { Api400Error, Api401Error, Api404Error, Api500Error } from "@pdchat/common";
 import { logger } from "../loaders/logger";
 import { Participant } from "../interfaces/v1/Participant";
 import { ConversationCreatedPublisher } from "../events/publishers/conversation-created-publisher";
@@ -15,6 +15,7 @@ import { ConversationUpdatedPublisher } from "../events/publishers/conversation-
 import { ConversationDeletedPublisher } from "../events/publishers/conversation-deleted-publisher";
 import { ParticipantsAddedPublisher } from "../events/publishers/participants-added-publisher";
 import { ParticipantRemovedPublisher } from "../events/publishers/participant-removed-publisher";
+import { UserRepository } from "../repositories/v1/User.repository";
 
 @Service()
 export class ConversationService {
@@ -27,7 +28,8 @@ export class ConversationService {
    * property that cannot be modified outside of the constructor.
    */
   constructor(
-    private readonly _conversationRepository: ConversationRepository
+    private readonly _conversationRepository: ConversationRepository,
+    private readonly _userRepository: UserRepository
   ) {}
 
   /**
@@ -54,6 +56,13 @@ export class ConversationService {
         );
       }
 
+      // const doesParticipantsExist =
+      //   await this._userRepository.doesParticipantsExist(participants);
+
+      // if(!doesParticipantsExist) {
+      //   throw new Api500Error('Sorry for the inconvenience! Please create the conversation after some time.');
+      // }
+
       // Check if a conversation with the same participants already exists
       const existingConversation =
         await this._conversationRepository.isConversationWithSameParticipantsExists(
@@ -62,12 +71,8 @@ export class ConversationService {
         );
 
       if (existingConversation) {
-        const conversationWithPopulatedParticipants =
-          await this._conversationRepository.populateUserInParticipants(
-            existingConversation
-          );
         return {
-          conversation: conversationWithPopulatedParticipants,
+          conversation: existingConversation,
           isNew: false,
         };
       }
@@ -84,14 +89,6 @@ export class ConversationService {
         conversation
       );
 
-      const conversationById = await this._conversationRepository.getById(
-        newConversation.id
-      );
-      const conversationWithPopulatedParticipants =
-        await this._conversationRepository.populateUserInParticipants(
-          conversationById!
-        );
-
       await new ConversationCreatedPublisher(natsWrapper.client).publish({
         id: newConversation.id,
         participants: newConversation.participants,
@@ -105,7 +102,7 @@ export class ConversationService {
       logger.info("Conversation created event sent successfully!");
 
       return {
-        conversation: conversationWithPopulatedParticipants,
+        conversation: newConversation,
         isNew: true,
       };
     } catch (error) {

@@ -1,27 +1,31 @@
 import { Service } from "typedi";
-import usersModel from "../../models/v1/User.model";
-import { SortOrder, Types } from "mongoose";
+import { User } from "../../models/v1/User.model";
+import { Types } from "mongoose";
 import { logger } from "../../loaders/logger";
-import { UpdateUser, User } from "../../interfaces/v1/User";
+import { UserAttrs, UserDoc } from "../../interfaces/v1/User";
+import { Participant } from "@pdchat/common/build/interfaces/Participant";
+import { Api400Error } from "@pdchat/common";
 
 @Service()
 export class UserRepository {
   constructor() {}
 
-  public async create(user: User) {
+  public async create(user: UserAttrs): Promise<UserDoc> {
     try {
-      const newUser = await usersModel.create(user);
-      return newUser;
+      const newUser = User.build(user);
+      let savedUser = await newUser.save();
+
+      return savedUser;
     } catch (error) {
       logger.error("Error occured while creating user");
       throw error;
     }
   }
 
-  public async findById(id: string) {
+  public async findById(id: string): Promise<UserDoc | null> {
     try {
       const objectId = new Types.ObjectId(id);
-      const user = await usersModel.findById(objectId);
+      const user = await User.findById(objectId);
 
       return user;
     } catch (error) {
@@ -30,14 +34,52 @@ export class UserRepository {
     }
   }
 
-  public async update(id: string, user: UpdateUser) {
+  public async findByIdAndPreviousVersion(
+    id: string,
+    version: number
+  ): Promise<UserDoc | null> {
     try {
-      const updatedUser = await usersModel.findByIdAndUpdate(
-        { _id: new Types.ObjectId(id) },
-        { $set: { ...user } }
-      );
+      const user = await User.findByEvent({ id, version });
+
+      return user;
     } catch (error) {
-      logger.error(`Error occured while fetching user by Id: ${id}`);
+      logger.error(
+        `Error occured while fetching user by Id: ${id} and version: ${version}`
+      );
+      throw error;
+    }
+  }
+
+  public async updateByUserDoc(
+    userById: UserDoc,
+    user: Partial<UserAttrs>
+  ): Promise<UserDoc> {
+    try {
+      userById.set(user);
+      await userById.save();
+
+      return userById;
+    } catch (error) {
+      logger.error("Error occured while fetching user by user doc");
+      throw error;
+    }
+  }
+
+  public async doesParticipantsExist(participants: Participant[]): Promise<boolean> {
+    try {
+      for (
+        let participant = 0;
+        participant < participants.length;
+        participant++
+      ) {
+        const user = await User.findById(participants[participant].user_id);
+        if (!user) {
+          return false;
+        }
+      }
+      return true;
+    } catch (error) {
+      logger.error("Error occured while checking whether participants exists or notc");
       throw error;
     }
   }

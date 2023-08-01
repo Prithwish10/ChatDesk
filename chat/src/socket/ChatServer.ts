@@ -3,7 +3,7 @@ import { logger } from "../loaders/logger";
 import { Inject } from "typedi";
 import { ConversationRepository } from "../repositories/v1/Conversation.repository";
 import { Participant } from "../interfaces/v1/Participant";
-import { User } from "../interfaces/v1/User";
+import { UserAttrs } from "../interfaces/v1/User";
 
 class ChatServer {
   private _io: SocketServer;
@@ -25,7 +25,7 @@ class ChatServer {
       logger.info(`User connected: ${socket.id}`);
 
       // Add the user to the list of active users
-      socket.on("add-user", (user: User) => {
+      socket.on("add-user", (user: UserAttrs) => {
         (socket as any).user = user;
         socket.emit("connected");
       });

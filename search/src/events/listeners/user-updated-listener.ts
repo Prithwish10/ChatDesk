@@ -22,15 +22,18 @@ export class UserUpdatedListener extends Listener<UserUpdatedEvent> {
   }
 
   async onMessage(data: UserUpdatedEvent["data"], msg: Message): Promise<void> {
-    const { id, firstName, lastName, mobileNumber, email } = data;
+    const { id, firstName, lastName, mobileNumber, email, version } = data;
 
     try {
-      const user = await this._userRepository.findById(id);
+      const user = await this._userRepository.findByIdAndPreviousVersion(
+        id,
+        version
+      );
       if (!user) {
         throw new Api404Error("User not found.");
       }
 
-      await this._userRepository.update(id, user, {
+      await this._userRepository.update(user, {
         firstName,
         lastName,
         mobileNumber,
