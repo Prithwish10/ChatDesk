@@ -8,6 +8,7 @@ import ChatServer from "./socket/ChatServer";
 import { natsWrapper } from "./loaders/NatsWrapper";
 import { UserCreatedListener } from "./events/listeners/user-created-listener";
 import { UserUpdatedListener } from "./events/listeners/user-updated-listener";
+import CacheManager from "./services/CacheManager.service";
 
 /**
  * Represents a server that listens on a specified port and handles HTTP requests.
@@ -18,16 +19,18 @@ class Server {
   private readonly _dbConnection: DatabaseManager;
   private server!: http.Server;
   private _chatServer: ChatServer;
+  private _cacheManager: CacheManager;
 
   /**
    * Creates a new Server instance.
    * @param port - The port number on which the server will listen.
    * @param dbConnection - The database connection object.
    */
-  constructor(port: number, dbConnection: any) {
+  constructor(port: number, dbConnection: any, cacheManager: CacheManager) {
     this._app = express();
     this._port = port;
     this._dbConnection = dbConnection;
+    this._cacheManager = cacheManager;
     this.configureMiddlewaresAndRoutes(this._app);
   }
 
@@ -42,8 +45,8 @@ class Server {
   private configureSocketServer(): void {
     this._chatServer = new ChatServer(
       this.server,
-      parseInt(config.socket.pingTimeout as string),
-      config.socket.corsOrigin
+      config.socketOptions,
+      this._cacheManager
     );
     this._chatServer.configureSocketEvents();
   }
@@ -87,6 +90,8 @@ class Server {
         });
 
       this.configureSocketServer();
+
+      this.bindPOSIXSignals();
     } catch (error: any) {
       logger.error(error);
       throw new Error(error);
@@ -98,15 +103,30 @@ class Server {
    * Logs a message indicating that all services are shutdown.
    */
   public async shutdown(): Promise<void> {
-    if (this._dbConnection && this.server) {
-      await Promise.all([this.server.close(), this._dbConnection.disconnect()]);
+    const promises = [];
+    if (this._dbConnection) {
+      promises.push(this._dbConnection.disconnect());
+    }
 
+    if (this.server) {
+      promises.push(this.server.close());
       logger.info(`
         ################################################
-        🛡️  All services are shutdown!! 🛡️
+        🛡️  Server shutdown!! 🛡️
         ################################################
       `);
     }
+
+    if (this._cacheManager) {
+      promises.push(this._cacheManager.quit());
+    }
+
+    await Promise.all(promises);
+  };
+
+  private bindPOSIXSignals() {
+    process.on("SIGINT", async () => this.shutdown());
+    process.on("SIGTERM", async () => this.shutdown());
   }
 }
 

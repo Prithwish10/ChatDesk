@@ -42,9 +42,9 @@ export default {
       natsClusterId: process.env.NATS_CLUSTER_ID,
       natsClientId: process.env.NATS_CLIENT_ID,
     },
-    redis: {
+    redisOptions: {
       host: process.env.REDIS_HOST,
-      port: process.env.REDIS_PORT || 6379
+      port: process.env.REDIS_PORT ? parseInt(process.env.REDIS_PORT) : 6379
     }
   },
 
@@ -58,9 +58,9 @@ export default {
     version: process.env.API_VERSION || "/v1",
   },
 
-  socket: {
-    corsOrigin: process.env.CORS_ORIGIN || "http://chat-srv:3000",
-    pingTimeout: process.env.PING_TIMEOUT || 60000,
+  socketOptions: {
+    // corsOrigin: process.env.CORS_ORIGIN || "http://chat-srv:3000",
+    pingTimeout: process.env.PING_TIMEOUT ? parseInt(process.env.PING_TIMEOUT) : 60000,
     pingInterval: 25000,
   },
 
