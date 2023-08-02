@@ -1,23 +1,33 @@
 import { Server as SocketServer, Socket } from "socket.io";
+import { createAdapter } from "socket.io-redis";
 import { logger } from "../loaders/logger";
 import { Inject } from "typedi";
 import { ConversationRepository } from "../repositories/v1/Conversation.repository";
 import { Participant } from "../interfaces/v1/Participant";
 import { UserAttrs } from "../interfaces/v1/User";
+import CacheManager from "../services/CacheManager.service";
 
 class ChatServer {
   private _io: SocketServer;
+  private _cacheManager: CacheManager;
   @Inject()
   private _conversationRepository: ConversationRepository;
 
-  constructor(server: any, pingTimeout: number, corsOrigin: string) {
-    this._io = new SocketServer(server, {
-      pingTimeout,
+  constructor(
+    server: any,
+    socketOptions: any,
+    cacheManager: CacheManager
+  ) {
+    this._io = new SocketServer(server, socketOptions);
 
-      // cors: {
-      //   origin: corsOrigin,
-      // },
-    });
+    this._cacheManager = cacheManager;
+    const redisClient = this._cacheManager.getClient();
+    const pubSubClient = redisClient.duplicate();
+
+    // Configure Socket.IO to use the Redis adapter
+    this._io.adapter(
+      createAdapter({ pubClient: pubSubClient, subClient: pubSubClient })
+    );
   }
 
   public configureSocketEvents(): void {
@@ -64,7 +74,7 @@ class ChatServer {
               participants[participant].user_id.toString()
             );
           // Get the userSocketId from the Redis store
-          const userSocketId = '123';
+          const userSocketId = "123";
           socket.to(userSocketId).emit("get-conversation-list", conversations);
         }
       });
