@@ -1,0 +1,50 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: ingress-service
+  annotations:
+    kubernetes.io/ingress.class: nginx
+    nginx.ingress.kubernetes.io/use-regex: "true"
+    # Adding the annotation to enable WebSocket support
+    nginx.ingress.kubernetes.io/websocket-services: "chat-srv"
+spec:
+  rules:
+    - host: "chatdesk.dev"
+      http:
+        paths:
+          - path: /api/v1/users/?(.*)
+            pathType: Prefix
+            backend:
+              service:
+                name: auth-srv
+                port:
+                  number: 3000
+          - path: /api/v1/chats/?(.*)
+            pathType: Prefix
+            backend:
+              service:
+                name: chat-srv
+                port:
+                  number: 3000
+          - path: /api/v1/search/?(.*)
+            pathType: Prefix
+            backend:
+              service:
+                name: search-srv
+                port:
+                  number: 3000
+           # Path for socket.io
+          - path: /socket.io/?(.*)
+            pathType: Prefix
+            backend:
+              service:
+                name: chat-srv
+                port:
+                  number: 3000
+          - path: /?(.*)
+            pathType: Prefix
+            backend:
+              service:
+                name: client-srv
+                port:
+                  number: 3000
