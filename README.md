@@ -62,6 +62,15 @@
   </ol>
 </details>
 
+<!-- ABOUT THE PROJECT -->
+## About The Project
+
+<!-- [![Product Name Screen Shot][product-screenshot]](https://example.com) -->
+
+Chatdesk is a versatile messaging application that seamlessly facilitates personal and group communication. The application leverage Kubernetes and Docker for streamlined deployment and management. Employed a microservices architecture with Docker containers to ensure seamless deployment and resource utilization. Kubernetes Ingress Nginx served as the gateway to the application, efficiently managing incoming requests and load balancing traffic to the socket server instances, achieving horizontal scaling and high availability. Leveraged Redis Pub/Sub to enable real-time communication, optimizing the socket server's performance for a rapidly expanding user base.
+
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
+
 
 
 <!-- MARKDOWN LINKS & IMAGES -->
