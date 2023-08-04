@@ -42,6 +42,7 @@
     <li>
       <a href="#about-the-project">About The Project</a>
       <ul>
+        <li><a href="#features">Features</a></li>
         <li><a href="#built-with">Built With</a></li>
         <!-- <li><a href="#how-the-services-work-together">How the services work together</a></li> -->
         <li><a href="#project-architecture">Project Architecture</a></li>
@@ -67,11 +68,49 @@
 
 <!-- [![Product Name Screen Shot][product-screenshot]](https://example.com) -->
 
-Chatdesk is a versatile messaging application that seamlessly facilitates personal and group communication. The application leverage Kubernetes and Docker for streamlined deployment and management. Employed a microservices architecture with Docker containers to ensure seamless deployment and resource utilization, leveraging NATS for high-performance event-driven architecture. The integration of NATS empowered the application with an event-driven paradigm, enabling real-time communication between services, further enhancing responsiveness and scalability. Kubernetes Ingress Nginx served as the gateway to the application, efficiently managing incoming requests and load balancing traffic to the socket server instances, achieving horizontal scaling and high availability. Leveraged Redis Pub/Sub to enable real-time communication, optimizing the socket server's performance for a rapidly expanding user base.
+Chatdesk is a versatile messaging application like Whatsapp that seamlessly facilitates personal and group communication. 
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
+### Features
+* Direct messaging: two users can chat with each other in real time.
+* Group chat: users can participate in different group conversations in real time.
+* Join/leave groups.
+* Add/remove participants from a group (need to be a group admin for this).
+* Typing indicator: when typing, the recipient/s gets notification.
+* User status: whether user is online or offline.
 
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
+
+### Built With
+
+* Backend
+  
+  * ![Docker](https://img.shields.io/badge/docker-%230db7ed.svg?style=for-the-badge&logo=docker&logoColor=white)
+  * ![Kubernetes](https://img.shields.io/badge/kubernetes-%23326ce5.svg?style=for-the-badge&logo=kubernetes&logoColor=white)
+  * ![NodeJS](https://img.shields.io/badge/node.js-6DA55F?style=for-the-badge&logo=node.js&logoColor=white)
+  * ![Express.js](https://img.shields.io/badge/express.js-%23404d59.svg?style=for-the-badge&logo=express&logoColor=%2361DAFB)
+  * ![JWT](https://img.shields.io/badge/JWT-black?style=for-the-badge&logo=JSON%20web%20tokens)
+  * ![MongoDB](https://img.shields.io/badge/MongoDB-%234ea94b.svg?style=for-the-badge&logo=mongodb&logoColor=white)
+  * ![Redis](https://img.shields.io/badge/redis-%23DD0031.svg?style=for-the-badge&logo=redis&logoColor=white)
+  * ![Socket.io](https://img.shields.io/badge/Socket.io-black?style=for-the-badge&logo=socket.io&badgeColor=010101)
+  * NATS Streaming
+* Frontend
+  
+  * ![Docker](https://img.shields.io/badge/docker-%230db7ed.svg?style=for-the-badge&logo=docker&logoColor=white)
+  * ![Kubernetes](https://img.shields.io/badge/kubernetes-%23326ce5.svg?style=for-the-badge&logo=kubernetes&logoColor=white)
+  * ![React](https://img.shields.io/badge/react-%2320232a.svg?style=for-the-badge&logo=react&logoColor=%2361DAFB)
+  * ![Next JS](https://img.shields.io/badge/Next-black?style=for-the-badge&logo=next.js&logoColor=white)
+  * ![HTML5](https://img.shields.io/badge/html5-%23E34F26.svg?style=for-the-badge&logo=html5&logoColor=white)
+  * ![CSS3](https://img.shields.io/badge/css3-%231572B6.svg?style=for-the-badge&logo=css3&logoColor=white)
+  * ![Bootstrap](https://img.shields.io/badge/bootstrap-%238511FA.svg?style=for-the-badge&logo=bootstrap&logoColor=white)
+  * ![JavaScript](https://img.shields.io/badge/javascript-%23323330.svg?style=for-the-badge&logo=javascript&logoColor=%23F7DF1E)
+* Testing
+  
+  * ![Jest](https://img.shields.io/badge/-jest-%23C21325?style=for-the-badge&logo=jest&logoColor=white)
+  * ![Postman](https://img.shields.io/badge/Postman-FF6C37?style=for-the-badge&logo=postman&logoColor=white)
+
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 <!-- MARKDOWN LINKS & IMAGES -->
 <!-- https://www.markdownguide.org/basic-syntax/#reference-style-links -->
