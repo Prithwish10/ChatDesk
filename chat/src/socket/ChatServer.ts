@@ -33,7 +33,7 @@ class ChatServer {
     const pubClient = redisClient.duplicate();
     const subClient = redisClient.duplicate();
 
-    // Configure Socket.IO to use the Redis adapter
+    // Configure Socket.IO to use the Redis adapter.
     this._io.adapter(createAdapter(pubClient, subClient));
   }
 
