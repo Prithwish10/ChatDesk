@@ -13,6 +13,7 @@
   "license": "ISC",
   "dependencies": {
     "@pdchat/common": "^1.0.23",
+    "@socket.io/redis-adapter": "^8.2.1",
     "@types/cookie-session": "^2.0.44",
     "@types/jsonwebtoken": "^9.0.2",
     "cookie-session": "^2.0.0",
