@@ -44,8 +44,8 @@ export default {
     },
     redisOptions: {
       host: process.env.REDIS_HOST,
-      port: process.env.REDIS_PORT ? parseInt(process.env.REDIS_PORT) : 6379
-    }
+      port: process.env.REDIS_PORT ? parseInt(process.env.REDIS_PORT) : 6379,
+    },
   },
 
   jwtSecret: process.env.JWT_KEY,
@@ -60,8 +60,12 @@ export default {
 
   socketOptions: {
     // corsOrigin: process.env.CORS_ORIGIN || "http://chat-srv:3000",
-    pingTimeout: process.env.PING_TIMEOUT ? parseInt(process.env.PING_TIMEOUT) : 60000,
-    pingInterval: 25000,
+    pingTimeout: process.env.PING_TIMEOUT
+      ? parseInt(process.env.PING_TIMEOUT)
+      : 60000,
+    pingInterval: process.env.PING_INTERVAL
+      ? parseInt(process.env.PING_INTERVAL)
+      : 30000,
   },
 
   /**

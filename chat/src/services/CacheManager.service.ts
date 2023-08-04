@@ -1,6 +1,7 @@
 import Redis, { RedisOptions } from "ioredis";
 import { logger } from "../loaders/logger";
 import { Api500Error } from "@pdchat/common";
+import configGlobal from "../config/config.global";
 
 export class CacheManager {
   private static instance: CacheManager;
@@ -43,15 +44,15 @@ export class CacheManager {
   }
 
   public async upsert(
-    userId: string,
-    socketConnectionId: string
+    socketConnectionId: string,
+    userId: string
   ): Promise<void> {
     try {
       await this._redisClient.hset(
         "presence",
-        userId,
+        socketConnectionId,
         JSON.stringify({
-          socketConnectionId,
+          userId,
           when: Date.now(),
         })
       );
@@ -63,22 +64,22 @@ export class CacheManager {
     }
   }
 
-  public async remove(userId: string): Promise<void> {
+  public async remove(socketConnectionId: string): Promise<void> {
     try {
-      await this._redisClient.hdel("presence", userId);
+      await this._redisClient.hdel("presence", socketConnectionId);
     } catch (error) {
-      logger.error(`Error occured while removing the userId: ${userId}`);
+      logger.error(`Error occured while removing the socketConnectionId: ${socketConnectionId}`);
       throw error;
     }
   }
 
-  public async getByUserId(userId: string): Promise<string | null> {
+  public async getByUserSocketId(socketConnectionId: string): Promise<string | null> {
     try {
-      const userDetails = await this._redisClient.hget("presence", userId);
+      const userDetails = await this._redisClient.hget("presence", socketConnectionId);
       return userDetails;
     } catch (error) {
       logger.error(
-        `Error occured while fetching user details by userId: ${userId}`
+        `Error occured while fetching user details by socketConnectionId: ${socketConnectionId}`
       );
       throw error;
     }
@@ -96,7 +97,7 @@ export class CacheManager {
         const details = JSON.parse(presence[connection]);
         details.connection = connection;
 
-        if (now - details.when > 8000) {
+        if (now - details.when > configGlobal.socketOptions.pingTimeout) {
           dead.push(details);
         } else {
           active.push(details);
