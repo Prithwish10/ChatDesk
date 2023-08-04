@@ -6,11 +6,14 @@ import { ConversationRepository } from "../repositories/v1/Conversation.reposito
 import { Participant } from "../interfaces/v1/Participant";
 import { UserAttrs } from "../interfaces/v1/User";
 import CacheManager from "../services/CacheManager.service";
-// import { Socket } from "../interfaces/v1/Socket";
+import {
+  ConversationAttrs,
+  ConversationDoc,
+} from "../interfaces/v1/Conversation";
 
 declare module "socket.io" {
   interface Socket {
-    user: UserAttrs; // Replace 'string' with the appropriate data type for 'user'
+    user: UserAttrs;
   }
 }
 
@@ -51,8 +54,33 @@ class ChatServer {
         logger.info(`User Added: ${socket.user}`);
 
         // group sockets based on the user's userId.
-        // This is beneficial because a user can have multiple devices or sessions, and we want to send the message to all of their connected sockets (devices).
+        // This is beneficial because a user can have multiple devices or sessions,
+        // and we want to send the message to all of their connected sockets (devices).
         socket.join(user._id.toString());
+
+        // Join every conversation that the user is a part of.
+        let currentPage = 1;
+        let totalPages = Number.MAX_VALUE;
+
+        do {
+          let userConversations =
+            await this._conversationRepository.getUserConversations(
+              user._id.toString(),
+              "last_message_timestamp",
+              "desc",
+              currentPage
+            );
+
+          userConversations.conversations.forEach(
+            (userConversation: ConversationDoc) =>
+              socket.join(userConversation.id)
+          );
+
+          if (totalPages === Number.MAX_VALUE) {
+            totalPages = userConversations.totalPages;
+          }
+          currentPage++;
+        } while (currentPage <= totalPages);
 
         // Get the list of connected users from the Redis cache.
         const connectedUsers = await this._cacheManager.getList();
@@ -152,7 +180,7 @@ class ChatServer {
       );
 
       socket.conn.on("heartbeat", async () => {
-        if(!socket.user) {
+        if (!socket.user) {
           return;
         }
         await this._cacheManager.upsert(socket.id, socket.user._id.toString());
@@ -169,12 +197,14 @@ class ChatServer {
       );
 
       socket.on("disconnect", async () => {
-        logger.info(`User disconnected with socketId ${socket.id}: ${socket.user}`);
+        logger.info(
+          `User disconnected with socketId ${socket.id}: ${socket.user}`
+        );
 
         // socket.leave(userData._id);
-        if(socket.user) {
+        if (socket.user) {
           await this._cacheManager.remove(socket.id);
-          const connectedUsers = await this._cacheManager.getList()
+          const connectedUsers = await this._cacheManager.getList();
 
           socket.emit("connected-users", connectedUsers);
 
