@@ -68,7 +68,6 @@ export class ConversationController {
       return res.status(200).json({
         success: true,
         statusCode: 200,
-        currentPage: page,
         ...userConversation,
       });
     } catch (error) {

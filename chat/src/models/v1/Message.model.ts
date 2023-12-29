@@ -5,6 +5,7 @@ import AttachmentModel from "./Attachment.model";
 import { updateIfCurrentPlugin } from "mongoose-update-if-current";
 import { ParticipantStatus } from "../../enums/ParticipantStatus";
 import { MessageType } from "../../enums/MessageType";
+import { MessageStatus } from "../../enums/MessageStatus";
 
 const messageSchema = new mongoose.Schema<MessageDoc>(
   {
@@ -38,6 +39,12 @@ const messageSchema = new mongoose.Schema<MessageDoc>(
       required: false,
       default: null,
       ref: "Message",
+    },
+    status: {
+      type: String,
+      required: true,
+      enum: Object.values(MessageStatus),
+      default: MessageStatus.Sent
     },
     deleted: {
       type: Number,

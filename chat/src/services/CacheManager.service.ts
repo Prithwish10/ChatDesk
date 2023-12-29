@@ -50,9 +50,9 @@ export class CacheManager {
     try {
       await this._redisClient.hset(
         "presence",
-        socketConnectionId,
+        userId,
         JSON.stringify({
-          userId,
+          socketConnectionId,
           when: Date.now(),
         })
       );
@@ -64,22 +64,22 @@ export class CacheManager {
     }
   }
 
-  public async remove(socketConnectionId: string): Promise<void> {
+  public async remove(userId: string): Promise<void> {
     try {
-      await this._redisClient.hdel("presence", socketConnectionId);
+      await this._redisClient.hdel("presence", userId);
     } catch (error) {
-      logger.error(`Error occured while removing the socketConnectionId: ${socketConnectionId}`);
+      logger.error(`Error occured while removing the userId: ${userId}`);
       throw error;
     }
   }
 
-  public async getByUserSocketId(socketConnectionId: string): Promise<string | null> {
+  public async getByUserId(userId: string): Promise<string | null> {
     try {
-      const userDetails = await this._redisClient.hget("presence", socketConnectionId);
+      const userDetails = await this._redisClient.hget("presence", userId);
       return userDetails;
     } catch (error) {
       logger.error(
-        `Error occured while fetching user details by socketConnectionId: ${socketConnectionId}`
+        `Error occured while fetching user details by userId: ${userId}`
       );
       throw error;
     }

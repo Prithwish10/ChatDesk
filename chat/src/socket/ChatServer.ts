@@ -10,6 +10,10 @@ import {
   ConversationAttrs,
   ConversationDoc,
 } from "../interfaces/v1/Conversation";
+import { MessageStatus } from "../enums/MessageStatus";
+import { MessageAttrs } from "../interfaces/v1/Message";
+import { MessageRepository } from "../repositories/v1/Message.repository";
+import { createConversationSchema } from "../utils/validation/conversation.validation.schema";
 
 declare module "socket.io" {
   interface Socket {
@@ -22,6 +26,8 @@ class ChatServer {
   private _cacheManager: CacheManager;
   @Inject()
   private _conversationRepository: ConversationRepository;
+  @Inject()
+  private _messageRepository: MessageRepository;
 
   constructor(server: any, socketOptions: any, cacheManager: CacheManager) {
     this._io = new SocketServer(server, socketOptions);
@@ -112,7 +118,90 @@ class ChatServer {
           return;
         }
 
+        // Emit the updated conversation order to all the participants of the conversation
+        for (
+          let participant = 0;
+          participant < participants.length;
+          participant++
+        ) {
+          const userConversations =
+            await this._conversationRepository.getUserConversations(
+              participants[participant].user_id.toString()
+            );
+
+          socket
+            .to(participants[participant].user_id.toString())
+            .emit("get-conversation-list", userConversations);
+        }
+      });
+
+      socket.on("join-conversation", (conversation_id: string, callback) => {
+        socket.join(conversation_id);
+        logger.info(`User joined conversation: ${conversation_id}`);
+        callback("Joined");
+      });
+
+      socket.on("send-message", async (message: MessageAttrs, callback) => {
+        // Validate the message body
+        try {
+          await createConversationSchema.validateAsync(message);
+        } catch (error) {
+          socket.emit("ValidationError", error);
+        }
+
+        const { conversation_id, sender_id } = message;
+
+        // Check whether all the participants of the conversation are online
+        // Based on that update the message status and store the message in db.
+        const conversation = await this._conversationRepository.getById(
+          conversation_id.toString()
+        );
+
+        const participants = conversation?.participants;
+
+        if (!participants || participants.length === 0) {
+          return;
+        }
+
+        let areAllParticipantsOnline = true;
+        for (
+          let participant = 1;
+          participant < participants.length;
+          participant++
+        ) {
+          if (
+            participants[participant].user_id.toString() ===
+            sender_id.toString()
+          ) {
+            continue;
+          }
+
+          let isUserOnline = this._cacheManager.getByUserId(
+            participants[participant].user_id.toString()
+          );
+          if (!isUserOnline) {
+            areAllParticipantsOnline = false;
+            break;
+          }
+        }
+
+        message.status = areAllParticipantsOnline
+          ? MessageStatus.Delivered
+          : MessageStatus.Sent;
+
+        const newMessage = await this._messageRepository.create(message);
+        const messageWithPopulatedData =
+          await this._messageRepository.populateSenderIdInCreatedMessageParent(
+            newMessage
+          );
+
+        // Emit the message to the room with the identifier 'conversationId'.
+        socket
+          .to(conversation_id.toString())
+          .emit("receive-message", messageWithPopulatedData);
+
         // Emit the updated conversation order to all participants of the conversation
+        /** 
         for (
           let participant = 0;
           participant < participants.length;
@@ -123,53 +212,21 @@ class ChatServer {
               participants[participant].user_id.toString()
             );
 
+          // Emit the conversation list of all the rooms with the identifier UserId (since you have done socket.join(userId)).
           socket
             .to(participants[participant].user_id.toString())
             .emit("get-conversation-list", conversations);
         }
+        */
+
+        callback("sent");
       });
 
-      socket.on("join-conversation", (conversation_id: string, callback) => {
-        socket.join(conversation_id);
-        logger.info(`User joined conversation: ${conversation_id}`);
-        callback("Joined");
+      socket.on("message-seen", (conversationId: string, messageId: string) => {
+        socket
+          .to(conversationId)
+          .emit("message-seen", conversationId, messageId);
       });
-
-      socket.on(
-        "send-message",
-        async (message: string, conversationId: string, callback) => {
-          // Emit the message to the room with the identifier 'conversationId'.
-          socket.to(conversationId).emit("receive-message", message);
-
-          const conversation = await this._conversationRepository.getById(
-            conversationId
-          );
-          const participants = conversation?.participants;
-
-          if (!participants || participants.length === 0) {
-            return;
-          }
-
-          // Emit the updated conversation order to all participants of the conversation
-          for (
-            let participant = 0;
-            participant < participants.length;
-            participant++
-          ) {
-            const conversations =
-              await this._conversationRepository.getUserConversations(
-                participants[participant].user_id.toString()
-              );
-
-            // Emit the conversation list of all the rooms with the identifier UserId (since you have done socket.join(userId)).
-            socket
-              .to(participants[participant].user_id.toString())
-              .emit("get-conversation-list", conversations);
-          }
-
-          callback("sent");
-        }
-      );
 
       socket.on("typing", (conversation_id) =>
         socket.in(conversation_id).emit("typing")
@@ -203,12 +260,11 @@ class ChatServer {
 
         // socket.leave(userData._id);
         if (socket.user) {
-          await this._cacheManager.remove(socket.id);
+          const userId = socket.user._id.toString();
+          await this._cacheManager.remove(userId);
           const connectedUsers = await this._cacheManager.getList();
-
           socket.emit("connected-users", connectedUsers);
-
-          socket.leave(socket.user._id.toString());
+          socket.leave(userId);
         }
       });
     });

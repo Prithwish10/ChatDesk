@@ -1,11 +1,16 @@
 import { Service } from "typedi";
 import { MessageRepository } from "../repositories/v1/Message.repository";
 import { logger } from "../loaders/logger";
+import config from "../config/config.global";
 import { MessageAttrs } from "../interfaces/v1/Message";
-import { Api404Error } from "@pdchat/common";
+import { Api400Error, Api404Error } from "@pdchat/common";
+import CacheManager from "./CacheManager.service";
+import { ConversationRepository } from "../repositories/v1/Conversation.repository";
+import { MessageStatus } from "../enums/MessageStatus";
 
 @Service()
 export class MessageService {
+  private readonly _cacheManager: CacheManager;
   /**
    * This is a constructor function that takes in a message repository and a logger as parameters.
    * @param {MessageRepository} _messageRepository - It is a dependency injection of a
@@ -14,7 +19,14 @@ export class MessageService {
    * property that cannot be modified outside of the constructor.
    */
 
-  constructor(private readonly _messageRepository: MessageRepository) {}
+  constructor(
+    private readonly _messageRepository: MessageRepository,
+    private readonly _conversationRepository: ConversationRepository
+  ) {
+    this._cacheManager = CacheManager.getInstance(
+      config.connections.redisOptions
+    );
+  }
 
   /**
    * Creates a new message.
@@ -25,8 +37,35 @@ export class MessageService {
    */
   public async create(message: MessageAttrs) {
     try {
+      const receivers =
+        await this._conversationRepository.getConversationParticipants(
+          message.conversation_id.toString()
+        );
+
+      if(!receivers) {
+        throw new Api400Error("The conversation doesnot have any participants.")
+      }
+
+      let isAllParticipantsOnline = true;
+      for(let receiver = 1; receiver < receivers.length; receiver ++) {
+        if(receivers[receiver].user_id.toString() === message.sender_id.toString()) {
+          continue;
+        }
+
+        let isUserOnline = this._cacheManager.getByUserId(receivers[receiver].user_id.toString());
+        if(!isUserOnline) {
+          isAllParticipantsOnline = false;
+          break;
+        }
+      }
+
+      message.status = isAllParticipantsOnline ? MessageStatus.Delivered : MessageStatus.Sent;
+
       const newMessage = await this._messageRepository.create(message);
-      const messageWithPopulatedData = await this._messageRepository.populateSenderIdInCreatedMessageParent(newMessage);
+      const messageWithPopulatedData =
+        await this._messageRepository.populateSenderIdInCreatedMessageParent(
+          newMessage
+        );
       return messageWithPopulatedData;
     } catch (error) {
       logger.error(`Error in service while creating message: ${error}`);
@@ -98,9 +137,7 @@ export class MessageService {
    */
   public async updateById(messageId: string, message: MessageAttrs) {
     try {
-      const isMessagePresent = await this._messageRepository.getById(
-        messageId
-      );
+      const isMessagePresent = await this._messageRepository.getById(messageId);
       if (!isMessagePresent) {
         throw new Api404Error("Message no longer exist!");
       }
@@ -124,9 +161,7 @@ export class MessageService {
    */
   public async deleteById(messageId: string) {
     try {
-      const isMessagePresent = await this._messageRepository.getById(
-        messageId
-      );
+      const isMessagePresent = await this._messageRepository.getById(messageId);
       if (!isMessagePresent) {
         throw new Api404Error("Message no longer exist!");
       }

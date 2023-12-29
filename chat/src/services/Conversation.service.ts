@@ -5,7 +5,7 @@ import {
   ConversationAttrs,
   ConversationDoc,
 } from "../interfaces/v1/Conversation";
-import { Api400Error, Api401Error, Api404Error, Api500Error } from "@pdchat/common";
+import { Api400Error, Api401Error, Api404Error } from "@pdchat/common";
 import { logger } from "../loaders/logger";
 import { Participant } from "../interfaces/v1/Participant";
 import { ConversationCreatedPublisher } from "../events/publishers/conversation-created-publisher";
@@ -16,9 +16,12 @@ import { ConversationDeletedPublisher } from "../events/publishers/conversation-
 import { ParticipantsAddedPublisher } from "../events/publishers/participants-added-publisher";
 import { ParticipantRemovedPublisher } from "../events/publishers/participant-removed-publisher";
 import { UserRepository } from "../repositories/v1/User.repository";
+import CacheManager from "./CacheManager.service";
+import config from "../config/config.global";
 
 @Service()
 export class ConversationService {
+  private readonly _cacheManager: CacheManager;
   /**
    * This is a constructor function that takes in a ConversationRepository and a Logger as parameters
    * and assigns them to private readonly properties.
@@ -30,7 +33,11 @@ export class ConversationService {
   constructor(
     private readonly _conversationRepository: ConversationRepository,
     private readonly _userRepository: UserRepository
-  ) {}
+  ) {
+    this._cacheManager = CacheManager.getInstance(
+      config.connections.redisOptions
+    );
+  }
 
   /**
    * Creates a new conversation with the provided participants.
@@ -138,7 +145,7 @@ export class ConversationService {
     deleted: number = 0
   ) {
     try {
-      const totalUserConversations =
+      const userConversations =
         await this._conversationRepository.getUserConversations(
           user_id,
           sort,
@@ -148,7 +155,7 @@ export class ConversationService {
           deleted
         );
 
-      return totalUserConversations;
+      return userConversations;
     } catch (error) {
       logger.error(`Error in service while creating conversation: ${error}`);
       throw error;
