@@ -4,13 +4,13 @@ import { logger } from "../loaders/logger";
 import config from "../config/config.global";
 import { MessageAttrs } from "../interfaces/v1/Message";
 import { Api400Error, Api404Error } from "@pdchat/common";
-import CacheManager from "./CacheManager.service";
+import Presence from "./Presence";
 import { ConversationRepository } from "../repositories/v1/Conversation.repository";
 import { MessageStatus } from "../enums/MessageStatus";
 
 @Service()
 export class MessageService {
-  private readonly _cacheManager: CacheManager;
+  private readonly _presence: Presence;
   /**
    * This is a constructor function that takes in a message repository and a logger as parameters.
    * @param {MessageRepository} _messageRepository - It is a dependency injection of a
@@ -23,7 +23,7 @@ export class MessageService {
     private readonly _messageRepository: MessageRepository,
     private readonly _conversationRepository: ConversationRepository
   ) {
-    this._cacheManager = CacheManager.getInstance(
+    this._presence = Presence.getInstance(
       config.connections.redisOptions
     );
   }
@@ -42,24 +42,33 @@ export class MessageService {
           message.conversation_id.toString()
         );
 
-      if(!receivers) {
-        throw new Api400Error("The conversation doesnot have any participants.")
+      if (!receivers) {
+        throw new Api400Error(
+          "The conversation doesnot have any participants."
+        );
       }
 
-      let isAllParticipantsOnline = true;
-      for(let receiver = 1; receiver < receivers.length; receiver ++) {
-        if(receivers[receiver].user_id.toString() === message.sender_id.toString()) {
-          continue;
-        }
+      // let isAllParticipantsOnline = true;
+      // for (let receiver = 1; receiver < receivers.length; receiver++) {
+      //   if (
+      //     receivers[receiver].user_id.toString() ===
+      //     message.sender_id.toString()
+      //   ) {
+      //     continue;
+      //   }
 
-        let isUserOnline = this._cacheManager.getByUserId(receivers[receiver].user_id.toString());
-        if(!isUserOnline) {
-          isAllParticipantsOnline = false;
-          break;
-        }
-      }
+      //   let isUserOnline = this._presence.getByUserId(
+      //     receivers[receiver].user_id.toString()
+      //   );
+      //   if (!isUserOnline) {
+      //     isAllParticipantsOnline = false;
+      //     break;
+      //   }
+      // }
 
-      message.status = isAllParticipantsOnline ? MessageStatus.Delivered : MessageStatus.Sent;
+      // message.status = isAllParticipantsOnline
+      //   ? MessageStatus.Delivered
+      //   : MessageStatus.Sent;
 
       const newMessage = await this._messageRepository.create(message);
       const messageWithPopulatedData =

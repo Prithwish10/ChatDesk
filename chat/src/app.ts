@@ -1,7 +1,7 @@
 import config from "./config/config.global";
 import DatabaseManager from "./loaders/DatabaseManager";
 import Server from "./Server";
-import CacheManager from "./services/CacheManager.service";
+import Presence from "./services/Presence";
 
 // Run the services with default configuration
 const server = new Server(
@@ -10,7 +10,7 @@ const server = new Server(
     config.connections.mongodb.databaseURL as string,
     config.connections.mongodb.databaseName as string
   ),
-  CacheManager.getInstance(config.connections.redisOptions)
+  Presence.getInstance(config.connections.redisOptions)
 );
 server.up();
 

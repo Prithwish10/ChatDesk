@@ -16,12 +16,12 @@ import { ConversationDeletedPublisher } from "../events/publishers/conversation-
 import { ParticipantsAddedPublisher } from "../events/publishers/participants-added-publisher";
 import { ParticipantRemovedPublisher } from "../events/publishers/participant-removed-publisher";
 import { UserRepository } from "../repositories/v1/User.repository";
-import CacheManager from "./CacheManager.service";
+import Presence from "./Presence";
 import config from "../config/config.global";
 
 @Service()
 export class ConversationService {
-  private readonly _cacheManager: CacheManager;
+  private readonly _presence: Presence;
   /**
    * This is a constructor function that takes in a ConversationRepository and a Logger as parameters
    * and assigns them to private readonly properties.
@@ -34,7 +34,7 @@ export class ConversationService {
     private readonly _conversationRepository: ConversationRepository,
     private readonly _userRepository: UserRepository
   ) {
-    this._cacheManager = CacheManager.getInstance(
+    this._presence = Presence.getInstance(
       config.connections.redisOptions
     );
   }
