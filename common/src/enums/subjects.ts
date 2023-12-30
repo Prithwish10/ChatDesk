@@ -9,5 +9,13 @@ export enum Subjects {
   ParticipantsAdded = "participants:added",
   MessageCreated = "message:created",
   MessageUpdated = "message:updated",
-  MessageDeleted = "message:deleted"
+  MessageDeleted = "message:deleted",
+  UserConnectedToChat = "UserConnectedToChat",
+  SendMessageToChat = "SendMessageToChat",
+  ParticipantAddedToChat = "ParticipantAddedToChat",
+  ParticipantRemovedFromChat = "ParticipantRemovedFromChat",
+  MessgeSeen = "MessgeSeen",
+  Typing = "Typing",
+  StopTyping = "StopTyping",
+  ConnectedUsers = "ConnectedUsers"
 }
