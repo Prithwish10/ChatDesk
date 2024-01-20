@@ -8,7 +8,8 @@ import ChatServer from "./socket/ChatServer";
 import { natsWrapper } from "./loaders/NatsWrapper";
 import { UserCreatedListener } from "./events/listeners/user-created-listener";
 import { UserUpdatedListener } from "./events/listeners/user-updated-listener";
-import CacheManager from "./services/CacheManager.service";
+import { MessageCreatedListener } from "./events/listeners/message-created-listener";
+import Presence from "./services/Presence";
 
 /**
  * Represents a server that listens on a specified port and handles HTTP requests.
@@ -19,18 +20,18 @@ class Server {
   private readonly _dbConnection: DatabaseManager;
   private server!: http.Server;
   private _chatServer: ChatServer;
-  private _cacheManager: CacheManager;
+  private _presence: Presence;
 
   /**
    * Creates a new Server instance.
    * @param port - The port number on which the server will listen.
    * @param dbConnection - The database connection object.
    */
-  constructor(port: number, dbConnection: any, cacheManager: CacheManager) {
+  constructor(port: number, dbConnection: any, presence: Presence) {
     this._app = express();
     this._port = port;
     this._dbConnection = dbConnection;
-    this._cacheManager = cacheManager;
+    this._presence = presence;
     this.configureMiddlewaresAndRoutes(this._app);
   }
 
@@ -46,7 +47,7 @@ class Server {
     this._chatServer = new ChatServer(
       this.server,
       config.socketOptions,
-      this._cacheManager
+      this._presence
     );
     this._chatServer.configureSocketEvents();
   }
@@ -73,6 +74,7 @@ class Server {
 
       new UserCreatedListener(natsWrapper.client).listen();
       new UserUpdatedListener(natsWrapper.client).listen();
+      new MessageCreatedListener(natsWrapper.client).listen();
 
       this.server = this._app
         .listen(this._port, async () => {
@@ -117,12 +119,12 @@ class Server {
       `);
     }
 
-    if (this._cacheManager) {
-      promises.push(this._cacheManager.quit());
+    if (this._presence) {
+      promises.push(this._presence.quit());
     }
 
     await Promise.all(promises);
-  };
+  }
 
   private bindPOSIXSignals() {
     process.on("SIGINT", async () => this.shutdown());

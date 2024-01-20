@@ -220,6 +220,7 @@ export class ConversationRepository {
       );
 
       return {
+        currentPage: page,
         totalPages,
         totalConversations,
         conversations: conversationsWithReadMessageCount,
@@ -378,6 +379,19 @@ export class ConversationRepository {
     } catch (error) {
       logger.error(
         `Error occured while fetching participant by user_id: ${error}`
+      );
+      throw error;
+    }
+  }
+
+  public async getConversationParticipants(conversationId: string) {
+    try {
+      const participants = await Conversation.findById({conversationId}, {participants: 1});
+
+      return participants?.participants;
+    } catch(error) {
+      logger.error(
+        `Error occured while fetching participants from conversation: ${error}`
       );
       throw error;
     }

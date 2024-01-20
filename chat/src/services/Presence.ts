@@ -3,8 +3,8 @@ import { logger } from "../loaders/logger";
 import { Api500Error } from "@pdchat/common";
 import configGlobal from "../config/config.global";
 
-export class CacheManager {
-  private static instance: CacheManager;
+export class Presence {
+  private static instance: Presence;
   private _redisClient: Redis;
 
   private constructor(redisOptions: RedisOptions) {
@@ -27,11 +27,11 @@ export class CacheManager {
     });
   }
 
-  public static getInstance(redisOptions: RedisOptions): CacheManager {
-    if (!CacheManager.instance) {
-      CacheManager.instance = new CacheManager(redisOptions);
+  public static getInstance(redisOptions: RedisOptions): Presence {
+    if (!Presence.instance) {
+      Presence.instance = new Presence(redisOptions);
     }
-    return CacheManager.instance;
+    return Presence.instance;
   }
 
   public getClient(): Redis {
@@ -50,9 +50,9 @@ export class CacheManager {
     try {
       await this._redisClient.hset(
         "presence",
-        socketConnectionId,
+        userId,
         JSON.stringify({
-          userId,
+          socketConnectionId,
           when: Date.now(),
         })
       );
@@ -64,22 +64,22 @@ export class CacheManager {
     }
   }
 
-  public async remove(socketConnectionId: string): Promise<void> {
+  public async remove(userId: string): Promise<void> {
     try {
-      await this._redisClient.hdel("presence", socketConnectionId);
+      await this._redisClient.hdel("presence", userId);
     } catch (error) {
-      logger.error(`Error occured while removing the socketConnectionId: ${socketConnectionId}`);
+      logger.error(`Error occured while removing the userId: ${userId}`);
       throw error;
     }
   }
 
-  public async getByUserSocketId(socketConnectionId: string): Promise<string | null> {
+  public async getByUserId(userId: string): Promise<string | null> {
     try {
-      const userDetails = await this._redisClient.hget("presence", socketConnectionId);
+      const userDetails = await this._redisClient.hget("presence", userId);
       return userDetails;
     } catch (error) {
       logger.error(
-        `Error occured while fetching user details by socketConnectionId: ${socketConnectionId}`
+        `Error occured while fetching user details by userId: ${userId}`
       );
       throw error;
     }
@@ -142,4 +142,4 @@ export class CacheManager {
   }
 }
 
-export default CacheManager;
+export default Presence;
