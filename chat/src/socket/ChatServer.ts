@@ -51,6 +51,8 @@ class ChatServer {
       this._io
     );
 
+    this._socketEventSubscriber.subscribe(Subjects.WelcomeMessage);
+    this._socketEventSubscriber.subscribe(Subjects.ConversationCreated);
     this._socketEventSubscriber.subscribe(Subjects.UserConnectedToChat);
     this._socketEventSubscriber.subscribe(Subjects.SendMessageToChat);
     this._socketEventSubscriber.subscribe(Subjects.ParticipantAddedToChat);
@@ -66,7 +68,10 @@ class ChatServer {
     this._io.on("connection", (socket: Socket) => {
       logger.info(`User connected to Socket ID: ${socket.id}`);
 
-      socket.emit("welcome-message", "Welcome to Chatdesk!");
+      this._socketEventPublisher.publish(
+        Subjects.WelcomeMessage,
+        JSON.stringify({message: "Welcome to Chatdesk!"})
+      );
 
       socket.on("add-user", async (user: UserAttrs) => {
         logger.info(`User connected: ${JSON.stringify(user)}`);
@@ -79,11 +84,10 @@ class ChatServer {
       socket.on(
         "create-conversation",
         (conversationId: string, participants: Participant[]) => {
-          participants.forEach((participant: Participant) => {
-            socket
-              .to(participant.user_id.toString())
-              .emit("new-conversation", conversationId);
-          });
+          this._socketEventPublisher.publish(
+            Subjects.ConversationCreated,
+            JSON.stringify({ participants, conversationId })
+          );
         }
       );
 
