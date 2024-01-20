@@ -4,14 +4,16 @@ import { SocketEventSubscriber } from "../../interfaces/v1/SocketEventSubscriber
 import { logger } from "../../loaders/logger";
 import { Subjects } from "@pdchat/common";
 import { ChannelHandler } from "../../interfaces/v1/ChannelHandler";
-import { UserConnectedHandler } from "./user-connected-handler";
-import { SendMessageHandler } from "./send-message-handler";
-import { MessageSeenHandler } from "./message-seen-handler";
-import { TypingHandler } from "./typing-handler";
-import { StopTypingHandler } from "./stop-typing-handler";
-import { ConnectedUsersHandler } from "./connected-users-handler";
-import { ParticipantAddedHandler } from "./participants-added-handler";
-import { ParticipantRemovedHandler } from "./participant-removed-handler";
+import { UserConnectedHandler } from "./socket-channel-handlers/user-connected-handler";
+import { SendMessageHandler } from "./socket-channel-handlers/send-message-handler";
+import { MessageSeenHandler } from "./socket-channel-handlers/message-seen-handler";
+import { TypingHandler } from "./socket-channel-handlers/typing-handler";
+import { StopTypingHandler } from "./socket-channel-handlers/stop-typing-handler";
+import { ConnectedUsersHandler } from "./socket-channel-handlers/connected-users-handler";
+import { ParticipantAddedHandler } from "./socket-channel-handlers/participants-added-handler";
+import { ParticipantRemovedHandler } from "./socket-channel-handlers/participant-removed-handler";
+import { CreateConversationHandler } from "./socket-channel-handlers/conversation-created-handler";
+import { WelcomeMessageHandler } from "./socket-channel-handlers/welcome-message-handler";
 
 export class SocketEventSubscriberImpl implements SocketEventSubscriber {
   private _subscriber: Redis;
@@ -46,6 +48,14 @@ export class SocketEventSubscriberImpl implements SocketEventSubscriber {
     this.registerHandler(
       Subjects.ParticipantRemovedFromChat,
       new ParticipantRemovedHandler(this._io)
+    );
+    this.registerHandler(
+      Subjects.ConversationCreated,
+      new CreateConversationHandler(this._io)
+    );
+    this.registerHandler(
+      Subjects.WelcomeMessage,
+      new WelcomeMessageHandler(this._io)
     );
   }
 
