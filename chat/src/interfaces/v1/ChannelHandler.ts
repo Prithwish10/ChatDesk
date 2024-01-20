@@ -1,3 +1,3 @@
-export interface ChannelHandler {
-  handle(data: any): void;
+export interface ChannelHandler<T> {
+  handle(data: T): void;
 }

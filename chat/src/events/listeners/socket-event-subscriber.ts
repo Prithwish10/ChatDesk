@@ -19,7 +19,7 @@ export class SocketEventSubscriberImpl implements SocketEventSubscriber {
   private _subscriber: Redis;
   private _io: SocketServer;
 
-  private channelHandlers: Record<string, ChannelHandler> = {};
+  private channelHandlers: Record<string, ChannelHandler<any>> = {};
 
   constructor(subscriber: Redis, io: SocketServer) {
     this._subscriber = subscriber;
@@ -59,7 +59,7 @@ export class SocketEventSubscriberImpl implements SocketEventSubscriber {
     );
   }
 
-  private registerHandler(channel: string, handler: ChannelHandler): void {
+  private registerHandler(channel: string, handler: ChannelHandler<any>): void {
     this.channelHandlers[channel] = handler;
   }
 
