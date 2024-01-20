@@ -29,11 +29,11 @@
 
 <!-- PROJECT LOGO -->
 <br />
-<div align="center">
+<!-- <div align="center">
   <a href="https://github.com/Prithwish10/Chatdesk">
     <img src="images/Chatdesk_logo.png" alt="Logo" width="100" height="100">
   </a>
-</div>
+</div> -->
 
 <!-- TABLE OF CONTENTS -->
 <details>
