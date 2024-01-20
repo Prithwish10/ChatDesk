@@ -18,5 +18,6 @@ export enum Subjects {
   MessgeSeen = "message:seen",
   Typing = "typing",
   StopTyping = "stop:typing",
-  ConnectedUsers = "connected:users"
+  ConnectedUsers = "connected:users",
+  WelcomeMessage = "welcome:message"
 }
