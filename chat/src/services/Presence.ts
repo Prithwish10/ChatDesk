@@ -44,8 +44,8 @@ export class Presence {
   }
 
   public async upsert(
-    socketConnectionId: string,
-    userId: string
+    userId: string,
+    socketConnectionId: string
   ): Promise<void> {
     try {
       await this._redisClient.hset(
