@@ -3,10 +3,11 @@ import { Redis } from "ioredis";
 import { createAdapter } from "@socket.io/redis-adapter";
 import { Inject } from "typedi";
 import { Subjects } from "@pdchat/common";
+import { currentUser, requireAuth } from "@pdchat/common";
 import { logger } from "../loaders/logger";
 import { ConversationRepository } from "../repositories/v1/Conversation.repository";
 import { Participant } from "../interfaces/v1/Participant";
-import { UserAttrs } from "../interfaces/v1/User";
+import { IUser, UserAttrs } from "../interfaces/v1/User";
 import Presence from "../services/Presence";
 import { ConversationAttrs } from "../interfaces/v1/Conversation";
 import { MessageAttrs } from "../interfaces/v1/Message";
@@ -20,7 +21,7 @@ import { SucketEventPublisherImpl } from "../events/publishers/socket-event-publ
 
 declare module "socket.io" {
   interface Socket {
-    user: UserAttrs;
+    user: IUser;
   }
 }
 
@@ -67,18 +68,20 @@ class ChatServer {
   public configureSocketEvents(): void {
     this._io.on("connection", (socket: Socket) => {
       logger.info(`User connected to Socket ID: ${socket.id}`);
-
       this._socketEventPublisher.publish(
         Subjects.WelcomeMessage,
-        JSON.stringify({message: "Welcome to Chatdesk!"})
+        JSON.stringify({ message: "Welcome to Chatdesk!" })
       );
 
-      socket.on("add-user", async (user: UserAttrs) => {
+      socket.on("add-user", async (user: IUser) => {
         logger.info(`User connected: ${JSON.stringify(user)}`);
-        await this._presence.upsert(user._id.toString(), socket.id);
-        this._socketEventPublisher.publish(Subjects.UserConnectedToChat, JSON.stringify(user));
+        await this._presence.upsert(user.id, socket.id);
+        this._socketEventPublisher.publish(
+          Subjects.UserConnectedToChat,
+          JSON.stringify(user)
+        );
         socket.user = user;
-        socket.join(user._id.toString());
+        socket.join(user.id);
       });
 
       socket.on(
@@ -93,7 +96,7 @@ class ChatServer {
 
       socket.on(
         "add-participant",
-        (userAdded: UserAttrs, addedBy: UserAttrs, conversationId: string) => {
+        (userAdded: IUser, addedBy: IUser, conversationId: string) => {
           this._socketEventPublisher.publish(
             Subjects.ParticipantAddedToChat,
             JSON.stringify({ userAdded, addedBy, conversationId })
@@ -103,11 +106,7 @@ class ChatServer {
 
       socket.on(
         "remove-participant",
-        (
-          userRemoved: UserAttrs,
-          removedBy: UserAttrs,
-          conversationId: string
-        ) => {
+        (userRemoved: IUser, removedBy: IUser, conversationId: string) => {
           this._socketEventPublisher.publish(
             Subjects.ParticipantRemovedFromChat,
             JSON.stringify({ userRemoved, removedBy, conversationId })
@@ -211,7 +210,7 @@ class ChatServer {
         if (!socket.user) {
           return;
         }
-        await this._presence.upsert(socket.id, socket.user._id.toString());
+        await this._presence.upsert(socket.id, socket.user.id);
       });
 
       socket.on(
@@ -230,7 +229,7 @@ class ChatServer {
         );
 
         if (socket.user) {
-          const userId = socket.user._id.toString();
+          const userId = socket.user.id;
           await this._presence.remove(userId);
           const connectedUsers = await this._presence.getList();
           this._socketEventPublisher.publish(

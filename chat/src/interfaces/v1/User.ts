@@ -12,6 +12,10 @@ export interface UserAttrs {
   mobileNumber: string;
 }
 
+export interface IUser extends Omit<UserAttrs, "_id"> {
+  id: string;
+}
+
 // An interface that describes the properties that a User Model has.
 export interface UserModel extends mongoose.Model<UserDoc> {
   build(attrs: UserAttrs): UserDoc;
