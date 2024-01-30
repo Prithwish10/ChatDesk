@@ -5,7 +5,7 @@ import {
   ConversationAttrs,
   ConversationDoc,
 } from "../interfaces/v1/Conversation";
-import { Api400Error, Api401Error, Api404Error } from "@pdchat/common";
+import { Api400Error, Api401Error, Api404Error, Api500Error } from "@pdchat/common";
 import { logger } from "../loaders/logger";
 import { Participant } from "../interfaces/v1/Participant";
 import { ConversationCreatedPublisher } from "../events/publishers/conversation-created-publisher";
@@ -63,12 +63,12 @@ export class ConversationService {
         );
       }
 
-      // const doesParticipantsExist =
-      //   await this._userRepository.doesParticipantsExist(participants);
+      const doesParticipantsExist =
+        await this._userRepository.doesParticipantsExist(participants);
 
-      // if(!doesParticipantsExist) {
-      //   throw new Api500Error('Sorry for the inconvenience! Please create the conversation after some time.');
-      // }
+      if(!doesParticipantsExist) {
+        throw new Api400Error('One or more participants does not exist.');
+      }
 
       // Check if a conversation with the same participants already exists
       const existingConversation =
