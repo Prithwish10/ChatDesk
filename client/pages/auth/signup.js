@@ -9,9 +9,6 @@ export default () => {
   socket.on("connect", () => {
     console.log("Connected with Id: ", socket.id);
   });
-  socket.on("welcome-message", (message) => {
-    console.log(message);
-  });
 
   const [firstName, setFirstname] = useState("");
   const [lastName, setLastname] = useState("");
@@ -28,13 +25,19 @@ export default () => {
       email,
       password,
     },
-    onSuccess: () => Router.push("/")
+    onSuccess: () => {
+      socket.on("welcome-message", (message) => {
+        console.log(message);
+      });
+      socket.emit("add-user", { firstName, lastName, email });
+      Router.push("/");
+    },
   });
 
   const onSubmit = async (event) => {
     event.preventDefault();
 
-    doRequest()
+    doRequest();
   };
 
   return (
