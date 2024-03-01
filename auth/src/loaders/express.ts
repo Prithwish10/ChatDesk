@@ -11,7 +11,7 @@ export default ({ app }: { app: Application }) => {
   app.use(
     cookieSession({
       signed: false,
-      secure: true,
+      secure: process.env.NODE_ENV !== 'test',
     })
   );
   app.use(cors());

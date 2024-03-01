@@ -18,7 +18,7 @@ class Server {
   private readonly _app: Application;
   private readonly _port: number;
   private readonly _dbConnection: DatabaseManager;
-  private server!: http.Server;
+  private _server!: http.Server;
   private _chatServer: ChatServer;
   private _presence: Presence;
 
@@ -58,7 +58,7 @@ class Server {
    */
   private configureSocketServer(): void {
     this._chatServer = new ChatServer(
-      this.server,
+      this._server,
       config.socketOptions,
       this._presence
     );
@@ -91,7 +91,7 @@ class Server {
       new UserUpdatedListener(natsWrapper.client).listen();
       new MessageCreatedListener(natsWrapper.client).listen();
 
-      this.server = this._app
+      this._server = this._app
         .listen(this._port, async () => {
           logger.info(`
         ################################################
@@ -106,7 +106,6 @@ class Server {
         });
 
       this.configureSocketServer();
-
       this.bindPOSIXSignals();
     } catch (error: any) {
       logger.error(error);
@@ -124,10 +123,10 @@ class Server {
     try {
       const promises = [];
 
-      if (this.server) {
+      if (this._server) {
         promises.push(
           new Promise<void>((resolve, reject) => {
-            this.server.close((err?: Error) => {
+            this._server.close((err?: Error) => {
               if (err) {
                 logger.error(
                   `Error while closing server: ${err.message} :error`
