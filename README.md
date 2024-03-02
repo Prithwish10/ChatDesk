@@ -68,7 +68,7 @@
 
 <!-- [![Product Name Screen Shot][product-screenshot]](https://example.com) -->
 
-Chatdesk is a versatile messaging application like Whatsapp that seamlessly facilitates personal and group communication. 
+Chatdesk is a versatile messaging application that empower seamless communication with direct messaging and group chats. Manage group interactions effortlessly, from joining and leaving groups to adding or removing participants. Keep conversations alive with typing indicators and stay connected with user status updates. Built with Node.js, Express.js, TypeScript, Socket.io, MongoDB, Redis, Next.js, Docker, and Kubernetes for smooth scalability, ensuring uninterrupted growth as your user base expands.
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
