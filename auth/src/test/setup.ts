@@ -2,6 +2,7 @@ import { MongoMemoryServer } from "mongodb-memory-server";
 import mongoose from "mongoose";
 
 jest.mock("../config/config.global");
+jest.setTimeout(30000);
 
 let mongo: any;
 beforeAll(async () => {
