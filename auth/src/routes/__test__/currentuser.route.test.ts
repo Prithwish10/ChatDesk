@@ -8,18 +8,7 @@ it("responds with details about the current user", async () => {
   const server = new Server(undefined, null);
   const app = (await server.up()) as unknown as Application;
 
-  const signUpResponse = await request(app)
-    .post("/api/v1/users/signup")
-    .send({
-      firstName: "Alpha",
-      lastName: "test",
-      mobileNumber: "1290512892",
-      email: "alpha1@test.com",
-      password: "password",
-    })
-    .expect(201);
-
-  const cookie = signUpResponse.get("Set-Cookie");
+  const cookie = await getAuthCookie();
   console.log("COOKIE ===>", cookie);
 
   const res = await request(app)

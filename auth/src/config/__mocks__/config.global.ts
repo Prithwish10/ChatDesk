@@ -1,4 +1,5 @@
 process.env.JWT_KEY = "asdfabcd";
+process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0'
 process.env.MONGO_URL = "asdf";
 process.env.DB_NAME = "asdf";
 process.env.NATS_URL = "asdf";
