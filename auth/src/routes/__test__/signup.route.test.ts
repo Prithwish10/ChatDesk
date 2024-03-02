@@ -115,6 +115,5 @@ it("sets a cookie after successful signup", async () => {
     email: "alpha1@test.com",
     password: "alpha1@123",
   });
-  console.log("===> ", response.get("Set-Cookie"), process.env.NODE_ENV);
   expect(response.get("Set-Cookie")).toBeDefined();
 });

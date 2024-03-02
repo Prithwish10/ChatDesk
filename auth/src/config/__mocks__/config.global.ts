@@ -6,7 +6,7 @@ process.env.NATS_CLUSTER_ID = "asdf";
 process.env.NATS_CLUSTER_ID = "asdf";
 
 export default {
-  jwtSecret: process.env.JWT_KEY,
+  jwtSecret: "asdfabcd",
 
   api: {
     prefix: process.env.API_PREFIX || "/api",
