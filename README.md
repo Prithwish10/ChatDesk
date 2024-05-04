@@ -51,7 +51,7 @@
     <li>
       <a href="#getting-started">Getting Started</a>
       <ul>
-        <li><a href="#prerequisites">Prerequisites</a></li>
+        <li><a href="#Installations">Installations</a></li>
       </ul>
     </li>
 <!--     <li><a href="#usage">Usage</a></li> -->
@@ -127,3 +127,184 @@ Chatdesk is a versatile messaging application that empower seamless communicatio
 [linkedin-shield]: https://img.shields.io/badge/-LinkedIn-black.svg?style=for-the-badge&logo=linkedin&colorB=555
 [linkedin-url]: https://www.linkedin.com/in/prithwishdas60/
 [product-screenshot]: images/screenshot.png
+
+
+<!-- GETTING STARTED -->
+## Getting Started
+
+I'm working on Windows 11
+
+### Installations
+
+* Docker
+  
+  #### Windows:
+
+  To install Docker with WSL2 on Windows 10/11, follow these steps:
+
+  1. **Register for a DockerHub account:**
+     
+     Visit [DockerHub](https://hub.docker.com/signup) and register for a free account. You'll need this account to pull and push Docker images.
+  
+  2. **Download and install all pending Windows OS updates:**
+  
+     Make sure your Windows OS is up to date by installing all pending updates.
+  
+  3. **Run the WSL install script:**
+  
+     Open PowerShell as Administrator and run the following command:
+     ```sh
+     wsl --install
+     ```
+     This will enable and install all required features, as well as install Ubuntu. If you have previously enabled WSL, you may skip to step #6.
+
+     Official documentation: [Install WSL Command](https://docs.microsoft.com/en-us/windows/wsl/install#install-wsl-command)
+    
+  4. **Reboot your computer:**
+  
+     After running the WSL install script, reboot your computer.
+  
+  5. **Set a Username and Password in Ubuntu:**
+  
+     After the reboot, Windows will auto-launch your new Ubuntu OS and prompt you to set a username and password.
+  
+  6. **Install Docker Desktop:**
+  
+      - Navigate to the [Docker Desktop installation page](https://docs.docker.com/desktop/install/windows-install/) and click the "Docker Desktop for Windows" button.
+      - Download the Docker Desktop Installer from your Downloads folder.
+      - Double-click the Docker Desktop Installer.
+      - Click "Install anyway" if warned the app isn't Microsoft-verified.
+      - Click "OK" to Add a shortcut to the Desktop.
+      - Click "Close" when you see the "Installation succeeded" message.
+      - Double-click the Docker Desktop icon on your Desktop.
+      - Accept the Docker Service Agreement.
+  
+  7. **Open the WSL terminal:**
+  
+      Using the Windows Search feature in the toolbar, type `wsl` and click Open.
+  
+  8. **Check that Docker is working:**
+  
+      Using the WSL terminal, run the `docker` command. If all is well, you should see some helpful instructions in the output.
+  
+  9. **Log in to Docker:**
+  
+      Using the WSL terminal, run the following command and follow the prompts to enter your DockerHub account credentials:
+      ```sh
+      docker login
+      ```
+      Once you see "Login Succeeded," the setup is complete, and you are free to continue.
+
+  #### macOS:
+
+  This note provides detailed steps to install Docker and sign up for a DockerHub account on macOS.
+  
+  1. **Register for a DockerHub account:**
+     
+     Visit [DockerHub](https://hub.docker.com/signup) to register for a free account.
+  
+  2. **Navigate to the Docker Desktop installation page:**
+     
+     Visit the [Docker Desktop installation page](https://www.docker.com/products/docker-desktop/).
+  
+  3. **Select your Chip:**
+     
+     - Click the button corresponding to the chip of your computer. 
+     - For M1 or M2 machines, click the "Mac with Apple Chip" button. 
+     - For others, click the "Mac with Intel Chip" button.
+  
+  4. **Install Docker Desktop:**
+     
+     - Double-click the Docker.dmg file in your Downloads.
+     - Drag and drop the Docker icon to the Applications folder.
+     - Go to Applications and double-click the Docker icon.
+     - Select "Open" in the "Are you Sure you want to open it" prompt.
+     - Click "Accept" to the Service Agreement.
+     - Click "OK" to the "Docker Desktop needs privileged access" prompt.
+     - Enter your computer's username and password to install the helper.
+     - Docker Desktop will launch for the first time.
+  
+  5. **Check that Docker is working:**
+     
+     Open your Terminal application and run the `docker` command. If all is well, you should see helpful instructions in the output.
+  
+  6. **Log in to Docker:**
+     
+     - Using your Terminal Application, run the `docker login` command.
+     - Enter the username and password (or your Personal Access Token) you created during registration on DockerHub.
+  
+  Once you see "Login Succeeded," the setup is complete, and you are free to continue.
+
+  
+  #### Linux:
+
+  **Installation of Docker Desktop on Native Hardware**
+  
+    If you are using WSL on Windows, install Docker Desktop for Windows, not Linux. If installing within a VM like VirtualBox or Parallels, or on a cloud server such as AWS, follow the instructions for installation on Cloud Servers or inside Virtual Machines. Docker Desktop does not work with nested virtualization.
+    
+    Currently, Docker Desktop only works with Ubuntu, Debian, or Fedora distributions. For other distributions, follow the "Installation on Cloud Servers or inside Virtual Machines" instructions.
+  
+    1. **Create Dockerhub account:**
+       
+       [Sign up for a Dockerhub account](https://hub.docker.com/signup).
+    
+    2. **Install Docker Desktop for Linux:**
+    
+       Simply follow the generic installation instructions for your particular distribution. Refer to [Docker Desktop Installation Documentation](https://docs.docker.com/desktop/install/linux-install/#generic-installation-steps).
+    
+    3. **Login to Dockerhub:**
+    
+       In your terminal, run `docker login` and enter your Dockerhub account username and password.
+    
+    4. **Test Docker installation:**
+    
+       After completing the installation, test Docker by running `docker run hello-world`. This should download and run the test container, printing "hello world" to your console.
+    
+    **Installation on Cloud Servers or inside Virtual Machines**
+    
+    The steps below are for Ubuntu Desktop LTS. For other Linux distributions, refer to the official documentation.
+    
+    - **Ubuntu:**
+      [Docker CE Installation on Ubuntu](https://docs.docker.com/install/linux/docker-ce/ubuntu/)
+      
+    - **CentOS:**
+      [Docker CE Installation on CentOS](https://docs.docker.com/install/linux/docker-ce/centos/)
+      (Note: Some users have encountered issues with CentOS or RHEL related to Docker container communication. You may need to research workarounds for any errors encountered or search QA for solutions.)
+    
+    - **Debian:**
+      [Docker CE Installation on Debian](https://docs.docker.com/install/linux/docker-ce/debian/)
+    
+      1. **Create Dockerhub account:**
+         
+         [Sign up for a Dockerhub account](https://hub.docker.com/signup).
+      
+      2. **Install Docker:**
+      
+         Follow the Docker documentation to set up a Docker repository for installation and updates. Refer to the documentation for your specific distribution:
+         
+         - [Ubuntu Installation using the repository](https://docs.docker.com/engine/install/ubuntu/#install-using-the-repository)
+      
+      3. **Login to Dockerhub:**
+      
+         In your terminal, run `docker login` and enter your Dockerhub account username and password.
+      
+      4. **Test Docker installation:**
+      
+         After completing the installation, test Docker by running `sudo docker run hello-world`. This should download and run the test container, printing "hello world" to your console.
+  
+      5. **Testing Docker Compose**
+      
+         The version of Docker Compose installed with Docker does not include a symlink to the `docker-compose` command. Use `docker compose` without a hyphen. Test your installation by running:
+         ```sh
+         docker compose -v
+         ```
+         This should print the version and build numbers to your console.
+      6. **Running without Sudo**
+
+         Follow Docker's instructions to run Docker commands without sudo: [Manage Docker as a non-root user](https://docs.docker.com/install/linux/linux-postinstall/#manage-docker-as-a-non-root-user).
+        
+      7. **Start on Boot**
+        
+         Configure Docker and its services to start automatically on boot by following Docker's instructions: [Configure Docker to start on boot](https://docs.docker.com/install/linux/linux-postinstall/#configure-docker-to-start-on-boot).
+        
+         You may need to restart your system before starting the course material.
