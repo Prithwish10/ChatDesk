@@ -233,7 +233,7 @@ I'm working on Windows 11
      - Using your Terminal Application, run the `docker login` command.
      - Enter the username and password (or your Personal Access Token) you created during registration on DockerHub.
   
-  Once you see "Login Succeeded," the setup is complete, and you are free to continue.
+     Once you see "Login Succeeded," the setup is complete, and you are free to continue.
 
   
   #### Linux:
@@ -308,3 +308,86 @@ I'm working on Windows 11
          Configure Docker and its services to start automatically on boot by following Docker's instructions: [Configure Docker to start on boot](https://docs.docker.com/install/linux/linux-postinstall/#configure-docker-to-start-on-boot).
         
          You may need to restart your system before starting the course material.
+
+* Kubernetes
+
+  #### Windows:
+
+  1. **Install Docker Desktop:**
+  
+     If you haven't already, install Docker Desktop by following the [Docker Desktop installation guide](https://www.docker.com/products/docker-desktop/).
+  
+  2. **Enable Kubernetes:**
+  
+     - Open Docker Desktop.
+     - Go to `Settings` > `Kubernetes`.
+     - Check the box next to `Enable Kubernetes`.
+     - Click `Apply & Restart`.
+  
+  3. **Verify Kubernetes Installation:**
+  
+     Open PowerShell and run the following command to ensure Kubernetes is running:
+     ```powershell
+     kubectl version
+     ```
+  #### macOS
+
+  1. **Install Docker Desktop:**
+  
+     If you haven't already, install Docker Desktop by following the [Docker Desktop installation guide](https://www.docker.com/products/docker-desktop/).
+  
+  2. **Enable Kubernetes:**
+  
+     - Open Docker Desktop.
+     - Go to `Preferences` > `Kubernetes`.
+     - Check the box next to `Enable Kubernetes`.
+     - Click `Apply & Restart`.
+  3. **Verify Kubernetes Installation:**
+  
+     Open a terminal and run the following command to ensure Kubernetes is running:
+     ```sh
+     kubectl version
+     ```
+     You should see both the Client and Server versions displayed.
+
+  #### Linux
+
+  1. **Install Docker Desktop:**
+  
+     If you haven't already, install Docker Desktop by following the [Docker Desktop installation guide](https://www.docker.com/products/docker-desktop/).
+
+  2. Download the latest version of kubectl using the following command:
+     ```sh
+      curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
+     ```
+  3. Make the downloaded kubectl binary executable:
+     ```sh
+     sudo chmod +x ./kubectl
+     ```
+  4. Move the binary to a directory included in your PATH:
+     ```sh
+     sudo mv ./kubectl /usr/local/bin/kubectl
+     ```
+     You can check your PATH environment variable to see which directories are included:
+     ```sh
+     echo $PATH
+     ```
+     Choose one of the directories listed in the output, such as `/usr/local/bin`.
+  6. Verify the installation:
+     ```sh
+     kubectl version
+     ```
+     As an alternative you can also follow the [kubectl installation guide](https://kubernetes.io/docs/tasks/tools/install-kubectl-linux/).
+  
+  ##### Install Minikube
+  
+  Minikube is a tool that lets you run Kubernetes locally.
+  Refer to the following documentation on how to install minikube: [Minikube installation guide](https://minikube.sigs.k8s.io/docs/start/).
+
+* Ingress Nginx
+
+  Refer to the following [Ingress Nginx installation guide](https://kubernetes.github.io/ingress-nginx/deploy/#quick-start).
+  Make sure to copy the command from the `If you don't have Helm` section from the above link and run in your terminal:
+  ```sh
+  kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/controller-v1.10.1/deploy/static/provider/cloud/deploy.yaml
+  ```
