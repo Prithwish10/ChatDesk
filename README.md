@@ -391,3 +391,19 @@ I'm working on Windows 11
   ```sh
   kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/controller-v1.10.1/deploy/static/provider/cloud/deploy.yaml
   ```
+
+## Available API Endpoints
+
+| **Web Method** | **API Endpoint URL** | **Description**           | **Query Parameter**      | **Path Parameter**       | **Parameters (Request Body)**                       | **Example**                                      |
+|----------------|-----------------------|---------------------------|--------------------------|--------------------------|------------------------------------------------------|--------------------------------------------------|
+| POST           | /api/v1/users/signup    | Creates a new user, sets the user's session with the generated JWT, and returns the user data    | None | None  | `{ "firstName": string, "lastName": string, "mobileNumber": string, "email": string, "password": string }`                        | `/api/v1/users/signup` with body `{ "firstName": "John", "lastName": "Doe", "mobileNumber": "1290512894", "email": "john@test.com", "password": "john.doe@123" }`                              |
+| POST           | /api/v1/users/signin         | Authenticates an user and stores the JWT token in the session, returning user details        | None | None  | `{ "email": string, "password": string }`                       | `/api/v1/users/signin` with body `{ "email": "john@test.com", "password": "john.doe@123" }`   |
+| GET            | /api/v1/users/currentuser         | Retrieves the current authenticated user details | None | None  | None                                 | `/api/v1/users`                                  |
+| POST           | /api/v1/users/signout    | Signs out the user by clearing the session      | None | None  | None                                 | `/api/v1/users/signout` |
+| POST           | /api/v1/chats/conversations    | Create a new conversation      | None | None  | `{ "participants": [{ "user_id": string, "role": string, "isAdmin": boolean }, ...], "isGroup": boolean, "group_name": string }` | `/api/v1/chats/conversations` with body `{ "participants": [{ "user_id": "64c957b643c413b17124aa3d", "role": "personal", "isAdmin": true }, { "user_id": "64c957d943c413b17124aa44", "role": "personal", "isAdmin": true }], "isGroup": true, "group_name": "TestABC" }` |
+| PUT            | /api/v1/chats/conversations/{conversationId}    | Update a conversation      | None | `{conversationId: string}` | `{ "group_name": string }` | `/api/v1/chats/conversations/64c951de4c60f673e3e43a2c` with body `{ "group_name": "Test" }` |
+| PATCH          | /api/v1/chats/conversations/{conversationId}/participants    | Add participant in a conversation      | None | `{conversationId: string}` | `{ "participants": [{ "user_id": string, "role": string, "isAdmin": boolean }] }` | `/api/v1/chats/conversations/{conversationId}/participants` with body `{ "participants": [{ "user_id": "64c78a27cddb9c9d7a3bfab0", "role": "personal", "isAdmin": true }] }` |
+| PATCH          | /api/v1/chats/conversations/{conversationId}/participants/{userId}    | Remove a participant from a conversation      | None | `{conversationId: string, userId: string}` | None | `/api/v1/chats/conversations/123/participants/456` |
+| DELETE         | /api/v1/chats/conversations/{conversationId}    | Remove a conversation      | None | `{conversationId: string}` | None | `/api/v1/chats/conversations/123` |
+| GET         | /api/v1/chats/conversations/{conversationId}    | Retrieve a conversation      | None | `{conversationId: string}` | None | `/api/v1/chats/conversations/123` |
+| GET         | /api/v1/chats/conversations/users/{userId}    | Retrieve all conversations for an user      | None | `{userId: string}` | None | `/api/v1/chats/conversations/users/123` |
