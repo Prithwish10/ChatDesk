@@ -38,7 +38,7 @@ export class MessageController {
         limit = 30;
       }
       const messages = await this._messageService.getMessagesForAConversation(
-        req.query.conversation_id as string,
+        req.params.id as string,
         sort,
         order,
         page,

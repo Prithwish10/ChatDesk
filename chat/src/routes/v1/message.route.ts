@@ -60,29 +60,6 @@ export default (app: Router) => {
   );
 
   /**
-   * Get Messages Route
-   *
-   * This route handler is designed to handle GET requests to the "/messages" endpoint.
-   * It retrieves messages, subject to authentication and authorization checks.
-   *
-   * @param {Request} req - The Express request object containing information about the incoming HTTP request.
-   * @param {Response} res - The Express response object used to send the response back to the client.
-   * @param {NextFunction} next - The callback function to proceed to the next middleware or route handler.
-   *
-   * @throws {Error} If the current user information is not available in the `currentUser` middleware.
-   * @throws {Error} If the user is not authenticated, and `requireAuth` middleware denies access.
-   * @throws {Error} If there's an error during the message retrieval process in the `messageController`.
-   **/
-  route.get(
-    "/",
-    currentUser,
-    requireAuth,
-    async (req: Request, res: Response, next: NextFunction) => {
-      await messageController.get(req, res, next);
-    }
-  );
-
-  /**
    * Get Message by ID Route
    *
    * This route handler is designed to handle GET requests to the "/messages/:id" endpoint.
