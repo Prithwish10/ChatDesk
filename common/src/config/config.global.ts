@@ -15,6 +15,8 @@ export default {
    * Used by winston logger
    */
   logs: {
+    logglyCustomerToken: process.env.LOGGLY_TOKEN,
+    logglyDomain: process.env.LOGGLY_DOMAIN,
     level: process.env.LOG_LEVEL || "silly",
   },
 };
