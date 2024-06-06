@@ -136,9 +136,9 @@ I'm working on Windows 11
 
 ### Installations
 
-* Docker
+#### Docker
   
-  #### Windows:
+  ##### Windows:
 
   To install Docker with WSL2 on Windows 10/11, follow these steps:
 
@@ -195,7 +195,7 @@ I'm working on Windows 11
       ```
       Once you see "Login Succeeded," the setup is complete, and you are free to continue.
 
-  #### macOS:
+  ##### macOS:
 
   This note provides detailed steps to install Docker and sign up for a DockerHub account on macOS.
   
@@ -236,42 +236,42 @@ I'm working on Windows 11
      Once you see "Login Succeeded," the setup is complete, and you are free to continue.
 
   
-  #### Linux:
+  ##### Linux:
 
   **Installation of Docker Desktop on Native Hardware**
   
-    If you are using WSL on Windows, install Docker Desktop for Windows, not Linux. If installing within a VM like VirtualBox or Parallels, or on a cloud server such as AWS, follow the instructions for installation on Cloud Servers or inside Virtual Machines. Docker Desktop does not work with nested virtualization.
+  If you are using WSL on Windows, install Docker Desktop for Windows, not Linux. If installing within a VM like VirtualBox or Parallels, or on a cloud server such as AWS, follow the instructions for installation on Cloud Servers or inside Virtual Machines. Docker Desktop does not work with nested virtualization.
     
-    Currently, Docker Desktop only works with Ubuntu, Debian, or Fedora distributions. For other distributions, follow the "Installation on Cloud Servers or inside Virtual Machines" instructions.
+  Currently, Docker Desktop only works with Ubuntu, Debian, or Fedora distributions. For other distributions, follow the "Installation on Cloud Servers or inside Virtual Machines" instructions.
   
-    1. **Create Dockerhub account:**
+  1. **Create Dockerhub account:**
        
        [Sign up for a Dockerhub account](https://hub.docker.com/signup).
     
-    2. **Install Docker Desktop for Linux:**
+  2. **Install Docker Desktop for Linux:**
     
        Simply follow the generic installation instructions for your particular distribution. Refer to [Docker Desktop Installation Documentation](https://docs.docker.com/desktop/install/linux-install/#generic-installation-steps).
     
-    3. **Login to Dockerhub:**
+  3. **Login to Dockerhub:**
     
        In your terminal, run `docker login` and enter your Dockerhub account username and password.
     
-    4. **Test Docker installation:**
+  4. **Test Docker installation:**
     
        After completing the installation, test Docker by running `docker run hello-world`. This should download and run the test container, printing "hello world" to your console.
     
-    **Installation on Cloud Servers or inside Virtual Machines**
+  **Installation on Cloud Servers or inside Virtual Machines**
     
-    The steps below are for Ubuntu Desktop LTS. For other Linux distributions, refer to the official documentation.
+  The steps below are for Ubuntu Desktop LTS. For other Linux distributions, refer to the official documentation.
     
-    - **Ubuntu:**
+  - **Ubuntu:**
       [Docker CE Installation on Ubuntu](https://docs.docker.com/install/linux/docker-ce/ubuntu/)
       
-    - **CentOS:**
+  - **CentOS:**
       [Docker CE Installation on CentOS](https://docs.docker.com/install/linux/docker-ce/centos/)
       (Note: Some users have encountered issues with CentOS or RHEL related to Docker container communication. You may need to research workarounds for any errors encountered or search QA for solutions.)
     
-    - **Debian:**
+  - **Debian:**
       [Docker CE Installation on Debian](https://docs.docker.com/install/linux/docker-ce/debian/)
     
       1. **Create Dockerhub account:**
@@ -309,9 +309,9 @@ I'm working on Windows 11
         
          You may need to restart your system before starting the course material.
 
-* Kubernetes
+#### Kubernetes
 
-  #### Windows:
+  ##### Windows:
 
   1. **Install Docker Desktop:**
   
@@ -330,7 +330,7 @@ I'm working on Windows 11
      ```powershell
      kubectl version
      ```
-  #### macOS
+  ##### macOS
 
   1. **Install Docker Desktop:**
   
@@ -350,7 +350,7 @@ I'm working on Windows 11
      ```
      You should see both the Client and Server versions displayed.
 
-  #### Linux
+  ##### Linux
 
   1. **Install Docker Desktop:**
   
@@ -379,12 +379,12 @@ I'm working on Windows 11
      ```
      As an alternative you can also follow the [kubectl installation guide](https://kubernetes.io/docs/tasks/tools/install-kubectl-linux/).
   
-  ##### Install Minikube
+  ###### Install Minikube
   
   Minikube is a tool that lets you run Kubernetes locally.
   Refer to the following documentation on how to install minikube: [Minikube installation guide](https://minikube.sigs.k8s.io/docs/start/).
 
-* Ingress Nginx
+#### Ingress Nginx
 
   Refer to the following [Ingress Nginx installation guide](https://kubernetes.github.io/ingress-nginx/deploy/#quick-start).
   Make sure to copy the command from the `If you don't have Helm` section from the above link and run in your terminal:
