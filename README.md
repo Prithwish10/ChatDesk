@@ -407,3 +407,8 @@ I'm working on Windows 11
 | DELETE         | /api/v1/chats/conversations/{conversationId}    | Remove a conversation      | None | `{conversationId: string}` | None | `/api/v1/chats/conversations/123` |
 | GET         | /api/v1/chats/conversations/{conversationId}    | Retrieve a conversation      | None | `{conversationId: string}` | None | `/api/v1/chats/conversations/123` |
 | GET         | /api/v1/chats/conversations/users/{userId}    | Retrieve all conversations for an user      | `sort` (optional, string, default: "last_message_timestamp"), `order` (optional, string, default: "desc"), `page` (optional, int, default: 1), `deleted` (optional, int, default: 0), `limit` (optional, int, default: 20, max: 100) | `{userId: string}` | None | `/api/v1/chats/conversations/users/123` |
+
+## Screenshots
+
+#### Centralised Logging for microservices
+![Centralised Logging](https://github.com/Prithwish10/Images/blob/main/Chatdesk_images/centralised_logging.png)
