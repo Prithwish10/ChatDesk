@@ -3,6 +3,7 @@ import sanitize from "mongo-sanitize";
 import Container from "typedi";
 import { currentUser, requireAuth } from "@pdchat/common";
 import { ConversationController } from "../../controllers/v1/Conversation.controller";
+import { MessageController } from "../../controllers/v1/Message.controller";
 
 const route = Router();
 
@@ -35,6 +36,7 @@ export default (app: Router) => {
   );
 
   const conversationController = Container.get(ConversationController);
+  const messageController = Container.get(MessageController);
 
   /**
    * Create Conversation Route
@@ -180,6 +182,29 @@ export default (app: Router) => {
     requireAuth,
     async (req: Request, res: Response, next: NextFunction) => {
       await conversationController.deleteById(req, res, next);
+    }
+  );
+
+  /**
+   * Get Conversation Messages Route
+   *
+   * This route handler is designed to handle GET requests to the "/conversations/:id/messages" endpoint.
+   * It retrieves messages associated with a conversation, subject to authentication and authorization checks.
+   *
+   * @param {Request} req - The Express request object containing information about the incoming HTTP request.
+   * @param {Response} res - The Express response object used to send the response back to the client.
+   * @param {NextFunction} next - The callback function to proceed to the next middleware or route handler.
+   *
+   * @throws {Error} If the current user information is not available in the `currentUser` middleware.
+   * @throws {Error} If the user is not authenticated, and `requireAuth` middleware denies access.
+   * @throws {Error} If there's an error during the message retrieval process in the `messageController`.
+   **/
+  route.get(
+    "/:id/messages",
+    currentUser,
+    requireAuth,
+    async (req: Request, res: Response, next: NextFunction) => {
+      await messageController.get(req, res, next);
     }
   );
 };

@@ -1,4 +1,5 @@
 import winston from "winston";
+import { Loggly } from 'winston-loggly-bulk'
 import config from "../config/config.global";
 
 export class Logger {
@@ -32,6 +33,19 @@ export class Logger {
         new winston.transports.File({ filename: "logs/combined.log" }),
       ],
     });
+
+    // Setting up centralized microservices logging with Loggly using
+    // the `winston-loggly-bulk` transport for the `winston` logger.
+    /*
+    this.logger.add(
+      new Loggly({
+        token: config.logs.logglyCustomerToken!,
+        subdomain: config.logs.logglyDomain!,
+        tags: ["chatdesk"],
+        json: true,
+      })
+    );
+    */
   }
 
   /**

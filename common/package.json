@@ -1,6 +1,6 @@
 {
   "name": "@pdchat/common",
-  "version": "1.0.27",
+  "version": "1.0.28",
   "description": "",
   "main": "./build/index.js",
   "types": "./build/index.d.ts",
@@ -16,6 +16,7 @@
   "author": "",
   "license": "ISC",
   "devDependencies": {
+    "@types/winston-loggly-bulk": "^3.0.6",
     "del-cli": "^5.0.0",
     "typescript": "^5.1.6"
   },
@@ -31,6 +32,7 @@
     "jsonwebtoken": "^9.0.1",
     "mongoose": "^7.4.0",
     "node-nats-streaming": "^0.3.2",
-    "winston": "^3.9.0"
+    "winston": "^3.9.0",
+    "winston-loggly-bulk": "^3.3.0"
   }
 }
