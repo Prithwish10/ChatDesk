@@ -34,6 +34,9 @@ export class Logger {
       ],
     });
 
+    // Setting up centralized microservices logging with Loggly using
+    // the `winston-loggly-bulk` transport for the `winston` logger.
+    /*
     this.logger.add(
       new Loggly({
         token: config.logs.logglyCustomerToken!,
@@ -42,6 +45,7 @@ export class Logger {
         json: true,
       })
     );
+    */
   }
 
   /**
