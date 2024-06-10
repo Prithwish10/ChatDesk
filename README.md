@@ -128,6 +128,19 @@ Chatdesk is a versatile messaging application that empower seamless communicatio
 [linkedin-url]: https://www.linkedin.com/in/prithwishdas60/
 [product-screenshot]: images/screenshot.png
 
+### Project Architecture
+
+**Event-Driven Microservices Architecture for Chatdesk with NATS Streaming Server**
+
+![Centralised Logging](https://github.com/Prithwish10/Images/blob/main/Chatdesk_images/chatdesk_architecture.drawio.png)
+
+**Microservices Architecture for Chatdesk Using Kubernetes**
+
+![Centralised Logging](https://github.com/Prithwish10/Images/blob/main/Chatdesk_images/Chatdesk_design.drawio%20(1).png)
+
+**Centralised Logging for microservices**
+
+![Centralised Logging](https://github.com/Prithwish10/Images/blob/main/Chatdesk_images/centralised_logging.png)
 
 <!-- GETTING STARTED -->
 ## Getting Started
@@ -392,6 +405,9 @@ I'm working on Windows 11
   kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/controller-v1.10.1/deploy/static/provider/cloud/deploy.yaml
   ```
 
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
+
+
 ## Available API Endpoints
 
 | **Web Method** | **API Endpoint URL** | **Description**           | **Query Parameter**      | **Path Parameter**       | **Parameters (Request Body)**                       | **Example**                                      |
@@ -408,7 +424,29 @@ I'm working on Windows 11
 | GET         | /api/v1/chats/conversations/{conversationId}    | Retrieve a conversation      | None | `{conversationId: string}` | None | `/api/v1/chats/conversations/123` |
 | GET         | /api/v1/chats/conversations/users/{userId}    | Retrieve all conversations for an user      | `sort` (optional, string, default: "last_message_timestamp"), `order` (optional, string, default: "desc"), `page` (optional, int, default: 1), `deleted` (optional, int, default: 0), `limit` (optional, int, default: 20, max: 100) | `{userId: string}` | None | `/api/v1/chats/conversations/users/123` |
 
-## Screenshots
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
 
-#### Centralised Logging for microservices
-![Centralised Logging](https://github.com/Prithwish10/Images/blob/main/Chatdesk_images/centralised_logging.png)
+<!-- CONTRIBUTING -->
+## Contributing
+
+If you have a suggestion that would make this better, please fork the repo and create a pull request. You can also simply open an issue with the tag "enhancement".
+Don't forget to give the project a star! Thanks again!
+
+1. Fork the Project
+2. Create your Feature Branch (`git checkout -b feature/AmazingFeature`)
+3. Commit your Changes (`git commit -m 'Add some AmazingFeature'`)
+4. Push to the Branch (`git push origin feature/AmazingFeature`)
+5. Open a Pull Request
+
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
+
+<!-- CONTACT -->
+## Contact
+
+Name - Prithwish Das
+
+Project Link: https://github.com/Prithwish10/ChatDesk
+
+LinkedIn: https://www.linkedin.com/in/prithwishdas60/
+
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
