@@ -138,7 +138,11 @@ Chatdesk is a versatile messaging application that empower seamless communicatio
 
 ![Centralised Logging](https://github.com/Prithwish10/Images/blob/main/Chatdesk_images/Chatdesk_design.drawio%20(1).png)
 
-**Centralised Logging for microservices**
+**Scaling Socket Server using Redis Pub/Sub**
+
+![Centralised Logging](https://github.com/Prithwish10/Images/blob/main/Chatdesk_images/Scale_socket_server.drawio.png)
+
+**Centralised Logging for microservices using Loggly**
 
 ![Centralised Logging](https://github.com/Prithwish10/Images/blob/main/Chatdesk_images/centralised_logging.png)
 
