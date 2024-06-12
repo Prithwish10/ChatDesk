@@ -1,3 +1,4 @@
+import "reflect-metadata";
 import { Router, Request, Response, NextFunction } from "express";
 import sanitize from "mongo-sanitize";
 import Container from "typedi";
@@ -5,6 +6,7 @@ import { SignInController } from "../controllers/Signin.controller";
 
 const route = Router();
 
+/* Check for NoSQL Injection */
 export default (app: Router) => {
   function MongoSanitize(data: any) {
     return sanitize(data);
@@ -39,7 +41,7 @@ export default (app: Router) => {
    * POST User Signin Route
    *
    * This route handler is designed to handle POST requests to the "/signin" endpoint.
-   * It is responsible for Authenticates an user and stores the JWT token in the session, returning user details. 
+   * It is responsible for Authenticates an user and stores the JWT token in the session, returning user details.
    *
    * @param {Request} req - The Express Request object representing the HTTP request.
    * @param {Response} res - The Express Response object representing the HTTP response.

@@ -1,12 +1,10 @@
 import request from "supertest";
-import Server from "../../Server";
-import { Application } from "express";
+import createApp from "../../loaders/app";
 
 jest.mock("../../loaders/NatsWrapper");
 
 it("returns a 201 on successfull signup", async () => {
-  const server = new Server(undefined, null);
-  const app = (await server.up()) as unknown as Application;
+  const app = createApp();
 
   return request(app)
     .post("/api/v1/users/signup")
@@ -21,8 +19,7 @@ it("returns a 201 on successfull signup", async () => {
 });
 
 it("returns a 422 with an invalid email", async () => {
-  const server = new Server(undefined, null);
-  const app = (await server.up()) as unknown as Application;
+  const app = createApp();
 
   return request(app)
     .post("/api/v1/users/signup")
@@ -37,8 +34,7 @@ it("returns a 422 with an invalid email", async () => {
 });
 
 it("returns a 422 with an invalid password", async () => {
-  const server = new Server(undefined, null);
-  const app = (await server.up()) as unknown as Application;
+  const app = createApp();
 
   return request(app)
     .post("/api/v1/users/signup")
@@ -53,8 +49,7 @@ it("returns a 422 with an invalid password", async () => {
 });
 
 it("returns a 422 with an missing firstName, lastName, email and password", async () => {
-  const server = new Server(undefined, null);
-  const app = (await server.up()) as unknown as Application;
+  const app = createApp();
 
   await request(app)
     .post("/api/v1/users/signup")
@@ -78,8 +73,7 @@ it("returns a 422 with an missing firstName, lastName, email and password", asyn
 });
 
 it("disallows duplicate email", async () => {
-  const server = new Server(undefined, null);
-  const app = (await server.up()) as unknown as Application;
+  const app = createApp();
 
   await request(app)
     .post("/api/v1/users/signup")
@@ -105,8 +99,7 @@ it("disallows duplicate email", async () => {
 });
 
 it("sets a cookie after successful signup", async () => {
-  const server = new Server(undefined, null);
-  const app = (await server.up()) as unknown as Application;
+  const app = createApp();
 
   const response = await request(app).post("/api/v1/users/signup").send({
     firstName: "Alpha",
