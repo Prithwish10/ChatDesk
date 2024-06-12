@@ -48,6 +48,31 @@ export default (app: Router) => {
    * @param {NextFunction} next - The Express NextFunction middleware for passing control to the next middleware.
    * @returns {Promise<void>} - A Promise indicating the completion of the operation.
    */
+  /**
+   * @swagger
+   * /api/v1/users/currentuser:
+   *   get:
+   *     summary: Get current user
+   *     tags: [Users]
+   *     responses:
+   *       200:
+   *         description: The current user
+   *         content:
+   *           application/json:
+   *             schema:
+   *               type: object
+   *               properties:
+   *                 id:
+   *                   type: string
+   *                 email:
+   *                   type: string
+   *                 username:
+   *                   type: string
+   *       401:
+   *         description: Unauthorized
+   *       500:
+   *         description: Internal server error
+   */
   route.get(
     "/currentuser",
     currentUser,
