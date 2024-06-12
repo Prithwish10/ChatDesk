@@ -1,3 +1,4 @@
+import "reflect-metadata";
 import { Router, Request, Response, NextFunction } from "express";
 import sanitize from "mongo-sanitize";
 import Container from "typedi";

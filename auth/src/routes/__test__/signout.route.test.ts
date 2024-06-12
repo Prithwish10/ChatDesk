@@ -1,12 +1,10 @@
 import request from "supertest";
-import Server from "../../Server";
-import { Application } from "express";
+import createApp from "../../loaders/app";
 
 jest.mock("../../loaders/NatsWrapper");
 
 it("clears the cookie after signing out", async () => {
-  const server = new Server(undefined, null);
-  const app = (await server.up()) as unknown as Application;
+  const app = createApp();
 
   await request(app)
     .post("/api/v1/users/signup")

@@ -6,12 +6,12 @@ import cors from "cors";
 import config from "../config/config.global";
 import routes from "../routes/index";
 
-export default ({ app }: { app: Application }) => {
+export const configureExpress = ({ app }: { app: Application }): void => {
   app.set("trust proxy", true);
   app.use(
     cookieSession({
       signed: false,
-      secure: process.env.NODE_ENV !== 'test',
+      secure: process.env.NODE_ENV !== "test",
     })
   );
   app.use(cors());

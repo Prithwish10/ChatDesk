@@ -1,17 +1,18 @@
 import "reflect-metadata";
-import express, { Application } from "express";
+import { Application } from "express";
 import http from "http";
 import DatabaseManager from "./loaders/DatabaseManager";
 import { logger } from "./loaders/logger";
 import config from "./config/config.global";
 import { natsWrapper } from "./loaders/NatsWrapper";
+import createApp from "./loaders/app";
 
 /**
  * Represents a server that listens on a specified port and handles HTTP requests.
  */
 class Server {
   private readonly _app: Application;
-  private readonly _port?: number;
+  private readonly _port: number;
   private readonly _dbConnection: DatabaseManager;
   private _server!: http.Server;
 
@@ -20,61 +21,48 @@ class Server {
    * @param port - The port number on which the server will listen.
    * @param dbConnection - The database connection object.
    */
-  constructor(port: number | undefined, dbConnection: any) {
-    this._app = express();
+  constructor(port: number, dbConnection: any) {
+    this._app = createApp();
     this._port = port;
     this._dbConnection = dbConnection;
-    this.configureMiddlewaresAndRoutes(this._app);
   }
 
-  /**
-   * Configures the middlewares and routes for the server's Express application.
-   * @param app - The Express application object.
-   */
-  private async configureMiddlewaresAndRoutes(app: Application): Promise<void> {
-    await require("./loaders/express").default({ app });
-  }
-  
   /**
    * Starts the server by establishing connections and setting up event listeners.
    *
    * @throws {Error} Throws an error if there is an issue during the startup process.
    *
-   * @returns {Promise<Application | void>} Resolves when the server is successfully started.
+   * @returns {Promise<void>} Resolves when the server is successfully started.
    */
-  public async up(): Promise<Application | void> {
+  public async up(): Promise<void> {
     try {
-      // This condition is intended for testing purposes, allowing dynamic port binding for Supertest.
-      if (!this._port) {
-        return this._app;
-      } else {
-        await natsWrapper.connect(
-          config.connections.nats.natsClusterId!,
-          config.connections.nats.natsClientId!,
-          config.connections.nats.natsURL!
-        );
+      await natsWrapper.connect(
+        config.connections.nats.natsClusterId!,
+        config.connections.nats.natsClientId!,
+        config.connections.nats.natsURL!
+      );
 
-        natsWrapper.client.on("close", () => {
-          logger.info("⛔ NATS connection closed! ⛔");
-          process.exit();
-        });
-        process.on("SIGINT", () => natsWrapper.client.close());
-        process.on("SIGTERM", () => natsWrapper.client.close());
+      natsWrapper.client.on("close", () => {
+        logger.info("⛔ NATS connection closed! ⛔");
+        process.exit();
+      });
+      process.on("SIGINT", () => natsWrapper.client.close());
+      process.on("SIGTERM", () => natsWrapper.client.close());
 
-        this._server = this._app
-          .listen(this._port, async () => {
-            logger.info(`
+      this._server = this._app
+        .listen(this._port, async () => {
+          logger.info(`
         ################################################
         🛡️  Server listening on port: ${this._port} 🛡️
         ################################################
       `);
-            await this._dbConnection.connect();
-          })
-          .on("error", (err) => {
-            logger.error(`${err}`);
-            process.exit(1);
-          });
-      }
+          await this._dbConnection.connect();
+        })
+        .on("error", (err) => {
+          logger.error(`${err}`);
+          process.exit(1);
+        });
+
       this.bindPOSIXSignals();
     } catch (error: any) {
       logger.error(error);
@@ -125,7 +113,6 @@ class Server {
     } catch (error) {
       logger.error(`Error during shutdown process: ${error}`);
       process.exit(1);
-      // throw new Error("Failed to complete shutdown process.");
     }
   }
 

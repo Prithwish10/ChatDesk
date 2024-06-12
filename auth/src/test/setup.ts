@@ -1,15 +1,14 @@
 import { MongoMemoryServer } from "mongodb-memory-server";
 import mongoose from "mongoose";
 import request from "supertest";
-import Server from "../Server";
-import { Application } from "express";
+import createApp from "../loaders/app";
 
 declare global {
   var getAuthCookie: () => Promise<string[]>;
 }
 
 jest.mock("../config/config.global");
-jest.setTimeout(30000);
+// jest.setTimeout(30000);
 
 let mongo: any;
 beforeAll(async () => {
@@ -35,8 +34,7 @@ afterAll(async () => {
 });
 
 global.getAuthCookie = async () => {
-  const server = new Server(undefined, null);
-  const app = (await server.up()) as unknown as Application;
+  const app = createApp();
 
   const response = await request(app)
     .post("/api/v1/users/signup")
@@ -49,7 +47,7 @@ global.getAuthCookie = async () => {
     })
     .expect(201);
 
-  const cookie = response.get('Set-Cookie');
+  const cookie = response.get("Set-Cookie");
 
   return cookie;
 };

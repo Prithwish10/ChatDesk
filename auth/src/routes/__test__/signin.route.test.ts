@@ -1,12 +1,10 @@
 import request from "supertest";
-import Server from "../../Server";
-import { Application } from "express";
+import createApp from "../../loaders/app";
 
 jest.mock("../../loaders/NatsWrapper");
 
 it("fails when an email that doesnot exist is supplied", async () => {
-  const server = new Server(undefined, null);
-  const app = (await server.up()) as unknown as Application;
+  const app = createApp();
 
   await request(app)
     .post("/api/v1/users/signin")
@@ -18,8 +16,7 @@ it("fails when an email that doesnot exist is supplied", async () => {
 });
 
 it("fails when an incorrect password is supplied", async () => {
-  const server = new Server(undefined, null);
-  const app = (await server.up()) as unknown as Application;
+  const app = createApp();
 
   await request(app)
     .post("/api/v1/users/signup")
@@ -42,8 +39,7 @@ it("fails when an incorrect password is supplied", async () => {
 });
 
 it("responds with a cookie when given valid credentials", async () => {
-  const server = new Server(undefined, null);
-  const app = (await server.up()) as unknown as Application;
+  const app = createApp();
 
   await request(app)
     .post("/api/v1/users/signup")

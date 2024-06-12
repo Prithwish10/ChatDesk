@@ -1,3 +1,4 @@
+import "reflect-metadata";
 import { Router, Request, Response, NextFunction } from "express";
 import { currentUser, requireAuth } from "@pdchat/common";
 import sanitize from "mongo-sanitize";
