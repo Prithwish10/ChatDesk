@@ -14,7 +14,7 @@ export class ConversationController {
   public async create(req: Request, res: Response, next: NextFunction) {
     try {
       await createConversationSchema.validateAsync(req.body);
-      console.log("Req session ====> ", req.session)
+      console.log("Req session ====> ", req.session);
       const { conversation, isNew } = await this._conversationService.create(
         req.body,
         req.currentUser!.id
