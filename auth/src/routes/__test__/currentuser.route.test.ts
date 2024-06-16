@@ -13,7 +13,7 @@ it("responds with details about the current user", async () => {
     .get("/api/v1/users/currentuser")
     .set("Cookie", cookie)
     .send();
-  // .expect(200);
+    // .expect(201); 
 });
 
 it("responds with 401 for unauthorised user", async () => {

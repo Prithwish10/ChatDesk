@@ -8,6 +8,7 @@ declare global {
 }
 
 jest.mock("../config/config.global");
+jest.mock("../loaders/NatsWrapper.ts");
 // jest.setTimeout(30000);
 
 let mongo: any;
