@@ -5,7 +5,6 @@ jest.mock("../../loaders/NatsWrapper");
 
 it("responds with details about the current user", async () => {
   const app = createApp();
-
   const cookie = await getAuthCookie();
   console.log("COOKIE ===>", cookie);
 
