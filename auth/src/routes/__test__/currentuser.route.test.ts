@@ -9,7 +9,7 @@ it("responds with details about the current user", async () => {
   const cookie = await getAuthCookie();
   console.log("COOKIE ===>", cookie);
 
-  const res = await request(app)
+  await request(app)
     .get("/api/v1/users/currentuser")
     .set("Cookie", cookie)
     .send();
