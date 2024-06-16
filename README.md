@@ -37,7 +37,7 @@
 
 <!-- TABLE OF CONTENTS -->
 <details>
-  <summary><h3>Table of Contents</h3></summary>
+  <summary>Table of Contents</summary>
   <ol>
     <li>
       <a href="#about-the-project">About The Project</a>
@@ -433,14 +433,43 @@ I'm working on Windows 11
 <!-- CONTRIBUTING -->
 ## Contributing
 
-If you have a suggestion that would make this better, please fork the repo and create a pull request. You can also simply open an issue with the tag "enhancement".
-Don't forget to give the project a star! Thanks again!
+We welcome contributions from the community and are grateful for your interest in improving this project. Below are guidelines to help you get started.
 
-1. Fork the Project
-2. Create your Feature Branch (`git checkout -b feature/AmazingFeature`)
-3. Commit your Changes (`git commit -m 'Add some AmazingFeature'`)
-4. Push to the Branch (`git push origin feature/AmazingFeature`)
-5. Open a Pull Request
+### How to Contribute
+
+1. **Fork the Repository**: Click on the `Fork` button at the top right of this page to create a copy of this repository in your GitHub account.
+2. **Clone Your Fork**: Clone your fork to your local machine using:
+    ```sh
+    git clone https://github.com/your-username/your-repo-name.git
+    cd your-repo-name
+    ```
+3. **Create a Branch**: Create a new branch for your feature or enhancement or bugfix:
+    ```sh
+    git checkout -b feature/your-feature-name
+    ```
+4. **Install Dependencies**: Ensure you have all necessary dependencies installed:
+    ```sh
+    npm install
+    ```
+5. **Write Code**: Make your changes or additions. Ensure your code adheres to our coding standards and passes all linting checks.
+6. **Update Documentation**: If you make any changes to the code, update the corresponding documentation.
+7. **Run Tests**: Ensure all tests pass. We use Jest for testing. You can run the tests with:
+    ```sh
+    npm run test
+    ```
+    You will see something like this:
+    ![Centralised Logging](https://github.com/Prithwish10/Images/blob/main/Chatdesk_images/test_cases.png)
+
+   Ensure all existing and new tests pass. All tests are run automatically when a pull request (PR) is raised. PRs without proper tests will fail.
+9. **Commit Changes**: Commit your changes with a clear and descriptive commit message:
+    ```sh
+    git commit -m "Add feature/fix bug: Description of the changes"
+    ```
+10. **Push to GitHub**: Push your branch to your forked repository:
+    ```sh
+    git push origin feature/your-feature-name
+    ```
+11. **Create a Pull Request**: Go to the original repository and create a pull request from your branch. Please provide a detailed description of your changes and any additional information that might help us review your contribution.
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
