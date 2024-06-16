@@ -149,6 +149,8 @@ Chatdesk is a versatile messaging application that empower seamless communicatio
 
 ![Centralised Logging](https://github.com/Prithwish10/Images/blob/main/Chatdesk_images/centralised_logging.png)
 
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
+
 <!-- GETTING STARTED -->
 ## Getting Started
 
