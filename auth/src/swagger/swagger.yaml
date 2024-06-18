@@ -1,0 +1,194 @@
+openapi: 3.0.0
+info:
+  title: Auth Service API
+  version: 1.0.0
+  description: API documentation for the Auth Service
+servers:
+  - url: "http://auth-srv:3000"
+    description: Auth Service
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+security:
+  - bearerAuth: []
+
+tags:
+  - name: Users
+    description: Operations related to user authentication and management
+
+paths:
+  /signin:
+    post:
+      tags:
+        - Users
+      summary: User Signin
+      description: Authenticates a user and stores the JWT token in the session, returning user details.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                  example: "user@example.com"
+                password:
+                  type: string
+                  example: "password123"
+      responses:
+        "201":
+          description: Successfully retrieved user
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  statusCode:
+                    type: integer
+                    example: 201
+                  user:
+                    type: object
+                    properties:
+                      id:
+                        type: string
+                        example: "64a9bcf30db24a27eb827f40"
+                      firstName:
+                        type: string
+                        example: "Arghya"
+                      lastName:
+                        type: string
+                        example: "Das"
+                      email:
+                        type: string
+                        example: "arghya@test.com"
+                      mobileNumber:
+                        type: string
+                        example: "9076740987"
+                      image:
+                        type: string
+                        example: "https://icon-library.com/images/anonymous-avatar-icon/anonymous-avatar-icon-25.jpg"
+        "400":
+          description: Bad request
+        "401":
+          description: Unauthorized
+
+  /signout:
+    post:
+      tags:
+        - Users
+      summary: User Signout
+      description: Signs out the user by clearing the session.
+      responses:
+        "204":
+          description: Successfully signed out, no content
+        "400":
+          description: Bad request
+
+  /signup:
+    post:
+      tags:
+        - Users
+      summary: User Signup
+      description: Creates a new user, sets the user's session with the generated JWT, and returns the user data.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                  example: "user@example.com"
+                password:
+                  type: string
+                  example: "password123"
+      responses:
+        "201":
+          description: Successfully retrieved user
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  statusCode:
+                    type: integer
+                    example: 201
+                  user:
+                    type: object
+                    properties:
+                      id:
+                        type: string
+                        example: "64a9bcf30db24a27eb827f40"
+                      firstName:
+                        type: string
+                        example: "Arghya"
+                      lastName:
+                        type: string
+                        example: "Das"
+                      email:
+                        type: string
+                        example: "arghya@test.com"
+                      mobileNumber:
+                        type: string
+                        example: "9076740987"
+                      image:
+                        type: string
+                        example: "https://icon-library.com/images/anonymous-avatar-icon/anonymous-avatar-icon-25.jpg"
+        "400":
+          description: Bad request
+
+  /currentuser:
+    get:
+      tags:
+        - Users
+      summary: Get Current Authenticated User
+      description: Retrieves the current authenticated user and sets the token in the session.
+      responses:
+        "201":
+          description: Successfully retrieved user
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  statusCode:
+                    type: integer
+                    example: 201
+                  currentUser:
+                    type: object
+                    properties:
+                      id:
+                        type: string
+                        example: "64a9bcf30db24a27eb827f40"
+                      firstName:
+                        type: string
+                        example: "Arghya"
+                      lastName:
+                        type: string
+                        example: "Das"
+                      email:
+                        type: string
+                        example: "arghya@test.com"
+                      iat:
+                        type: integer
+                        example: 1688845597
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
