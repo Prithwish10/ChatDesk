@@ -4,7 +4,7 @@ info:
   version: 1.0.0
   description: API documentation for the Auth Service
 servers:
-  - url: "http://auth-srv:3000"
+  - url: "https://chatdesk.dev"
     description: Auth Service
 
 components:
@@ -13,6 +13,44 @@ components:
       type: http
       scheme: bearer
       bearerFormat: JWT
+  schemas:
+    User:
+      type: object
+      properties:
+        id:
+          type: string
+          description: Unique identifier for the user
+        firstName:
+          type: string
+          description: First name of the user
+        lastName:
+          type: string
+          description: Last name of the user
+        email:
+          type: string
+          format: email
+          description: Email address of the user
+        mobileNumber:
+          type: string
+          description: Mobile number of the user
+        image:
+          type: string
+          description: Image of the user
+        createdAt:
+          type: string
+          description: Date at which the user signs up
+        updatedAt:
+          type: string
+          description: Date at which user record is last updated
+        version:
+          type: integer
+          description: Current version
+      required:
+        - id
+        - firstName
+        - lastName
+        - email
+        - mobileNumber
 
 security:
   - bearerAuth: []
@@ -22,7 +60,129 @@ tags:
     description: Operations related to user authentication and management
 
 paths:
-  /signin:
+  /api/v1/users/signup:
+    post:
+      tags:
+        - Users
+      summary: User Signup
+      description: Creates a new user, sets the user's session with the generated JWT, and returns the user data.
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                firstName:
+                  type: string
+                  example: John
+                lastName:
+                  type: string
+                  example: Doe
+                image:
+                  type: string
+                  example: https://icon-library.com/images/anonymous-avatar-icon/anonymous-avatar-icon-25.jpg
+                mobileNumber:
+                  type: string
+                  example: 1971562891
+                email:
+                  type: string
+                  example: "john.doe@example.com"
+                password:
+                  type: string
+                  example: "password123"
+              required:
+                - firstName
+                - lastName
+                - email
+                - mobileNumber
+                - password
+      responses:
+        "201":
+          description: Successfully retrieved user
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  statusCode:
+                    type: integer
+                    example: 201
+                  user:
+                    type: object
+                    properties:
+                      id:
+                        type: string
+                        example: "64a9bcf30db24a27eb827f40"
+                      firstName:
+                        type: string
+                        example: "John"
+                      lastName:
+                        type: string
+                        example: "Doe"
+                      email:
+                        type: string
+                        example: "john.doe@example.com"
+                      mobileNumber:
+                        type: string
+                        example: "9076740987"
+                      image:
+                        type: string
+                        example: "https://icon-library.com/images/anonymous-avatar-icon/anonymous-avatar-icon-25.jpg"
+                      createdAt:
+                        type: string
+                        example: "2024-06-18T14:29:03.382Z"
+                      updatedAt:
+                        type: string
+                        example: "2024-06-18T14:29:03.382Z"
+                      version:
+                        type: integer
+                        example: 0
+        '409':
+          description: Conflict - User already exists
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  errors:
+                    type: object
+                    properties:
+                      success:
+                        type: boolean
+                        example: false
+                      message:
+                        type: string
+                        example: Record already exist.
+                      description:
+                        type: string
+                        example: Email already in use.
+                      statuscode:
+                        type: integer
+                        example: 409
+        '422':
+          description: Unprocessable Entity
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  errors:
+                    type: object
+                    properties:
+                      success:
+                        type: boolean
+                        example: false
+                      message:
+                        type: string
+                        example: \"Last name\" is required
+                      statuscode:
+                        type: integer
+                        example: 422
+
+  /api/v1/users/signin:
     post:
       tags:
         - Users
@@ -37,12 +197,12 @@ paths:
               properties:
                 email:
                   type: string
-                  example: "user@example.com"
+                  example: "john.doe@example.com"
                 password:
                   type: string
                   example: "password123"
       responses:
-        "201":
+        "200":
           description: Successfully retrieved user
           content:
             application/json:
@@ -63,13 +223,13 @@ paths:
                         example: "64a9bcf30db24a27eb827f40"
                       firstName:
                         type: string
-                        example: "Arghya"
+                        example: "John"
                       lastName:
                         type: string
-                        example: "Das"
+                        example: "Doe"
                       email:
                         type: string
-                        example: "arghya@test.com"
+                        example: "john.doe@example.com"
                       mobileNumber:
                         type: string
                         example: "9076740987"
@@ -77,11 +237,48 @@ paths:
                         type: string
                         example: "https://icon-library.com/images/anonymous-avatar-icon/anonymous-avatar-icon-25.jpg"
         "400":
-          description: Bad request
-        "401":
-          description: Unauthorized
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  errors:
+                    type: object
+                    properties:
+                      success:
+                        type: boolean
+                        example: false
+                      message:
+                        type: string
+                        example: Bad Request.
+                      description:
+                        type: string
+                        example: Invalid credentials.
+                      statuscode:
+                        type: integer
+                        example: 400
+        '422':
+          description: Unprocessable Entity
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  errors:
+                    type: object
+                    properties:
+                      success:
+                        type: boolean
+                        example: false
+                      message:
+                        type: string
+                        example: \"Email\" is required
+                      statuscode:
+                        type: integer
+                        example: 422
 
-  /signout:
+  /api/v1/users/signout:
     post:
       tags:
         - Users
@@ -90,67 +287,8 @@ paths:
       responses:
         "204":
           description: Successfully signed out, no content
-        "400":
-          description: Bad request
 
-  /signup:
-    post:
-      tags:
-        - Users
-      summary: User Signup
-      description: Creates a new user, sets the user's session with the generated JWT, and returns the user data.
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                email:
-                  type: string
-                  example: "user@example.com"
-                password:
-                  type: string
-                  example: "password123"
-      responses:
-        "201":
-          description: Successfully retrieved user
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  success:
-                    type: boolean
-                    example: true
-                  statusCode:
-                    type: integer
-                    example: 201
-                  user:
-                    type: object
-                    properties:
-                      id:
-                        type: string
-                        example: "64a9bcf30db24a27eb827f40"
-                      firstName:
-                        type: string
-                        example: "Arghya"
-                      lastName:
-                        type: string
-                        example: "Das"
-                      email:
-                        type: string
-                        example: "arghya@test.com"
-                      mobileNumber:
-                        type: string
-                        example: "9076740987"
-                      image:
-                        type: string
-                        example: "https://icon-library.com/images/anonymous-avatar-icon/anonymous-avatar-icon-25.jpg"
-        "400":
-          description: Bad request
-
-  /currentuser:
+  /api/v1/users/currentuser:
     get:
       tags:
         - Users
@@ -188,7 +326,25 @@ paths:
                       iat:
                         type: integer
                         example: 1688845597
-        "401":
-          description: Unauthorized
-        "403":
-          description: Forbidden
+        '401':
+          description: Unauthorized - User is not authorized
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  errors:
+                    type: object
+                    properties:
+                      success:
+                        type: boolean
+                        example: false
+                      message:
+                        type: string
+                        example: Unauthorised.
+                      description:
+                        type: string
+                        example: User not authorized.
+                      statuscode:
+                        type: integer
+                        example: 401
