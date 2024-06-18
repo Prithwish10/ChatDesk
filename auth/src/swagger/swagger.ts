@@ -1,23 +1,15 @@
-import swaggerJSDoc from "swagger-jsdoc";
+import { Application } from "express";
+import YAML from "yamljs";
+import path from "path";
+import swaggerUI from "swagger-ui-express";
+import config from "../config/config.global";
 
-const options = {
-  definition: {
-    openapi: "3.0.0",
-    info: {
-      title: "Auth Service API",
-      version: "1.0.0",
-      description: "API documentation for the Auth Service",
-    },
-    servers: [
-      {
-        url: "http://auth-srv:3000",
-        description: "Auth Service",
-      },
-    ],
-  },
-  apis: ["../routes/*.ts"],
-};
-console.log("INSIDE SWAGGER>TS")
+const swaggerDocument = YAML.load(path.join(__dirname, "swagger.yaml"));
 
-const swaggerSpec = swaggerJSDoc(options);
-export default swaggerSpec;
+export function setupSwagger(app: Application): void {
+  app.use(
+    `${config.api.prefix}${config.api.version}/users/api-docs`,
+    swaggerUI.serve,
+    swaggerUI.setup(swaggerDocument)
+  );
+}
