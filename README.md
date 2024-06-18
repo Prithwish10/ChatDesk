@@ -37,7 +37,7 @@
 
 <!-- TABLE OF CONTENTS -->
 <details>
-  <summary><h3>Table of Contents</h3></summary>
+  <summary>Table of Contents</summary>
   <ol>
     <li>
       <a href="#about-the-project">About The Project</a>
@@ -51,7 +51,7 @@
     <li>
       <a href="#getting-started">Getting Started</a>
       <ul>
-        <li><a href="#Installations">Installations</a></li>
+        <li><a href="#installations">Installations</a></li>
       </ul>
     </li>
 <!--     <li><a href="#usage">Usage</a></li> -->
@@ -73,42 +73,46 @@ Chatdesk is a versatile messaging application that empower seamless communicatio
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 ### Features
-* Direct messaging: two users can chat with each other in real time.
-* Group chat: users can participate in different group conversations in real time.
-* Join/leave groups.
-* Add/remove participants from a group (need to be a group admin for this).
-* Typing indicator: when typing, the recipient/s gets notification.
-* User status: whether user is online or offline.
+- **Direct Messaging**: Users can engage in real-time one-on-one conversations.
+- **Group Chat**: Participate in group conversations with multiple users simultaneously.
+- **Join/Leave Groups**: Seamless integration allows users to join or leave group chats at any time.
+- **Add/Remove Participants**: Group administrators have the ability to manage group membership effectively.
+- **Typing Indicator**: Notifies recipients when a user is actively typing a message.
+- **User Status**: Displays whether a user is online or offline, enhancing communication awareness.
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 ### Built With
 
-* Backend
+- **Backend**
   
-  * ![Docker](https://img.shields.io/badge/docker-%230db7ed.svg?style=for-the-badge&logo=docker&logoColor=white)
-  * ![Kubernetes](https://img.shields.io/badge/kubernetes-%23326ce5.svg?style=for-the-badge&logo=kubernetes&logoColor=white)
   * ![NodeJS](https://img.shields.io/badge/node.js-6DA55F?style=for-the-badge&logo=node.js&logoColor=white)
   * ![Express.js](https://img.shields.io/badge/express.js-%23404d59.svg?style=for-the-badge&logo=express&logoColor=%2361DAFB)
+  * ![TypeScript](https://img.shields.io/badge/typescript-%23007ACC.svg?style=for-the-badge&logo=typescript&logoColor=white)
   * ![JWT](https://img.shields.io/badge/JWT-black?style=for-the-badge&logo=JSON%20web%20tokens)
   * ![MongoDB](https://img.shields.io/badge/MongoDB-%234ea94b.svg?style=for-the-badge&logo=mongodb&logoColor=white)
   * ![Redis](https://img.shields.io/badge/redis-%23DD0031.svg?style=for-the-badge&logo=redis&logoColor=white)
   * ![Socket.io](https://img.shields.io/badge/Socket.io-black?style=for-the-badge&logo=socket.io&badgeColor=010101)
   * NATS Streaming
-* Frontend
+- **Frontend**
   
-  * ![Docker](https://img.shields.io/badge/docker-%230db7ed.svg?style=for-the-badge&logo=docker&logoColor=white)
-  * ![Kubernetes](https://img.shields.io/badge/kubernetes-%23326ce5.svg?style=for-the-badge&logo=kubernetes&logoColor=white)
   * ![React](https://img.shields.io/badge/react-%2320232a.svg?style=for-the-badge&logo=react&logoColor=%2361DAFB)
   * ![Next JS](https://img.shields.io/badge/Next-black?style=for-the-badge&logo=next.js&logoColor=white)
   * ![HTML5](https://img.shields.io/badge/html5-%23E34F26.svg?style=for-the-badge&logo=html5&logoColor=white)
   * ![CSS3](https://img.shields.io/badge/css3-%231572B6.svg?style=for-the-badge&logo=css3&logoColor=white)
   * ![Bootstrap](https://img.shields.io/badge/bootstrap-%238511FA.svg?style=for-the-badge&logo=bootstrap&logoColor=white)
   * ![JavaScript](https://img.shields.io/badge/javascript-%23323330.svg?style=for-the-badge&logo=javascript&logoColor=%23F7DF1E)
-* Testing
+- **Deployment**
+
+  * ![Docker](https://img.shields.io/badge/docker-%230db7ed.svg?style=for-the-badge&logo=docker&logoColor=white)
+  * ![Kubernetes](https://img.shields.io/badge/kubernetes-%23326ce5.svg?style=for-the-badge&logo=kubernetes&logoColor=white)
+- **Testing**
   
   * ![Jest](https://img.shields.io/badge/-jest-%23C21325?style=for-the-badge&logo=jest&logoColor=white)
   * ![Postman](https://img.shields.io/badge/Postman-FF6C37?style=for-the-badge&logo=postman&logoColor=white)
+- **CI/CD**
+  
+  * ![GitHub Actions](https://img.shields.io/badge/github%20actions-%232671E5.svg?style=for-the-badge&logo=githubactions&logoColor=white)
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
@@ -130,21 +134,23 @@ Chatdesk is a versatile messaging application that empower seamless communicatio
 
 ### Project Architecture
 
-**Event-Driven Microservices Architecture for Chatdesk with NATS Streaming Server**
+**Event-Driven Microservices Architecture for Chatdesk with NATS Streaming Server:**
 
 ![Centralised Logging](https://github.com/Prithwish10/Images/blob/main/Chatdesk_images/chatdesk_architecture.drawio.png)
 
-**Microservices Architecture for Chatdesk Using Kubernetes**
+**Microservices Architecture for Chatdesk Using Kubernetes:**
 
 ![Centralised Logging](https://github.com/Prithwish10/Images/blob/main/Chatdesk_images/Chatdesk_design.drawio%20(1).png)
 
-**Scaling Socket Server using Redis Pub/Sub**
+**Scaling Socket Server using Redis Pub/Sub:**
 
 ![Centralised Logging](https://github.com/Prithwish10/Images/blob/main/Chatdesk_images/Scale_socket_server.drawio.png)
 
-**Centralised Logging for microservices using Loggly**
+**Centralised Logging for microservices using Loggly:**
 
 ![Centralised Logging](https://github.com/Prithwish10/Images/blob/main/Chatdesk_images/centralised_logging.png)
+
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 <!-- GETTING STARTED -->
 ## Getting Started
@@ -433,14 +439,43 @@ I'm working on Windows 11
 <!-- CONTRIBUTING -->
 ## Contributing
 
-If you have a suggestion that would make this better, please fork the repo and create a pull request. You can also simply open an issue with the tag "enhancement".
-Don't forget to give the project a star! Thanks again!
+We welcome contributions from the community and are grateful for your interest in improving this project. Below are guidelines to help you get started.
 
-1. Fork the Project
-2. Create your Feature Branch (`git checkout -b feature/AmazingFeature`)
-3. Commit your Changes (`git commit -m 'Add some AmazingFeature'`)
-4. Push to the Branch (`git push origin feature/AmazingFeature`)
-5. Open a Pull Request
+### How to Contribute
+
+1. **Fork the Repository**: Click on the `Fork` button at the top right of this page to create a copy of this repository in your GitHub account.
+2. **Clone Your Fork**: Clone your fork to your local machine using:
+    ```sh
+    git clone https://github.com/your-username/your-repo-name.git
+    cd your-repo-name
+    ```
+3. **Create a Branch**: Create a new branch for your feature or enhancement or bugfix:
+    ```sh
+    git checkout -b feature/your-feature-name
+    ```
+4. **Install Dependencies**: Ensure you have all necessary dependencies installed:
+    ```sh
+    npm install
+    ```
+5. **Write Code**: Make your changes or additions. Ensure your code adheres to our coding standards and passes all linting checks.
+6. **Update Documentation**: If you make any changes to the code, update the corresponding documentation.
+7. **Run Tests**: Ensure all tests pass. We use Jest for testing. You can run the tests with:
+    ```sh
+    npm run test
+    ```
+    You will see something like this:
+    ![Centralised Logging](https://github.com/Prithwish10/Images/blob/main/Chatdesk_images/test_cases.png)
+
+   Ensure all existing and new tests pass. All tests are run automatically when a pull request (PR) is raised. PRs without proper tests will fail.
+9. **Commit Changes**: Commit your changes with a clear and descriptive commit message:
+    ```sh
+    git commit -m "Add feature/fix bug: Description of the changes"
+    ```
+10. **Push to GitHub**: Push your branch to your forked repository:
+    ```sh
+    git push origin feature/your-feature-name
+    ```
+11. **Create a Pull Request**: Go to the original repository and create a pull request from your branch. Please provide a detailed description of your changes and any additional information that might help us review your contribution.
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 

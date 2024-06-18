@@ -5,6 +5,7 @@ import morgan from "morgan";
 import cors from "cors";
 import config from "../config/config.global";
 import routes from "../routes/index";
+import { setupSwagger } from "../swagger/swagger";
 
 export const configureExpress = ({ app }: { app: Application }): void => {
   app.set("trust proxy", true);
@@ -17,6 +18,9 @@ export const configureExpress = ({ app }: { app: Application }): void => {
   app.use(cors());
   app.use(express.json());
   app.use(morgan("dev"));
+
+  // Serve Swagger documentation
+  setupSwagger(app);
 
   // Load API routes
   app.use(`${config.api.prefix}${config.api.version}`, routes());

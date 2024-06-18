@@ -33,6 +33,13 @@ spec:
                 name: search-srv
                 port:
                   number: 3000
+          - path: /api/v1/auth/api-docs
+            pathType: Prefix
+            backend:
+              service:
+                name: auth-srv
+                port:
+                  number: 3000
            # Path for socket.io
           - path: /socket.io/?(.*)
             pathType: Prefix
