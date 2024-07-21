@@ -1,8 +1,8 @@
-import { Service } from "typedi";
-import { Request, Response, NextFunction } from "express";
-import { logger } from "../loaders/logger";
-import { signinSchema } from "../utils/validations/signin.validation.schema";
-import { SigninService } from "../services/Signin.service";
+import { Service } from 'typedi';
+import { Request, Response, NextFunction } from 'express';
+import { logger } from '../loaders/logger';
+import { signinSchema } from '../utils/validations/signin.validation.schema';
+import { SigninService } from '../services/Signin.service';
 
 @Service()
 export class SignInController {
@@ -22,18 +22,11 @@ export class SignInController {
    * @returns {Promise<Response | void>} A Promise that resolves to the Express Response object containing the response data.
    * @throws {Error} If any error occurs during the signin process, it is passed to the Express `next` function for error handling.
    */
-  public async signin(
-    req: Request,
-    res: Response,
-    next: NextFunction
-  ): Promise<Response | void> {
+  public async signin(req: Request, res: Response, next: NextFunction): Promise<Response | void> {
     try {
       await signinSchema.validateAsync(req.body);
       const { email, password } = req.body;
-      const { user, userJwt } = await this._signinService.signin(
-        email,
-        password
-      );
+      const { user, userJwt } = await this._signinService.signin(email, password);
 
       req.session = {
         jwt: userJwt,

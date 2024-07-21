@@ -1,11 +1,6 @@
-import mongoose, {
-  Connection,
-  Model,
-  Document,
-  ConnectOptions,
-} from "mongoose";
-import { logger } from "./logger";
-import bindModels from "./modelBinder";
+import mongoose, { Connection, Model, Document, ConnectOptions } from 'mongoose';
+import { logger } from './logger';
+import bindModels from './modelBinder';
 
 class DatabaseManager {
   private static instance: DatabaseManager;
@@ -16,7 +11,10 @@ class DatabaseManager {
    * @param url - The MongoDB connection URL.
    * @param dbName - The name of the database.
    */
-  private constructor(private url: string, private dbName: string) {}
+  private constructor(
+    private url: string,
+    private dbName: string,
+  ) {}
 
   /**
    * Connect to the MongoDB database.
@@ -39,9 +37,7 @@ class DatabaseManager {
     `);
       // Bind the models
       const entities = await bindModels();
-      logger.info(
-        `Discovered the following schema entities: ${entities}`
-      );
+      logger.info(`Discovered the following schema entities: ${entities}`);
     } catch (error) {
       logger.error(`Error connecting to the database:, ${error}`);
       throw error;
@@ -69,7 +65,7 @@ class DatabaseManager {
    */
   getModel<T extends Document>(modelName: string): Model<T> {
     if (!this.connection) {
-      throw new Error("Database connection has not been established.");
+      throw new Error('Database connection has not been established.');
     }
     return this.connection.model<T>(modelName);
   }

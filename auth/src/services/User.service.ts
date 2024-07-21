@@ -1,9 +1,9 @@
-import { Service } from "typedi";
-import jwt from "jsonwebtoken";
-import { logger } from "../loaders/logger";
-import { UserRepository } from "../repositories/user.repository";
-import config from "../config/config.global";
-import { UserPayload } from "../interfaces/UserPayload";
+import { Service } from 'typedi';
+import jwt from 'jsonwebtoken';
+import { logger } from '../loaders/logger';
+import { UserRepository } from '../repositories/user.repository';
+import config from '../config/config.global';
+import { UserPayload } from '../interfaces/UserPayload';
 
 @Service()
 export class UserService {
@@ -31,9 +31,7 @@ export class UserService {
 
       return payload;
     } catch (error) {
-      logger.error(
-        `Error in service while fetching conversation by Id: ${error}`
-      );
+      logger.error(`Error in service while fetching conversation by Id: ${error}`);
       throw error;
     }
   }

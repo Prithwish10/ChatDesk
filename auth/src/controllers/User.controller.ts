@@ -1,7 +1,7 @@
-import { Service } from "typedi";
-import { Request, Response, NextFunction } from "express";
-import { logger } from "../loaders/logger";
-import { UserService } from "../services/User.service";
+import { Service } from 'typedi';
+import { Request, Response, NextFunction } from 'express';
+import { logger } from '../loaders/logger';
+import { UserService } from '../services/User.service';
 
 @Service()
 export class UserController {
@@ -19,7 +19,7 @@ export class UserController {
   public async currentUser(
     req: Request,
     res: Response,
-    next: NextFunction
+    next: NextFunction,
   ): Promise<Response | void> {
     try {
       return res.status(200).json({

@@ -1,11 +1,11 @@
-import "reflect-metadata";
-import { Application } from "express";
-import http from "http";
-import DatabaseManager from "./loaders/DatabaseManager";
-import { logger } from "./loaders/logger";
-import config from "./config/config.global";
-import { natsWrapper } from "./loaders/NatsWrapper";
-import createApp from "./loaders/app";
+import 'reflect-metadata';
+import { Application } from 'express';
+import http from 'http';
+import DatabaseManager from './loaders/DatabaseManager';
+import { logger } from './loaders/logger';
+import config from './config/config.global';
+import { natsWrapper } from './loaders/NatsWrapper';
+import createApp from './loaders/app';
 
 /**
  * Represents a server that listens on a specified port and handles HTTP requests.
@@ -39,15 +39,15 @@ class Server {
       await natsWrapper.connect(
         config.connections.nats.natsClusterId!,
         config.connections.nats.natsClientId!,
-        config.connections.nats.natsURL!
+        config.connections.nats.natsURL!,
       );
 
-      natsWrapper.client.on("close", () => {
-        logger.info("⛔ NATS connection closed! ⛔");
+      natsWrapper.client.on('close', () => {
+        logger.info('⛔ NATS connection closed! ⛔');
         process.exit();
       });
-      process.on("SIGINT", () => natsWrapper.client.close());
-      process.on("SIGTERM", () => natsWrapper.client.close());
+      process.on('SIGINT', () => natsWrapper.client.close());
+      process.on('SIGTERM', () => natsWrapper.client.close());
 
       this._server = this._app
         .listen(this._port, async () => {
@@ -58,7 +58,7 @@ class Server {
       `);
           await this._dbConnection.connect();
         })
-        .on("error", (err) => {
+        .on('error', (err) => {
           logger.error(`${err}`);
           process.exit(1);
         });
@@ -85,9 +85,7 @@ class Server {
           new Promise<void>((resolve, reject) => {
             this._server.close((err?: Error) => {
               if (err) {
-                logger.error(
-                  `Error while closing server: ${err.message} :error`
-                );
+                logger.error(`Error while closing server: ${err.message} :error`);
                 reject(err);
               } else {
                 logger.info(`
@@ -98,17 +96,17 @@ class Server {
               }
               resolve();
             });
-          })
+          }),
         );
       }
 
       if (this._dbConnection) {
         promises.push(this._dbConnection.disconnect());
-        logger.info("⛔ Database connection closed. ⛔");
+        logger.info('⛔ Database connection closed. ⛔');
       }
 
       await Promise.all(promises);
-      logger.info("⛔ Shutdown process completed. ⛔");
+      logger.info('⛔ Shutdown process completed. ⛔');
       process.exit(0);
     } catch (error) {
       logger.error(`Error during shutdown process: ${error}`);
@@ -121,8 +119,8 @@ class Server {
    * When either SIGINT or SIGTERM is received, the `shutdown` method is called.
    */
   private bindPOSIXSignals() {
-    process.on("SIGINT", async () => this.shutdown());
-    process.on("SIGTERM", async () => this.shutdown());
+    process.on('SIGINT', async () => this.shutdown());
+    process.on('SIGTERM', async () => this.shutdown());
   }
 }
 
