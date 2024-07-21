@@ -51,7 +51,7 @@ export class UserRepository {
   public async createUser(user: UserAttrs): Promise<UserDoc> {
     try {
       const newUser = User.build(user);
-      let savedUser = await newUser.save();
+      const savedUser = await newUser.save();
 
       return savedUser;
     } catch (error) {
