@@ -1,7 +1,7 @@
-import mongoose from "mongoose";
-import { UserAttrs, UserDoc, UserModel } from "../interfaces/User";
-import { PasswordManager } from "../services/PasswordManager.service";
-import { updateIfCurrentPlugin } from "mongoose-update-if-current";
+import mongoose from 'mongoose';
+import { UserAttrs, UserDoc, UserModel } from '../interfaces/User';
+import { PasswordManager } from '../services/PasswordManager.service';
+import { updateIfCurrentPlugin } from 'mongoose-update-if-current';
 
 const userSchema = new mongoose.Schema(
   {
@@ -16,8 +16,7 @@ const userSchema = new mongoose.Schema(
     image: {
       type: String,
       required: false,
-      default:
-        "https://icon-library.com/images/anonymous-avatar-icon/anonymous-avatar-icon-25.jpg",
+      default: 'https://icon-library.com/images/anonymous-avatar-icon/anonymous-avatar-icon-25.jpg',
     },
     mobileNumber: {
       type: String,
@@ -49,30 +48,30 @@ const userSchema = new mongoose.Schema(
         delete ret.__v;
       },
     },
-  }
+  },
 );
 
 userSchema.statics.build = (attrs: UserAttrs) => {
   return new User(attrs);
 };
 
-userSchema.set("versionKey", "version");
+userSchema.set('versionKey', 'version');
 userSchema.plugin(updateIfCurrentPlugin);
 
-userSchema.pre("updateOne", function (next) {
+userSchema.pre('updateOne', function (next) {
   this.updateOne({}, { $set: { updatedAt: new Date() } });
   next();
 });
 
-userSchema.pre("save", async function (done) {
-  if (this.isModified("password")) {
-    const hashed = await PasswordManager.toHash(this.get("password"));
-    this.set("password", hashed);
+userSchema.pre('save', async function (done) {
+  if (this.isModified('password')) {
+    const hashed = await PasswordManager.toHash(this.get('password'));
+    this.set('password', hashed);
   }
 
   done();
 });
 
-const User = mongoose.model<UserDoc, UserModel>("User", userSchema);
+const User = mongoose.model<UserDoc, UserModel>('User', userSchema);
 
 export { User };

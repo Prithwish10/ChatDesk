@@ -1,6 +1,6 @@
-import { Service } from "typedi";
-import { Request, Response, NextFunction } from "express";
-import { logger } from "../loaders/logger";
+import { Service } from 'typedi';
+import { Request, Response, NextFunction } from 'express';
+import { logger } from '../loaders/logger';
 
 @Service()
 export class SignoutController {

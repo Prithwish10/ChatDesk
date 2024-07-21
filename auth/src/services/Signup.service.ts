@@ -1,13 +1,13 @@
-import { Service } from "typedi";
-import mongoose from "mongoose";
-import jwt from "jsonwebtoken";
-import { Api409Error } from "@pdchat/common";
-import { logger } from "../loaders/logger";
-import { UserRepository } from "../repositories/user.repository";
-import config from "../config/config.global";
-import { UserCreatedPublisher } from "../events/publishers/User-created-publisher";
-import { natsWrapper } from "../loaders/NatsWrapper";
-import { UserAttrs } from "../interfaces/User";
+import { Service } from 'typedi';
+import mongoose from 'mongoose';
+import jwt from 'jsonwebtoken';
+import { Api409Error } from '@pdchat/common';
+import { logger } from '../loaders/logger';
+import { UserRepository } from '../repositories/user.repository';
+import config from '../config/config.global';
+import { UserCreatedPublisher } from '../events/publishers/User-created-publisher';
+import { natsWrapper } from '../loaders/NatsWrapper';
+import { UserAttrs } from '../interfaces/User';
 
 @Service()
 export class SignupService {
@@ -32,27 +32,23 @@ export class SignupService {
     image: string,
     mobileNumber: string,
     email: string,
-    password: string
+    password: string,
   ): Promise<{ user: UserAttrs; userJwt: string }> {
     try {
-      const existingUserWithEmail = await this._userRepository.findUserByEmail(
-        email
-      );
+      const existingUserWithEmail = await this._userRepository.findUserByEmail(email);
 
       if (existingUserWithEmail) {
-        throw new Api409Error("Email already in use.");
+        throw new Api409Error('Email already in use.');
       }
 
       const existingUserWithMobileNumber =
         await this._userRepository.findUserByMobileNumber(mobileNumber);
 
       if (existingUserWithMobileNumber) {
-        throw new Api409Error("Mobile number already in use.");
+        throw new Api409Error('Mobile number already in use.');
       }
     } catch (error) {
-      logger.error(
-        `Error in service while fetching conversation by Id: ${error}`
-      );
+      logger.error(`Error in service while fetching conversation by Id: ${error}`);
       throw error;
     }
 
@@ -76,7 +72,7 @@ export class SignupService {
           lastName: user.lastName,
           email: user.email,
         },
-        config.jwtSecret!
+        config.jwtSecret!,
       );
 
       await new UserCreatedPublisher(natsWrapper.client).publish({
@@ -85,19 +81,17 @@ export class SignupService {
         lastName: user.lastName,
         email: user.email,
         mobileNumber: user.mobileNumber,
-        version: user.version!
+        version: user.version!,
       });
 
       await SESSION.commitTransaction();
-      logger.info("User signup event sent successfully!");
+      logger.info('User signup event sent successfully!');
 
       return { user, userJwt };
     } catch (error) {
       // catch any error due to transaction
       await SESSION.abortTransaction();
-      logger.error(
-        `Error in service while fetching conversation by Id: ${error}`
-      );
+      logger.error(`Error in service while fetching conversation by Id: ${error}`);
       throw error;
     } finally {
       // finalize session

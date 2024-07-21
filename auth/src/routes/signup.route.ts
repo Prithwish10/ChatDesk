@@ -1,8 +1,8 @@
-import "reflect-metadata";
-import { Router, Request, Response, NextFunction } from "express";
-import sanitize from "mongo-sanitize";
-import Container from "typedi";
-import { SignUpController } from "../controllers/Signup.controller";
+import 'reflect-metadata';
+import { Router, Request, Response, NextFunction } from 'express';
+import sanitize from 'mongo-sanitize';
+import Container from 'typedi';
+import { SignUpController } from '../controllers/Signup.controller';
 
 const route = Router();
 
@@ -25,14 +25,10 @@ export default (app: Router) => {
    *
    * @throws {Error} If the `MongoSanitize` function is not properly implemented or loaded.
    **/
-  app.use(
-    "/users",
-    route,
-    function (req: Request, res: Response, next: NextFunction) {
-      req.body = MongoSanitize(req.body);
-      next();
-    }
-  );
+  app.use('/users', route, function (req: Request, res: Response, next: NextFunction) {
+    req.body = MongoSanitize(req.body);
+    next();
+  });
 
   const signUpController = Container.get(SignUpController);
 
@@ -47,10 +43,7 @@ export default (app: Router) => {
    * @param {NextFunction} next - The Express NextFunction middleware for passing control to the next middleware.
    * @returns {Promise<void>} - A Promise indicating the completion of the operation.
    */
-  route.post(
-    "/signup",
-    async (req: Request, res: Response, next: NextFunction) => {
-      await signUpController.signup(req, res, next);
-    }
-  );
+  route.post('/signup', async (req: Request, res: Response, next: NextFunction) => {
+    await signUpController.signup(req, res, next);
+  });
 };

@@ -1,4 +1,4 @@
-import mongoose from "mongoose";
+import mongoose from 'mongoose';
 
 // An interface that describes the properties required to create a new User.
 export interface UserAttrs {

@@ -1,7 +1,7 @@
-import { Service } from "typedi";
-import { logger } from "../loaders/logger";
-import {User} from "../models/User.model";
-import { UserAttrs, UserDoc } from "../interfaces/User";
+import { Service } from 'typedi';
+import { logger } from '../loaders/logger';
+import { User } from '../models/User.model';
+import { UserAttrs, UserDoc } from '../interfaces/User';
 
 @Service()
 export class UserRepository {
@@ -31,16 +31,12 @@ export class UserRepository {
    * @returns {Promise<UserDoc | null>} A Promise that resolves to the found user object if successful, or null if no user is found.
    * @throws {Error} Any error that occurs during the database query process.
    */
-  public async findUserByMobileNumber(
-    mobileNumber: string
-  ): Promise<UserDoc | null> {
+  public async findUserByMobileNumber(mobileNumber: string): Promise<UserDoc | null> {
     try {
       const user = await User.findOne({ mobileNumber });
       return user;
     } catch (error) {
-      logger.error(
-        `Error occured while fetching user by mobile number: ${error}`
-      );
+      logger.error(`Error occured while fetching user by mobile number: ${error}`);
       throw error;
     }
   }
@@ -56,7 +52,7 @@ export class UserRepository {
     try {
       const newUser = User.build(user);
       let savedUser = await newUser.save();
-      
+
       return savedUser;
     } catch (error) {
       logger.error(`Error occured while creating user: ${error}`);

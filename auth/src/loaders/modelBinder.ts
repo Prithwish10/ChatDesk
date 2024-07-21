@@ -1,19 +1,19 @@
-import fs from "fs/promises";
-import path from "path";
-import { logger } from "../loaders/logger";
+import fs from 'fs/promises';
+import path from 'path';
+import { logger } from '../loaders/logger';
 
 async function bindModels(): Promise<string[]> {
   try {
-    let pathToModels = path.join(__dirname, "..", "models");
+    let pathToModels = path.join(__dirname, '..', 'models');
     if (!pathToModels) {
-      logger.error("Error with creating the model path");
-      throw new Error("Database not implemented");
+      logger.error('Error with creating the model path');
+      throw new Error('Database not implemented');
     }
 
     const files = await fs.readdir(pathToModels);
     const modelFiles = files.filter((file) => {
       const extension = path.extname(file);
-      return file[0] !== "." && (extension === ".ts" || extension === ".js");
+      return file[0] !== '.' && (extension === '.ts' || extension === '.js');
     });
 
     const modelNames = [];

@@ -1,5 +1,5 @@
-import express, { Application } from "express";
-import { configureExpress } from "./express";
+import express, { Application } from 'express';
+import { configureExpress } from './express';
 
 const createApp = (): Application => {
   const app = express();
