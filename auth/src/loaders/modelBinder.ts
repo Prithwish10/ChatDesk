@@ -18,7 +18,7 @@ async function bindModels(): Promise<string[]> {
 
     const modelNames = [];
     for (const file of modelFiles) {
-      const modelFile = require(path.join(pathToModels, file));
+      require(path.join(pathToModels, file));
       modelNames.push(file);
     }
 

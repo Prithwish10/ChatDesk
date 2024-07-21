@@ -4,7 +4,7 @@ import request from 'supertest';
 import createApp from '../loaders/app';
 
 declare global {
-  var getAuthCookie: () => Promise<string[]>;
+  let getAuthCookie: () => Promise<string[]>;
 }
 
 jest.mock('../config/config.global');
