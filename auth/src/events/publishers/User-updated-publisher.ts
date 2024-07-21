@@ -1,5 +1,5 @@
-import { UserUpdatedEvent, Publisher, Subjects } from "@pdchat/common";
-import { Service } from "typedi";
+import { UserUpdatedEvent, Publisher, Subjects } from '@pdchat/common';
+import { Service } from 'typedi';
 
 @Service()
 export class UserUpdatedPublisher extends Publisher<UserUpdatedEvent> {

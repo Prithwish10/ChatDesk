@@ -1,8 +1,8 @@
-import { Service } from "typedi";
-import { Request, Response, NextFunction } from "express";
-import { logger } from "../loaders/logger";
-import { signupSchema } from "../utils/validations/signup.validation.schema";
-import { SignupService } from "../services/Signup.service";
+import { Service } from 'typedi';
+import { Request, Response, NextFunction } from 'express';
+import { logger } from '../loaders/logger';
+import { signupSchema } from '../utils/validations/signup.validation.schema';
+import { SignupService } from '../services/Signup.service';
 
 @Service()
 export class SignUpController {
@@ -19,15 +19,10 @@ export class SignUpController {
    * @returns {Promise<Response | void>} A Promise that resolves to the Express Response object containing the response data.
    * @throws {Error} If any error occurs during the signup process, it is passed to the Express `next` function for error handling.
    */
-  public async signup(
-    req: Request,
-    res: Response,
-    next: NextFunction
-  ): Promise<Response | void> {
+  public async signup(req: Request, res: Response, next: NextFunction): Promise<Response | void> {
     try {
       await signupSchema.validateAsync(req.body);
-      const { firstName, lastName, image, mobileNumber, email, password } =
-        req.body;
+      const { firstName, lastName, image, mobileNumber, email, password } = req.body;
 
       const { user, userJwt } = await this._signupService.signup(
         firstName,
@@ -35,7 +30,7 @@ export class SignUpController {
         image,
         mobileNumber,
         email,
-        password
+        password,
       );
 
       req.session = {

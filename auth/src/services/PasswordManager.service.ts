@@ -1,5 +1,5 @@
-import { scrypt, randomBytes } from "crypto";
-import { promisify } from "util";
+import { scrypt, randomBytes } from 'crypto';
+import { promisify } from 'util';
 
 const scriptAsync = promisify(scrypt);
 
@@ -13,10 +13,10 @@ export class PasswordManager {
    * @throws {Error} Any error that occurs during the hashing process.
    */
   public static async toHash(password: string): Promise<string> {
-    const salt = randomBytes(8).toString("hex");
+    const salt = randomBytes(8).toString('hex');
     const buf = (await scriptAsync(password, salt, 64)) as Buffer;
 
-    return `${buf.toString("hex")}.${salt}`;
+    return `${buf.toString('hex')}.${salt}`;
   }
 
   /**
@@ -28,13 +28,10 @@ export class PasswordManager {
    * @returns {Promise<boolean>} A Promise that resolves to a boolean value indicating whether the supplied password matches the stored password (true) or not (false).
    * @throws {Error} Any error that occurs during the hashing or comparison process.
    */
-  public static async compare(
-    storedPassword: string,
-    suppliedPassword: string
-  ): Promise<boolean> {
-    const [hashedPassword, salt] = storedPassword.split(".");
+  public static async compare(storedPassword: string, suppliedPassword: string): Promise<boolean> {
+    const [hashedPassword, salt] = storedPassword.split('.');
     const buf = (await scriptAsync(suppliedPassword, salt, 64)) as Buffer;
 
-    return buf.toString("hex") === hashedPassword;
+    return buf.toString('hex') === hashedPassword;
   }
 }

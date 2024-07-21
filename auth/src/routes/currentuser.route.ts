@@ -1,9 +1,9 @@
-import "reflect-metadata";
-import { Router, Request, Response, NextFunction } from "express";
-import { currentUser, requireAuth } from "@pdchat/common";
-import sanitize from "mongo-sanitize";
-import Container from "typedi";
-import { UserController } from "../controllers/User.controller";
+import 'reflect-metadata';
+import { Router, Request, Response, NextFunction } from 'express';
+import { currentUser, requireAuth } from '@pdchat/common';
+import sanitize from 'mongo-sanitize';
+import Container from 'typedi';
+import { UserController } from '../controllers/User.controller';
 
 const route = Router();
 
@@ -26,14 +26,10 @@ export default (app: Router) => {
    *
    * @throws {Error} If the `MongoSanitize` function is not properly implemented or loaded.
    **/
-  app.use(
-    "/users",
-    route,
-    function (req: Request, res: Response, next: NextFunction) {
-      req.body = MongoSanitize(req.body);
-      next();
-    }
-  );
+  app.use('/users', route, function (req: Request, res: Response, next: NextFunction) {
+    req.body = MongoSanitize(req.body);
+    next();
+  });
 
   const userController = Container.get(UserController);
 
@@ -49,11 +45,11 @@ export default (app: Router) => {
    * @returns {Promise<void>} - A Promise indicating the completion of the operation.
    */
   route.get(
-    "/currentuser",
+    '/currentuser',
     currentUser,
     requireAuth,
     async (req: Request, res: Response, next: NextFunction) => {
       await userController.currentUser(req, res, next);
-    }
+    },
   );
 };
