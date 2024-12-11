@@ -10,6 +10,7 @@ export enum Subjects {
   MessageCreated = "message:created",
   MessageUpdated = "message:updated",
   MessageDeleted = "message:deleted",
+  NotificationSent = "notification:sent",
 
   UserConnectedToChat = "user:connected",
   SendMessageToChat = "send:message",

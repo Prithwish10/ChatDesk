@@ -24,4 +24,7 @@ export * from "./interfaces/Participant-removed-event";
 export * from "./interfaces/Message-created-event";
 export * from "./interfaces/Message-updated-event";
 export * from "./interfaces/Message-deleted-event";
+export * from "./interfaces/Notification-sent-event";
 export * from "./enums/subjects";
+export * from "./enums/NotificationType";
+export * from "./enums/NotificationPriority"
