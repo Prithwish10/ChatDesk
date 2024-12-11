@@ -28,3 +28,5 @@ export * from "./interfaces/Notification-sent-event";
 export * from "./enums/subjects";
 export * from "./enums/NotificationType";
 export * from "./enums/NotificationPriority"
+
+export * from "./types/NotificationContent";
