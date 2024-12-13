@@ -1,5 +1,5 @@
 export type NotificationContent = {
-  subjectLine?: "string";
-  body: "string";
-  url?: "string";
+  subjectLine?: string;
+  body: string;
+  url?: string;
 };
