@@ -10,7 +10,9 @@ export enum Subjects {
   MessageCreated = "message:created",
   MessageUpdated = "message:updated",
   MessageDeleted = "message:deleted",
-  NotificationSent = "notification:sent",
+  HighPriorityNotificationSent = "notification.high-priority:sent",
+  MediumPriorityNotificationSent = "notification.medium-priority:sent",
+  LowPriorityNotificationSent = "notification.low-priority:sent",
 
   UserConnectedToChat = "user:connected",
   SendMessageToChat = "send:message",
@@ -20,5 +22,5 @@ export enum Subjects {
   Typing = "typing",
   StopTyping = "stop:typing",
   ConnectedUsers = "connected:users",
-  WelcomeMessage = "welcome:message"
+  WelcomeMessage = "welcome:message",
 }
