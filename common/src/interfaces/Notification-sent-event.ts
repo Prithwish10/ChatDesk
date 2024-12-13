@@ -4,7 +4,10 @@ import { NotificationType } from "../enums/NotificationType";
 import { NotificationContent } from "../types/NotificationContent";
 
 export interface NotificationSentEvent {
-  subject: Subjects.NotificationSent;
+  subject:
+    | Subjects.HighPriorityNotificationSent
+    | Subjects.MediumPriorityNotificationSent
+    | Subjects.LowPriorityNotificationSent;
   data: {
     recipientId: string;
     type: NotificationType;
