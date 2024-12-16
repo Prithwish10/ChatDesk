@@ -25,8 +25,8 @@ export class SignInController {
   public async signin(req: Request, res: Response, next: NextFunction): Promise<Response | void> {
     try {
       await signinSchema.validateAsync(req.body);
-      const { email, password } = req.body;
-      const { user, userJwt } = await this._signinService.signin(email, password);
+      const { type, email, password } = req.body;
+      const { user, userJwt } = await this._signinService.signin(type, email, password);
 
       req.session = {
         jwt: userJwt,

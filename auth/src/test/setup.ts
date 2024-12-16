@@ -4,6 +4,7 @@ import request from 'supertest';
 import createApp from '../loaders/app';
 
 declare global {
+  // eslint-disable-next-line no-var
   var getAuthCookie: () => Promise<string[]>;
 }
 
