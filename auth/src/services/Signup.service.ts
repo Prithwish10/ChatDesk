@@ -36,19 +36,20 @@ export class SignupService {
     firstName: string,
     lastName: string,
     image: string,
+    countryCode: string,
     mobileNumber: string,
     email: string,
     password: string,
   ): Promise<{ user: UserAttrs; userJwt: string }> {
     try {
       const existingUserWithEmail = await this._userRepository.findUserByEmail(email);
-
       if (existingUserWithEmail) {
         throw new Api409Error('Email already in use.');
       }
-
-      const existingUserWithMobileNumber =
-        await this._userRepository.findUserByMobileNumber(mobileNumber);
+      const existingUserWithMobileNumber = await this._userRepository.findUserByMobileNumber(
+        countryCode,
+        mobileNumber,
+      );
 
       if (existingUserWithMobileNumber) {
         throw new Api409Error('Mobile number already in use.');
@@ -66,6 +67,7 @@ export class SignupService {
         firstName,
         lastName,
         image,
+        countryCode,
         mobileNumber,
         email,
         password,

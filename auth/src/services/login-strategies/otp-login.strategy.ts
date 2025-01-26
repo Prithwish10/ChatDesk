@@ -12,15 +12,17 @@ import { logger } from '../../loaders/logger';
 export class OTPLoginStrategy implements ILoginStrategy {
   constructor(private readonly _otpRepository: OTPRepository) {}
 
-  async login(user: UserDoc, credential: string): Promise<string> {
+  async login(user: UserDoc, credential: string, recipientId: string): Promise<string> {
     try {
-      const storedOtp = await this._otpRepository.getOtp(user.email);
+      console.log(recipientId);
+      const storedOtp = await this._otpRepository.getOtp(recipientId);
       if (!storedOtp) {
-        throw new Api401Error('User not found.');
+        throw new Api401Error('Invalid OTP.');
       }
 
-      const isValidOtp = PasswordManager.compare(credential, storedOtp.hashedOtp);
-      if (!isValidOtp) {
+      const isValidOtp = PasswordManager.compare(storedOtp.hashedOtp, credential);
+      const currentDate = new Date();
+      if (!isValidOtp || currentDate > storedOtp.expiration) {
         throw new Api401Error('Invalid or expired otp.');
       }
 

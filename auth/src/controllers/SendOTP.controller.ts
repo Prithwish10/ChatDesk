@@ -11,8 +11,8 @@ export class SendOTPController {
   public async sendOTP(req: Request, res: Response, next: NextFunction): Promise<Response | void> {
     try {
       await sendOTPSchema.validateAsync(req.body);
-      const { type, recipient, otp, userFirstName } = req.body;
-      await this._sendOTPService.sendOTP(type, recipient, otp, userFirstName);
+      const { type, recipientId } = req.body;
+      await this._sendOTPService.sendOTP(type, recipientId);
 
       return res.status(200).json({
         success: true,

@@ -1,9 +1,11 @@
 import mongoose from 'mongoose';
+import { OTPContext } from '../enums/OTPContext';
 
 export interface OTPAttrs {
-  email: string;
+  recipientId: string;
   hashedOtp: string;
   expiration: Date;
+  context?: OTPContext;
 }
 
 // An interface that describes the properties that a User Model has.
@@ -14,6 +16,5 @@ export interface OTPModel extends mongoose.Model<OTPDoc> {
 // An interface that describes the properties that a User Document has.
 export interface OTPDoc extends OTPAttrs, mongoose.Document {
   createdAt: Date;
-  updatedAt: Date;
   version: number;
 }

@@ -31,9 +31,12 @@ export class UserRepository {
    * @returns {Promise<UserDoc | null>} A Promise that resolves to the found user object if successful, or null if no user is found.
    * @throws {Error} Any error that occurs during the database query process.
    */
-  public async findUserByMobileNumber(mobileNumber: string): Promise<UserDoc | null> {
+  public async findUserByMobileNumber(
+    countryCode: string,
+    mobileNumber: string,
+  ): Promise<UserDoc | null> {
     try {
-      const user = await User.findOne({ mobileNumber });
+      const user = await User.findOne({ countryCode: countryCode, mobileNumber: mobileNumber });
       return user;
     } catch (error) {
       logger.error(`Error occured while fetching user by mobile number: ${error}`);

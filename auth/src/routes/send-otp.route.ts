@@ -1,6 +1,5 @@
 import 'reflect-metadata';
 import { Router, Request, Response, NextFunction } from 'express';
-import { currentUser, requireAuth } from '@pdchat/common';
 import sanitize from 'mongo-sanitize';
 import Container from 'typedi';
 import { SendOTPController } from '../controllers/SendOTP.controller';
@@ -44,12 +43,7 @@ export default (app: Router) => {
    * @param {NextFunction} next - The Express NextFunction middleware for passing control to the next middleware.
    * @returns {Promise<void>} - A Promise indicating the completion of the operation.
    */
-  route.post(
-    '/send-otp',
-    currentUser,
-    requireAuth,
-    async (req: Request, res: Response, next: NextFunction) => {
-      await userController.sendOTP(req, res, next);
-    },
-  );
+  route.post('/send-otp', async (req: Request, res: Response, next: NextFunction) => {
+    await userController.sendOTP(req, res, next);
+  });
 };

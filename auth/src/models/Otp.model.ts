@@ -1,11 +1,14 @@
 import mongoose from 'mongoose';
 import { OTPAttrs, OTPDoc, OTPModel } from '../interfaces/Otp';
+import { PasswordManager } from '../services/PasswordManager.service';
+import { OTPContext } from '../enums/OTPContext';
 
 const otpSchema = new mongoose.Schema(
   {
-    email: {
+    recipientId: {
       type: String,
       required: true,
+      index: true,
     },
     hashedOtp: {
       type: String,
@@ -15,13 +18,15 @@ const otpSchema = new mongoose.Schema(
       type: Date,
       default: Date.now(),
     },
+    context: {
+      type: String,
+      enum: Object.values(OTPContext),
+      default: OTPContext.LOGIN,
+    },
     createdAt: {
       type: Date,
       default: Date.now(),
-    },
-    updatedAt: {
-      type: Date,
-      default: Date.now(),
+      expires: '10m',
     },
   },
   {
@@ -39,9 +44,13 @@ otpSchema.statics.build = (attrs: OTPAttrs) => {
   return new Otp(attrs);
 };
 
-otpSchema.pre('updateOne', function (next) {
-  this.updateOne({}, { $set: { updatedAt: new Date() } });
-  next();
+otpSchema.pre('save', async function (done) {
+  if (this.isModified('hashedOtp')) {
+    const hashed = await PasswordManager.toHash(this.get('hashedOtp'));
+    this.set('hashedOtp', hashed);
+  }
+
+  done();
 });
 
 const Otp = mongoose.model<OTPDoc, OTPModel>('Otp', otpSchema);
