@@ -1,13 +1,19 @@
 import { Service } from 'typedi';
 import mongoose from 'mongoose';
 import jwt from 'jsonwebtoken';
-import { Api409Error } from '@pdchat/common';
+import { Api409Error, NotificationType } from '@pdchat/common';
 import { logger } from '../loaders/logger';
 import { UserRepository } from '../repositories/user.repository';
 import config from '../config/config.global';
 import { UserCreatedPublisher } from '../events/publishers/User-created-publisher';
 import { natsWrapper } from '../loaders/NatsWrapper';
 import { UserAttrs } from '../interfaces/User';
+import { MediumPriorityNotificationPublisher } from '../events/publishers/Medium-priority-notification-publisher';
+import {
+  signupEmailSubject,
+  signupEmailBody,
+} from '../utils/notification-templates/signup-email.template';
+import { loginURL } from '../utils/notification-templates/loginURL';
 
 @Service()
 export class SignupService {
@@ -30,19 +36,20 @@ export class SignupService {
     firstName: string,
     lastName: string,
     image: string,
+    countryCode: string,
     mobileNumber: string,
     email: string,
     password: string,
   ): Promise<{ user: UserAttrs; userJwt: string }> {
     try {
       const existingUserWithEmail = await this._userRepository.findUserByEmail(email);
-
       if (existingUserWithEmail) {
         throw new Api409Error('Email already in use.');
       }
-
-      const existingUserWithMobileNumber =
-        await this._userRepository.findUserByMobileNumber(mobileNumber);
+      const existingUserWithMobileNumber = await this._userRepository.findUserByMobileNumber(
+        countryCode,
+        mobileNumber,
+      );
 
       if (existingUserWithMobileNumber) {
         throw new Api409Error('Mobile number already in use.');
@@ -60,6 +67,7 @@ export class SignupService {
         firstName,
         lastName,
         image,
+        countryCode,
         mobileNumber,
         email,
         password,
@@ -82,6 +90,18 @@ export class SignupService {
         email: user.email,
         mobileNumber: user.mobileNumber,
         version: user.version!,
+      });
+
+      await new MediumPriorityNotificationPublisher(natsWrapper.client).publish({
+        recipientId: user.email,
+        content: {
+          subjectLine: signupEmailSubject,
+          body: signupEmailBody
+            .replace("[User's First Name]", user.firstName)
+            .replace('[Insert Login URL]', loginURL),
+        },
+        status: 'sent',
+        type: NotificationType.EMAIL,
       });
 
       await SESSION.commitTransaction();

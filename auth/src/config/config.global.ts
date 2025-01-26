@@ -40,6 +40,7 @@ export default {
   },
 
   jwtSecret: process.env.JWT_KEY,
+  otpExpirationMinutes: 10,
 
   /**
    * API configs

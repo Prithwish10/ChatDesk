@@ -4,6 +4,7 @@ import request from 'supertest';
 import createApp from '../loaders/app';
 
 declare global {
+  // eslint-disable-next-line no-var
   var getAuthCookie: () => Promise<string[]>;
 }
 
@@ -42,6 +43,7 @@ global.getAuthCookie = async () => {
     .send({
       firstName: 'Alpha',
       lastName: 'test',
+      countryCode: '+91',
       mobileNumber: '1290512892',
       email: 'test@test.com',
       password: 'test_password',

@@ -6,6 +6,7 @@ export interface UserAttrs {
   lastName: string;
   image: string;
   mobileNumber: string;
+  countryCode: string;
   email: string;
   password: string;
 }

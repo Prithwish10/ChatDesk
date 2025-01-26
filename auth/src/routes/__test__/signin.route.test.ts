@@ -9,10 +9,11 @@ it('fails when an email that doesnot exist is supplied', async () => {
   await request(app)
     .post('/api/v1/users/signin')
     .send({
-      email: 'alpha1@test.com',
-      password: 'alpha1@123',
+      login_type: 'username_password',
+      recipientId: 'test@test.com',
+      credential: 'test@123',
     })
-    .expect(400);
+    .expect(401);
 });
 
 it('fails when an incorrect password is supplied', async () => {
@@ -23,7 +24,8 @@ it('fails when an incorrect password is supplied', async () => {
     .send({
       firstName: 'Alpha',
       lastName: 'test',
-      mobileNumber: '1290512892',
+      countryCode: '+91',
+      mobileNumber: '9087123451',
       email: 'alpha1@test.com',
       password: 'alpha1@123',
     })
@@ -32,8 +34,9 @@ it('fails when an incorrect password is supplied', async () => {
   await request(app)
     .post('/api/v1/users/signin')
     .send({
-      email: 'alpha1@test.com',
-      password: 'alpha2@123',
+      login_type: 'username_password',
+      recipientId: '+919087123451',
+      credential: 'test@123',
     })
     .expect(400);
 });
@@ -46,17 +49,19 @@ it('responds with a cookie when given valid credentials', async () => {
     .send({
       firstName: 'Alpha',
       lastName: 'test',
+      countryCode: '+91',
       mobileNumber: '1290512892',
-      email: 'alpha1@test.com',
-      password: 'password',
+      email: 'test@test.com',
+      password: 'test@123',
     })
     .expect(201);
 
   const signinResponse = await request(app)
     .post('/api/v1/users/signin')
     .send({
-      email: 'alpha1@test.com',
-      password: 'password',
+      login_type: 'username_password',
+      recipientId: 'test@test.com',
+      credential: 'test@123',
     })
     .expect(200);
 
