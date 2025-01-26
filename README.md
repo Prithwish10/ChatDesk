@@ -102,6 +102,9 @@ Chatdesk is a versatile messaging application that empower seamless communicatio
   * ![CSS3](https://img.shields.io/badge/css3-%231572B6.svg?style=for-the-badge&logo=css3&logoColor=white)
   * ![Bootstrap](https://img.shields.io/badge/bootstrap-%238511FA.svg?style=for-the-badge&logo=bootstrap&logoColor=white)
   * ![JavaScript](https://img.shields.io/badge/javascript-%23323330.svg?style=for-the-badge&logo=javascript&logoColor=%23F7DF1E)
+- **API Documentation**
+
+  * ![Swagger](https://img.shields.io/badge/-Swagger-%23Clojure?style=for-the-badge&logo=swagger&logoColor=white)
 - **Deployment**
 
   * ![Docker](https://img.shields.io/badge/docker-%230db7ed.svg?style=for-the-badge&logo=docker&logoColor=white)
@@ -434,7 +437,7 @@ I'm working on Windows 11
 | GET         | /api/v1/chats/conversations/{conversationId}    | Retrieve a conversation      | None | `{conversationId: string}` | None | `/api/v1/chats/conversations/123` |
 | GET         | /api/v1/chats/conversations/users/{userId}    | Retrieve all conversations for an user      | `sort` (optional, string, default: "last_message_timestamp"), `order` (optional, string, default: "desc"), `page` (optional, int, default: 1), `deleted` (optional, int, default: 0), `limit` (optional, int, default: 20, max: 100) | `{userId: string}` | None | `/api/v1/chats/conversations/users/123` |
 
-![Centralised Logging](https://github.com/Prithwish10/Images/blob/main/Chatdesk_images/Swagger_ui_auth_srv.png)
+![Centralised Logging](https://github.com/Prithwish10/Images/blob/main/Chatdesk_images/swagger_ui_auth_srv.png)
 
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>

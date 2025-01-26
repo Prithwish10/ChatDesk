@@ -22,6 +22,10 @@ const userSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
+    countryCode: {
+      type: String,
+      required: true,
+    },
     email: {
       type: String,
       required: true,
@@ -34,7 +38,7 @@ const userSchema = new mongoose.Schema(
       type: Date,
       default: Date.now(),
     },
-    UpdatedAt: {
+    updatedAt: {
       type: Date,
       default: Date.now(),
     },

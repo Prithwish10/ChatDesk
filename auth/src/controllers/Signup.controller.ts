@@ -22,12 +22,13 @@ export class SignUpController {
   public async signup(req: Request, res: Response, next: NextFunction): Promise<Response | void> {
     try {
       await signupSchema.validateAsync(req.body);
-      const { firstName, lastName, image, mobileNumber, email, password } = req.body;
+      const { firstName, lastName, image, countryCode, mobileNumber, email, password } = req.body;
 
       const { user, userJwt } = await this._signupService.signup(
         firstName,
         lastName,
         image,
+        countryCode,
         mobileNumber,
         email,
         password,
