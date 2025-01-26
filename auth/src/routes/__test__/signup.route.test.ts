@@ -11,6 +11,7 @@ it('returns a 201 on successfull signup', async () => {
     .send({
       firstName: 'Alpha',
       lastName: 'test',
+      countryCode: '+91',
       mobileNumber: '1290512892',
       email: 'alpha1@test.com',
       password: 'alpha1@123',
@@ -26,6 +27,7 @@ it('returns a 422 with an invalid email', async () => {
     .send({
       firstName: 'Alpha',
       lastName: 'test',
+      countryCode: '+91',
       mobileNumber: '1290512892',
       email: 'alpha1@test',
       password: 'alpha1@123',
@@ -41,6 +43,7 @@ it('returns a 422 with an invalid password', async () => {
     .send({
       firstName: 'Alpha',
       lastName: 'test',
+      countryCode: '+91',
       mobileNumber: '1290512892',
       email: 'alpha1@test',
       password: 'a',
@@ -68,6 +71,7 @@ it('disallows duplicate email', async () => {
     .send({
       firstName: 'Alpha',
       lastName: 'test',
+      countryCode: '+91',
       mobileNumber: '1290512892',
       email: 'alpha1@test.com',
       password: 'alpha1@123',
@@ -79,6 +83,7 @@ it('disallows duplicate email', async () => {
     .send({
       firstName: 'Alpha',
       lastName: 'test',
+      countryCode: '+91',
       mobileNumber: '1290512892',
       email: 'alpha1@test.com',
       password: 'alpha1@123',
@@ -92,6 +97,7 @@ it('sets a cookie after successful signup', async () => {
   const response = await request(app).post('/api/v1/users/signup').send({
     firstName: 'Alpha',
     lastName: 'test',
+    countryCode: '+91',
     mobileNumber: '1290512892',
     email: 'alpha1@test.com',
     password: 'alpha1@123',

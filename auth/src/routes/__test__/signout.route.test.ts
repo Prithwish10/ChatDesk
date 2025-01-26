@@ -11,6 +11,7 @@ it('clears the cookie after signing out', async () => {
     .send({
       firstName: 'Alpha',
       lastName: 'test',
+      countryCode: '+91',
       mobileNumber: '1290512892',
       email: 'alpha1@test.com',
       password: 'alpha1@123',

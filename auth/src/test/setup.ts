@@ -43,6 +43,7 @@ global.getAuthCookie = async () => {
     .send({
       firstName: 'Alpha',
       lastName: 'test',
+      countryCode: '+91',
       mobileNumber: '1290512892',
       email: 'test@test.com',
       password: 'test_password',
