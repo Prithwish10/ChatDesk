@@ -143,7 +143,7 @@ Chatdesk is a versatile messaging application that empower seamless communicatio
 
 **Microservices Architecture for Chatdesk Using Kubernetes:**
 
-![Centralised Logging](https://github.com/Prithwish10/Images/blob/main/Chatdesk_images/Chatdesk_design.drawio%20(1).png)
+![Centralised Logging](https://github.com/Prithwish10/Images/blob/main/Chatdesk_images/chatdesk_high_level_diagram.png)
 
 **Scaling Socket Server using Redis Pub/Sub:**
 
