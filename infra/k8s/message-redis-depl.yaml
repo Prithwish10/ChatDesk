@@ -1,0 +1,30 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: message-redis-depl
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: message-redis
+  template:
+    metadata:
+      labels:
+        app: message-redis
+    spec:
+      containers:
+        - name: message-redis
+          image: redis
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: message-redis-srv
+spec:
+  selector:
+    app: message-redis
+  ports:
+    - name: db
+      protocol: TCP
+      port: 6379
+      targetPort: 6379
