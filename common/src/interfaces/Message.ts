@@ -1,6 +1,6 @@
 import { Types } from "mongoose";
 import { Attachment } from "./Attachment";
-import { Reaction } from "./Reaction";
+import { Reaction } from "./IReaction";
 
 export interface Message {
   conversation_id: Types.ObjectId;
