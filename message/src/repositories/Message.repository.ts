@@ -1,8 +1,10 @@
+import { Service } from 'typedi';
 import { IMessageAttrs, IMessageDoc } from '../interfaces/IMessage';
 import { Message } from '../models/Message.model';
 import { logger } from '../loaders/logger';
 import { SortOrder } from 'mongoose';
 
+@Service()
 export class MessageRepository {
   constructor() {}
 

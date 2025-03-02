@@ -3,7 +3,7 @@ export default {
   port: process.env.PORT || 3000,
   redisMessageQueue: 'pending_messages',
   messageBatchSize: process.env.BATCH_SIZE || 100000,
-  cronSchedule: process.env.CRON_SCHEDULE || '*/1 * * * * *',
+  cronSchedule: process.env.CRON_SCHEDULE || '*/10 * * * *',
 
   /**
    * Connection parameters

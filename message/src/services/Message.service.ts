@@ -1,7 +1,9 @@
+import { Service } from 'typedi';
 import { MessageRepository } from '../repositories/Message.repository';
 import { RedisService } from './Redis.service';
 import { logger } from '../loaders/logger';
 
+@Service()
 export class MessageService {
   constructor(
     private readonly _messageRepository: MessageRepository,
