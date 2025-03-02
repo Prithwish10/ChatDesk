@@ -1,6 +1,7 @@
 import mongoose from 'mongoose';
 import { IMessageAttrs, IMessageDoc, IMessageModel } from '../interfaces/IMessage';
 import ReactionSchema from './Reaction.model';
+import messageSenderSchema from './MessageSender.model';
 import AttachmentModel from './Attachment.model';
 import { updateIfCurrentPlugin } from 'mongoose-update-if-current';
 import { MessageType } from '../enums/MessageType';
@@ -16,8 +17,8 @@ const messageSchema = new mongoose.Schema<IMessageDoc>(
       type: String,
       required: true,
     },
-    senderId: {
-      type: mongoose.Schema.Types.ObjectId,
+    sender: {
+      type: messageSenderSchema,
       required: true,
     },
     content: {

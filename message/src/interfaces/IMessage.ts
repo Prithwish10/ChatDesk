@@ -2,12 +2,13 @@ import { Types } from "mongoose";
 import { IAttachment } from "./IAttachment";
 import { IReaction } from './IReaction';
 import mongoose from "mongoose";
+import { IMessageSender } from "./IMessageSender";
 
 // An interface that describes the properties required to create a new Message.
 export interface IMessageAttrs {
   conversationId: Types.ObjectId;
   messageId: string;
-  senderId: Types.ObjectId;
+  sender: IMessageSender;
   content: string;
   type: string;
   attachments?: IAttachment[];

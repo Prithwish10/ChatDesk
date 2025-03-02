@@ -1,6 +1,11 @@
 import Type from 'mongoose'
 
 export interface IReaction {
-    userId: Type.ObjectId,
+    user: {
+        id: Type.ObjectId,
+        firstName: string,
+        lastName: string,
+        image?: string
+    },
     reaction: string
 }

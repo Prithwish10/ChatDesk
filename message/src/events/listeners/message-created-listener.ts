@@ -13,8 +13,37 @@ export class MessageCreatedListener extends Listener<MessageCreatedEvent> {
   queueGroupName: string = queueGroupName;
 
   async onMessage(data: MessageCreatedEvent['data'], msg: Message): Promise<void> {
-    await redisService.storeMessage(data as unknown as IMessageAttrs);
-    logger.info('Acknowledging the Message inserted into Redis.');
+    const {
+      conversation_id,
+      messageId,
+      sender,
+      content,
+      type,
+      attachments,
+      parent_message_id,
+      status,
+      deleted,
+      reactions,
+    } = data;
+    await redisService.storeMessage({
+      conversationId: conversation_id,
+      messageId,
+      sender: {
+        senderId: sender.id,
+        senderFirstName: sender.firstname,
+        senderLastName: sender.lastname,
+        senderImage: sender.image,
+      },
+      content,
+      type,
+      attachments,
+      parentMessageId: parent_message_id,
+      status,
+      deleted,
+      reactions,
+    });
+
+    logger.info('Acknowledging the Message insertion into Redis.');
 
     msg.ack();
   }
