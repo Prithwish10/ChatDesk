@@ -7,6 +7,7 @@ export interface MessageCreatedEvent {
   subject: Subjects.MessageCreated;
   data: {
     conversation_id: Types.ObjectId;
+    messageId: string;
     sender: {
       id: Types.ObjectId;
       firstname: string;
