@@ -1,3 +1,4 @@
+import { Types } from "mongoose";
 import { Subjects } from "../enums/subjects";
 import { IParticipant } from "./IParticipant";
 
@@ -7,8 +8,9 @@ export interface ConversationCreatedEvent {
     id: string;
     participants: IParticipant[];
     isGroup: boolean;
-    group_name?: string;
-    group_photo?: string;
+    groupName?: string;
+    groupPhoto?: string;
+    createdBy: Types.ObjectId;
     deleted: number;
     version: number;
   };
