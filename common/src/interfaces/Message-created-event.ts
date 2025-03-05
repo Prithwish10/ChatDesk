@@ -20,6 +20,7 @@ export interface MessageCreatedEvent {
     parent_message_id?: Types.ObjectId | null;
     status: string;
     deleted: number;
+    createdAt: Date;
     reactions?: IReaction[];
   };
 }
