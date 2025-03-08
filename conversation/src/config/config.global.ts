@@ -1,6 +1,7 @@
 export default {
   servicename: 'message',
   port: process.env.PORT || 3000,
+  cronSchedule: process.env.CRON_SCHEDULE || '*/10 * * * *',
 
   /**
    * Connection parameters

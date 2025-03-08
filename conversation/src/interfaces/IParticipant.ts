@@ -5,4 +5,5 @@ export interface IParticipant {
   role: string;
   status?: string;
   isAdmin?: boolean;
+  isConversationDeleted?: boolean;
 }

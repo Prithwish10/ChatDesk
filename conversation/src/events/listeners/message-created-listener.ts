@@ -15,31 +15,14 @@ export class MessageCreatedListener extends Listener<MessageCreatedEvent> {
     const {
       conversation_id,
       messageId,
-      sender,
       content,
-      type,
-      attachments,
-      parent_message_id,
-      status,
-      deleted,
-      reactions,
+      createdAt
     } = data;
     await redisService.storeMessage({
       conversationId: conversation_id,
       messageId,
-      sender: {
-        senderId: sender.id,
-        senderFirstName: sender.firstname,
-        senderLastName: sender.lastname,
-        senderImage: sender.image,
-      },
       content,
-      type,
-      attachments,
-      parentMessageId: parent_message_id,
-      status,
-      deleted,
-      reactions,
+      createdAt
     });
 
     logger.info('Acknowledging the Message insertion into Redis.');

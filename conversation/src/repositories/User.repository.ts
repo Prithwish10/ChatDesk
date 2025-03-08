@@ -55,19 +55,4 @@ export class UserRepository {
       throw error;
     }
   }
-
-  public async doesParticipantsExist(participants: Participant[]): Promise<boolean> {
-    try {
-      for (let participant = 0; participant < participants.length; participant++) {
-        const user = await User.findById(participants[participant].user_id);
-        if (!user) {
-          return false;
-        }
-      }
-      return true;
-    } catch (error) {
-      logger.error('Error occured while checking whether participants exists or notc');
-      throw error;
-    }
-  }
 }

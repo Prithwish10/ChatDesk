@@ -23,6 +23,11 @@ const participantSchema = new mongoose.Schema<IParticipant>(
       type: Boolean,
       required: false,
     },
+    isConversationDeleted: {
+      type: Boolean,
+      required: true,
+      default: false,
+    }
   },
   {
     toJSON: {

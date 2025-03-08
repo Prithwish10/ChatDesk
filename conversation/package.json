@@ -2,14 +2,20 @@
   "name": "conversation",
   "version": "1.0.0",
   "description": "Conversation service",
-  "main": "app.ts",
+  "main": "app.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "ts-node-dev --poll src/app.ts",
+    "dev": "ts-node-dev --poll src/app.ts",
+    "test": "jest --watchAll --no-cache --coverage",
+    "test:ci": "jest",
+    "build": "tsc -p .",
+    "format": "prettier --write \"src/**/*.ts\"",
+    "lint": "eslint \"{src,apps,libs,test}/**/*.ts\" --fix"
   },
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@pdchat/common": "^1.0.44",
+    "@pdchat/common": "^1.0.46",
     "cors": "^2.8.5",
     "express": "^4.21.2",
     "express-validator": "^7.2.1",

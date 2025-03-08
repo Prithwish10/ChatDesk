@@ -3,7 +3,6 @@ import Container from 'typedi';
 import { Subjects, Listener, ConversationCreatedEvent } from '@pdchat/common';
 import { queueGroupName } from './queue-group-name';
 import { ConversationRepository } from '../../repositories/Conversation.repository';
-import { Types } from 'mongoose';
 import { logger } from '../../loaders/logger';
 
 const conversationRepository = Container.get(ConversationRepository);

@@ -1,22 +1,23 @@
-import { Service } from "typedi";
-import { SortOrder } from "mongoose";
-import {
-  IConversationAttrs,
-  IConversationDoc,
-} from "../interfaces/IConversation";
-import { Conversation } from "../models/Conversation.model";
-import { IParticipant } from "../interfaces/IParticipant";
-import { logger } from "../loaders/logger";
-import { User } from "../models/User.model";
-import { Api404Error } from "@pdchat/common";
+import { Service } from 'typedi';
+import { MongooseBulkWriteOptions, SortOrder, Types } from 'mongoose';
+import { IConversationAttrs, IConversationDoc } from '../interfaces/IConversation';
+import { Conversation } from '../models/Conversation.model';
+import { IParticipant } from '../interfaces/IParticipant';
+import { logger } from '../loaders/logger';
+import { User } from '../models/User.model';
+import { Api404Error } from '@pdchat/common';
 
 @Service()
 export class ConversationRepository {
   constructor() {}
 
-  public async create(
-    conversation: IConversationAttrs
-  ): Promise<IConversationDoc> {
+  /**
+   * Creates a new conversation.
+   * @param conversation - The conversation to create.
+   * @returns The created conversation.
+   * @throws Api404Error - If the conversation could not be created.
+   */
+  public async create(conversation: IConversationAttrs): Promise<IConversationDoc> {
     try {
       const newConversation = Conversation.build(conversation);
       const savedConversation = await newConversation.save();
@@ -28,75 +29,103 @@ export class ConversationRepository {
     }
   }
 
+  /**
+   * Executes a bulk write operation on the Conversation model.
+   * @param operation - The bulk write operations to perform.
+   * @param option - The bulk write options.
+   * @returns A promise that resolves when the bulk write operation is complete.
+   * @throws error - If the bulk write operation fails.
+   */
+  public async bulkWrite(operation: any[], option: MongooseBulkWriteOptions) {
+    try {
+      await Conversation.bulkWrite(operation, option);
+      logger.info(`✅ Bulk updated ${operation.length} conversations.`);
+    } catch (error) {
+      logger.error(`❌ Bulk write error: ${error}`);
+      throw error;
+    }
+  }
+
   public async populateUserInParticipants(conversation: IConversationDoc) {
     try {
-      const populatedConversation = await conversation.populate(
-        "participants.user_id"
-      );
+      const populatedConversation = await conversation.populate('participants.userId');
       return populatedConversation;
     } catch (error) {
-      logger.error(
-        `Error occured while populating participants in conversation: ${error}`
-      );
+      logger.error(`❌ Error occured while populating participants in conversation: ${error}`);
       throw error;
     }
   }
 
   public async getConversationByIdAlongWithUsers(
-    conversationId: string
+    conversationId: string,
   ): Promise<IConversationDoc | null> {
     try {
-      const conversation = await Conversation.findById(conversationId).populate(
-        "participants.user_id"
-      );
+      const conversation =
+        await Conversation.findById(conversationId).populate('participants.userId');
 
       return conversation;
     } catch (error) {
-      logger.error(
-        `Error occured while fedtching conversation by Id: ${error}`
-      );
+      logger.error(`Error occured while fedtching conversation by Id: ${error}`);
       throw error;
     }
   }
 
-  public async getById(
-    conversationId: string
-  ): Promise<IConversationDoc | null> {
+  public async getById(conversationId: string): Promise<IConversationDoc | null> {
     try {
       const conversation = await Conversation.findById(conversationId);
 
       return conversation;
     } catch (error) {
-      logger.error(
-        `Error occured while fedtching conversation by Id: ${error}`
-      );
+      logger.error(`Error occured while fedtching conversation by Id: ${error}`);
       throw error;
     }
   }
 
-  public async updateByConversation(
-    conversationById: IConversationDoc,
-    conversation: Partial<IConversationAttrs>
-  ): Promise<IConversationDoc> {
+  /**
+   * Updates a conversation by its ID.
+   *
+   * @param conversationId - The ID of the conversation to update.
+   * @param conversation - The updated conversation object.
+   * @returns The updated conversation document.
+   * @throws Throws an error if there's a problem updating the conversation.
+   */
+  public async updateConversation(
+    conversationId: string,
+    conversation: Partial<IConversationAttrs>,
+  ): Promise<IConversationDoc | null> {
     try {
-      conversationById.set(conversation);
-      await conversationById.save();
+      const result = await Conversation.findOneAndUpdate(
+        { _id: conversationId },
+        { $set: conversation },
+        { returnDocument: 'after' },
+      );
 
-      return conversationById;
+      return result;
     } catch (error) {
       logger.error(`Error occured while updating conversation: ${error}`);
       throw error;
     }
   }
 
-  public async deleteByConversation(
-    conversationById: IConversationDoc
-  ): Promise<IConversationDoc> {
+  /**
+   * Deletes a conversation for a specific user.
+   * @param conversationId - The ID of the conversation to delete.
+   * @param deletedFor - The ID of the user for whom the conversation is to be deleted.
+   * @returns The updated conversation document.
+   * @throws Throws an error if there's a problem deleting the conversation.
+   */
+  public async deleteUserConversation(
+    conversationId: string,
+    deletedFor: string,
+  ): Promise<IConversationDoc | null> {
     try {
-      conversationById.set({ deleted: 1 });
-      await conversationById.save();
+      const result = await Conversation.findOneAndUpdate(
+        { '_id': conversationId, 'participants.userId': deletedFor },
+        { $set: { 'participants.$.isConversationDeleted': true } },
+        { returnDocument: 'after' },
+      );
 
-      return conversationById;
+      return result;
     } catch (error) {
       logger.error(`Error occured while updating message by Id: ${error}`);
       throw error;
@@ -113,7 +142,7 @@ export class ConversationRepository {
    */
   public async isConversationWithSameParticipantsExists(
     participants: IParticipant[],
-    isGroup: boolean
+    isGroup: boolean,
   ): Promise<IConversationDoc | null> {
     try {
       const participantQueries = participants.map((participant) => ({
@@ -136,7 +165,7 @@ export class ConversationRepository {
       return existingConversation;
     } catch (error: any) {
       logger.error(
-        `Error occured while checking whether conversation with same participants exists: ${error}`
+        `Error occured while checking whether conversation with same participants exists: ${error}`,
       );
       throw error;
     }
@@ -145,250 +174,151 @@ export class ConversationRepository {
   /**
    * Retrieves user conversations based on the provided parameters.
    *
-   * @param user_id - The ID of the user for whom to retrieve conversations.
-   * @param sort - The field to sort the conversations by (default: "last_message_timestamp").
+   * @param userId - The ID of the user for whom to retrieve conversations.
+   * @param sort - The field to sort conversations by (default: "lastMessageTimestamp").
    * @param order - The sort order ("asc" for ascending, "desc" for descending, default: "desc").
    * @param page - The page number of results to retrieve (default: 1).
    * @param limit - The maximum number of conversations to retrieve per page (default: 20).
-   * @returns An object containing the total number of pages, total number of conversations,
-   *          and an array of conversations with additional unread message count.
-   * @throws Throws an error if there was a problem retrieving the conversations.
-   */
+   * @param deleted - Optional: Indicates whether to include deleted conversations (0 for not deleted, 1 for deleted).
+   **/
   public async getUserConversations(
-    user_id: string,
-    sort = "last_message_timestamp",
-    order = "desc",
-    page = 1,
-    limit = 20,
-    deleted = 0
+    userId: string,
+    sort: string = 'lastMessageTimestamp',
+    order: string = 'desc',
+    limit: number = 20,
+    deleted: number = 0,
+    cursor?: { timestamp: string; id: string },
   ) {
     try {
-      const sortConfig: { [key: string]: SortOrder } = {};
-      sortConfig[sort] = order === "asc" ? 1 : -1;
-
-      // Create the query to find conversations in which the user is a participant.
-      const participantQuery = {
-        participants: {
-          $elemMatch: {
-            user_id: user_id,
-          },
-        },
+      const sortOrder: SortOrder = order === 'asc' ? 1 : -1;
+      const query: any = {
+        participants: { $elemMatch: { userId } },
         deleted,
       };
 
-      // Count the total number of conversations matching the participant query.
-      const totalConversations = await this.countDocuments(participantQuery);
-      const totalPages = Math.ceil(totalConversations / limit);
-      const skip = (page - 1) * limit;
+      // Apply cursor-based pagination with composite cursor (timestamp + _id)
+      if (cursor) {
+        query.$or = [
+          {
+            [sort]: { [sortOrder === 1 ? '$gt' : '$lt']: new Date(cursor.timestamp) }, // Primary filter
+          },
+          {
+            [sort]: new Date(cursor.timestamp), // If timestamp is the same, resolve using _id
+            _id: { [sortOrder === 1 ? '$gt' : '$lt']: cursor.id },
+          },
+        ];
+      }
 
       let userConversations: any;
-
-      userConversations = await Conversation.find(participantQuery)
-        .populate("participants")
-        .sort(sortConfig)
-        .skip(skip)
+      userConversations = await Conversation.find(query)
+        .populate('participants')
+        .sort({ [sort]: sortOrder, _id: sortOrder })
         .limit(limit)
         .lean();
 
       userConversations = await User.populate(userConversations, {
-        path: "participants.user_id",
-        select: "firstName lastName email mobileNumber",
+        path: 'participants.user_id',
+        select: 'firstName lastName email mobileNumber',
       });
 
-      // Retrieve unread message counts for each conversation using MessageModel.
-      const conversationsWithReadMessageCount = await Promise.all(
-        userConversations.map(async (userConversation: any) => {
-          // Retrieve the last checked timestamp for a specific user within a conversation
-          const lastCheckedTimestamp = userConversation.participants.find(
-            (participant: IParticipant) =>
-              participant.userId._id.toString() === user_id
-          ).last_checked_conversation_at;
-
-          // Count the number of unread messages in the conversation
-          // const unreadMessageCount = await Message.countDocuments({
-          //   conversation_id: userConversation._id,
-          //   sender_id: { $ne: user_id },
-          //   createdAt: { $gt: lastCheckedTimestamp },
-          // });
-
-          return {
-            ...userConversation,
-            // unreadMessageCount,
-          };
-        })
-      );
-
-      return {
-        currentPage: page,
-        totalPages,
-        totalConversations,
-        conversations: conversationsWithReadMessageCount,
-      };
+      return userConversations;
     } catch (error) {
-      logger.error(
-        `Error occured while in repository while fetching user conversations: ${error}`
-      );
-      throw error;
-    }
-  }
-
-  public async updateParticipantsLastCheckedTimeByConversation(
-    conversationById: IConversationDoc,
-    participant_id: string
-  ): Promise<IConversationDoc> {
-    try {
-      const participant = conversationById?.participants.find(
-        (participant) => participant.userId.toString() === participant_id
-      );
-      if (!participant) {
-        throw new Api404Error("Participant not found in the conversaation");
-      }
-      await conversationById?.save();
-
-      return conversationById;
-    } catch (error) {
-      logger.error(
-        `Error occured while in repository while fetching user conversations: ${error}`
-      );
-      throw error;
-    }
-  }
-
-  public async updateParticipantsLastCheckedTimeByConversationId(
-    conversationId: string,
-    participant_id: string
-  ): Promise<void> {
-    try {
-      const conversation = await this.getById(conversationId);
-      const participant = conversation?.participants.find(
-        (participant) => participant.userId.toString() === participant_id
-      );
-      if (!participant) {
-        throw new Api404Error("Participant not found in the conversaation");
-      }
-
-      await conversation?.save();
-    } catch (error) {
-      logger.error(
-        `Error occured while in repository while fetching user conversations: ${error}`
-      );
+      logger.error(`Error occured while in repository while fetching user conversations: ${error}`);
       throw error;
     }
   }
 
   /**
-   * Add a participant from a conversation.
+   * Adds participants to an existing conversation.
    *
-   * @param conversation_id - The ID of the conversation from which to remove the participant.
-   * @param participant_id - The ID of the user who needs to be removed from the conversation.
-   * @returns The conversation documents after adding the participant.
-   * @throws Throws an error if there was a problem adding participant to the conversation.
+   * @param conversationId - The ID of the conversation to which participants are to be added.
+   * @param participants - An array of participant objects to be added to the conversation.
+   * @returns A promise that resolves to the updated conversation document.
+   * @throws Api404Error if the conversation is not found.
+   * @throws Error if an error occurs while updating the conversation.
    */
+
   public async addParticipantsToConversation(
-    conversationById: IConversationDoc,
-    participants: IParticipant[]
+    conversationId: string,
+    participants: IParticipant[],
   ): Promise<IConversationDoc> {
     try {
-      const existingParticipants = new Set(
-        conversationById?.participants.map((existingParticipant) =>
-          existingParticipant.userId.id.toString()
-        )
+      const updatedConversation = await Conversation.findByIdAndUpdate(
+        conversationId,
+        { $addToSet: { participants: { $each: participants } } },
+        { new: true },
       );
 
-      // Add new participants to the conversation if they don't already exist
-      const newParticipants = participants.filter(
-        (participant) =>
-          !existingParticipants.has(participant.userId.id.toString())
-      );
+      if (!updatedConversation) {
+        throw new Api404Error('Conversation not found');
+      }
 
-      conversationById.participants.push(...newParticipants);
-
-      // Save the updated conversation
-      await conversationById.save();
-
-      return conversationById;
+      return updatedConversation;
     } catch (error) {
       logger.error(
-        `Error occured while in repository while adding participants conversations: ${error}`
+        `Error occured while in repository while adding participants conversations: ${error}`,
       );
       throw error;
     }
   }
 
   /**
-   * Remove a participant from a conversation.
+   * Removes a participant from a conversation.
    *
-   * @param conversation_id - The ID of the conversation from which to remove the participant.
-   * @param participant_id - The ID of the user who needs to be removed from the conversation.
-   * @returns The conversation documents after removing the participant.
-   * @throws Throws an error if there was a problem removing participant from the conversation.
+   * @param conversationId - The ID of the conversation from which to remove the participant.
+   * @param participantId - The ID of the user who needs to be removed from the conversation.
+   * @returns A promise that resolves to the updated conversation document.
+   * @throws Api404Error if the conversation is not found.
+   * @throws Error if an error occurs while updating the conversation.
    */
   public async removeParticipantFromConversation(
-    conversationById: IConversationDoc,
-    participant_id: string
+    conversationId: string,
+    participantId: string,
   ): Promise<IConversationDoc> {
     try {
-      conversationById.participants = conversationById.participants.filter(
-        (participant) => participant.userId.id.toString() !== participant_id
+      const updatedConversation = await Conversation.findByIdAndUpdate(
+        conversationId,
+        { $pull: { participants: { userId: participantId } } },
+        { new: true },
       );
 
-      // Save the updated conversation
-      await conversationById.save();
+      if (!updatedConversation) {
+        throw new Api404Error('Conversation not found');
+      }
 
-      return conversationById;
+      return updatedConversation;
     } catch (error) {
       logger.error(
-        `Error occured while in repository while removing participants conversations: ${error}`
+        `Error occured while in repository while removing participants conversations: ${error}`,
       );
-      throw error;
-    }
-  }
-
-  /**
-   * Counts the number of documents in a collection based on the provided query.
-   *
-   * @param query - The query object to filter the documents.
-   * @returns The total number of documents that match the given query.
-   * @throws Throws an error if there was a problem counting the documents.
-   */
-  private async countDocuments(query: any): Promise<number> {
-    try {
-      const totalDocuments = await Conversation.countDocuments(query);
-      return totalDocuments;
-    } catch (error) {
-      logger.error(`Error occured while counting documents: ${error}`);
       throw error;
     }
   }
 
   public async getConversationByParticipant(
     conversationId: string,
-    userId: string
+    userId: string,
   ): Promise<IConversationDoc | null> {
     try {
       const conversation = await Conversation.findOne({
-        _id: conversationId,
-        "participants.user_id": userId,
+        '_id': conversationId,
+        'participants.user_id': userId,
       });
 
       return conversation;
     } catch (error) {
-      logger.error(
-        `Error occured while fetching participant by user_id: ${error}`
-      );
+      logger.error(`Error occured while fetching participant by user_id: ${error}`);
       throw error;
     }
   }
 
   public async getConversationParticipants(conversationId: string) {
     try {
-      const participants = await Conversation.findById({conversationId}, {participants: 1});
+      const participants = await Conversation.findById({ conversationId }, { participants: 1 });
 
       return participants?.participants;
-    } catch(error) {
-      logger.error(
-        `Error occured while fetching participants from conversation: ${error}`
-      );
+    } catch (error) {
+      logger.error(`Error occured while fetching participants from conversation: ${error}`);
       throw error;
     }
   }

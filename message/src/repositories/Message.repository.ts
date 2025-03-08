@@ -16,7 +16,7 @@ export class MessageRepository {
   public async insertMany(messages: IMessageAttrs[]): Promise<IMessageDoc[]> {
     try {
       const savedMessages = await Message.insertMany(messages, {
-        ordered: true,
+        ordered: false,
       });
       return savedMessages as IMessageDoc[];
     } catch (error) {

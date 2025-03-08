@@ -33,6 +33,13 @@ spec:
                 name: message-srv
                 port:
                   number: 3000
+          - path: /api/v1/conversations/
+            pathType: Prefix
+            backend:
+              service:
+                name: conversation-srv
+                port:
+                  number: 3000
           - path: /api/v1/search/
             pathType: Prefix
             backend:
