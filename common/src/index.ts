@@ -28,5 +28,7 @@ export * from "./interfaces/Notification-sent-event";
 export * from "./enums/subjects";
 export * from "./enums/NotificationType";
 export * from "./enums/NotificationPriority"
+export * from "./enums/RedisConsumerGroup";
+export * from "./enums/RedisStream";
 
 export * from "./types/NotificationContent";
