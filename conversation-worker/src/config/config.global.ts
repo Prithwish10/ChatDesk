@@ -1,7 +1,8 @@
 export default {
-  servicename: 'conversation',
-  port: process.env.PORT || 3000,
+  servicename: 'conversation-worker',
+  redisConsumerName: process.env.POD_NAME || `worker-${Math.random().toString(36).substring(7)}`,
   cronSchedule: process.env.CRON_SCHEDULE || '*/10 * * * *',
+  batchSize: process.env.BATCH_SIZE || 1000,
 
   /**
    * Connection parameters
@@ -20,16 +21,6 @@ export default {
       natsClusterId: process.env.NATS_CLUSTER_ID,
       natsClientId: process.env.NATS_CLIENT_ID,
     },
-  },
-
-  jwtSecret: process.env.JWT_KEY,
-
-  /**
-   * API configs
-   */
-  api: {
-    prefix: process.env.API_PREFIX || '/api',
-    version: process.env.API_VERSION || '/v1',
   },
 
   /**

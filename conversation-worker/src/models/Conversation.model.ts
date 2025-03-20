@@ -1,11 +1,10 @@
-import mongoose, { Types } from 'mongoose';
+import mongoose from 'mongoose';
 import {
   IConversationAttrs,
   IConversationDoc,
   IConversationModel,
 } from '../interfaces/IConversation';
 import ParticipantSchema from './Participant.model';
-// import { updateIfCurrentPlugin } from 'mongoose-update-if-current';
 
 const conversationSchema = new mongoose.Schema(
   {
@@ -61,17 +60,8 @@ const conversationSchema = new mongoose.Schema(
   },
 );
 
-// conversationSchema.set('versionKey', 'version');
-// conversationSchema.plugin(updateIfCurrentPlugin);
-
-conversationSchema.statics.build = (
-  attrs: IConversationAttrs & { _id?: string | Types.ObjectId; version?: number },
-) => {
-  return new Conversation({
-    ...attrs,
-    _id: attrs._id ?? new mongoose.Types.ObjectId(),
-    version: attrs.version ?? 1,
-  });
+conversationSchema.statics.build = (attrs: IConversationAttrs) => {
+  return new Conversation(attrs);
 };
 
 const Conversation = mongoose.model<IConversationDoc, IConversationModel>(

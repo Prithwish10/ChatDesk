@@ -146,4 +146,30 @@ export class RedisService {
   async releaseLock(lockKey: string): Promise<void> {
     await this.redis.del(lockKey);
   }
+
+  /**
+   * Publishes an event to a Redis Stream.
+   * The event data is flattened into an array of key-value pairs, where
+   * each value is converted to a string. If a value is an object, it is
+   * converted to a JSON string.
+   * @param {string} stream The name of the Redis Stream to publish to.
+   * @param {T} eventData The event data to publish.
+   * @return {Promise<void>} A promise that resolves when the event has been published.
+   */
+  async publishToStream<T extends Record<string, any>>(
+    stream: string,
+    eventData: T,
+  ): Promise<void> {
+    try {
+      const flattenedData: string[] = [];
+      Object.entries(eventData).forEach(([key, value]) => {
+        flattenedData.push(key, typeof value === 'object' ? JSON.stringify(value) : String(value));
+      });
+
+      await this.redis.xadd(stream, '*', ...flattenedData);
+      console.log(`📨 Published to Redis Stream: ${stream}`, eventData);
+    } catch (error) {
+      console.error('❌ Error publishing to Redis Stream:', error);
+    }
+  }
 }

@@ -48,8 +48,8 @@ build:
         manual:
           - src: 'src/**/*.ts'
             dest: .
-    - image: prithwishdas60/search
-      context: search
+    - image: prithwishdas60/conversation-worker
+      context: conversation-worker
       docker:
         dockerfile: Dockerfile
       sync:

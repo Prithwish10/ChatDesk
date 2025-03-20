@@ -17,7 +17,9 @@ export class ConversationRepository {
    * @returns The created conversation.
    * @throws Api404Error - If the conversation could not be created.
    */
-  public async create(conversation: IConversationAttrs): Promise<IConversationDoc> {
+  public async create(
+    conversation: IConversationAttrs & { _id?: string | Types.ObjectId; version?: number },
+  ): Promise<IConversationDoc> {
     try {
       const newConversation = Conversation.build(conversation);
       const savedConversation = await newConversation.save();
@@ -42,6 +44,22 @@ export class ConversationRepository {
       logger.info(`✅ Bulk updated ${operation.length} conversations.`);
     } catch (error) {
       logger.error(`❌ Bulk write error: ${error}`);
+      throw error;
+    }
+  }
+
+  public async findByIdAndPreviousVersion(
+    id: string,
+    version: number,
+  ): Promise<IConversationDoc | null> {
+    try {
+      const conversation = await Conversation.findOne({ _id: id, version });
+
+      return conversation;
+    } catch (error) {
+      logger.error(
+        `Error occured while fetching conversation by Id: ${id} and version: ${version}`,
+      );
       throw error;
     }
   }
@@ -92,6 +110,7 @@ export class ConversationRepository {
   public async updateConversation(
     conversationId: string,
     conversation: Partial<IConversationAttrs>,
+    version?: number,
   ): Promise<IConversationDoc | null> {
     try {
       const result = await Conversation.findOneAndUpdate(
@@ -117,6 +136,7 @@ export class ConversationRepository {
   public async deleteUserConversation(
     conversationId: string,
     deletedFor: string,
+    version?: number,
   ): Promise<IConversationDoc | null> {
     try {
       const result = await Conversation.findOneAndUpdate(
@@ -241,6 +261,7 @@ export class ConversationRepository {
   public async addParticipantsToConversation(
     conversationId: string,
     participants: IParticipant[],
+    version?: number
   ): Promise<IConversationDoc> {
     try {
       const updatedConversation = await Conversation.findByIdAndUpdate(
@@ -274,6 +295,7 @@ export class ConversationRepository {
   public async removeParticipantFromConversation(
     conversationId: string,
     participantId: string,
+    version?: number
   ): Promise<IConversationDoc> {
     try {
       const updatedConversation = await Conversation.findByIdAndUpdate(

@@ -128,6 +128,14 @@ export class Presence {
     }
   }
 
+  public async increamentCounter(key: string): Promise<number> {
+    try {
+      return await this._redisClient.incr(key);
+    } catch (error) {
+      throw error;
+    }
+  }
+
   public async quit() {
     try {
       await this._redisClient.quit();

@@ -1,5 +1,7 @@
 import { Server as SocketServer, Socket } from "socket.io";
+import { v4 as uuidv4 } from "uuid";
 import { Redis } from "ioredis";
+import mongoose from "mongoose";
 import { createAdapter } from "@socket.io/redis-adapter";
 import { Inject } from "typedi";
 import { Subjects } from "@pdchat/common";
@@ -18,6 +20,10 @@ import { SocketEventPublisher } from "../interfaces/v1/SocketEventPublisher";
 import { SocketEventSubscriber } from "../interfaces/v1/SocketEventSubscriber";
 import { SocketEventSubscriberImpl } from "../events/listeners/socket-event-subscriber";
 import { SucketEventPublisherImpl } from "../events/publishers/socket-event-publisher";
+import { ConversationCreatedPublisher } from "../events/publishers/conversation-created-publisher";
+import { ConversationUpdatedPublisher } from "../events/publishers/conversation-updated-publisher";
+import { ParticipantsAddedPublisher } from "../events/publishers/participants-added-publisher";
+import { ParticipantRemovedPublisher } from "../events/publishers/participant-removed-publisher";
 
 declare module "socket.io" {
   interface Socket {
@@ -86,55 +92,79 @@ class ChatServer {
 
       socket.on(
         "create-conversation",
-        (conversationId: string, participants: Participant[]) => {
+        async (
+          participants: Participant[],
+          isGroup: boolean,
+          group_name?: string,
+          group_photo?: string
+        ) => {
+          const conversationId = new mongoose.Types.ObjectId().toHexString();
+          const version = await this._presence.increamentCounter(
+            `conversation:version:${conversationId}`
+          );
+
           this._socketEventPublisher.publish(
             Subjects.ConversationCreated,
             JSON.stringify({ participants, conversationId })
           );
+
+          await new ConversationCreatedPublisher(natsWrapper.client).publish({
+            id: conversationId,
+            participants,
+            isGroup,
+            group_name,
+            group_photo,
+            deleted: 0,
+            version,
+          });
         }
       );
 
       socket.on(
         "add-participant",
-        (userAdded: IUser, addedBy: IUser, conversationId: string) => {
+        async (
+          participant: Participant,
+          addedBy: IUser,
+          conversationId: string
+        ) => {
           this._socketEventPublisher.publish(
             Subjects.ParticipantAddedToChat,
-            JSON.stringify({ userAdded, addedBy, conversationId })
+            JSON.stringify({ participant, addedBy, conversationId })
           );
+
+          const version = await this._presence.increamentCounter(
+            `conversation:version:${conversationId}`
+          );
+          await new ParticipantsAddedPublisher(natsWrapper.client).publish({
+            conversationId: conversationId,
+            participants: [participant],
+            version,
+          });
         }
       );
 
       socket.on(
         "remove-participant",
-        (userRemoved: IUser, removedBy: IUser, conversationId: string) => {
+        async (
+          participant: Participant,
+          removedBy: IUser,
+          conversationId: string
+        ) => {
           this._socketEventPublisher.publish(
             Subjects.ParticipantRemovedFromChat,
-            JSON.stringify({ userRemoved, removedBy, conversationId })
+            JSON.stringify({ participant, removedBy, conversationId })
           );
+
+          const version = await this._presence.increamentCounter(
+            `conversation:version:${conversationId}`
+          );
+          await new ParticipantRemovedPublisher(natsWrapper.client).publish({
+            conversationId: conversationId,
+            participantId: participant.user_id._id.toHexString(),
+            version,
+          });
         }
       );
-
-      socket.on("conversation-list", async (userId: string) => {
-        try {
-          const conversations =
-            await this._conversationRepository.getUserConversations(userId);
-          socket.to(userId).emit("conversation-list", conversations);
-        } catch (error) {
-          return new Error(`${error}`);
-        }
-      });
-
-      socket.on("message-list", async (userId, conversationId: string) => {
-        try {
-          const messages =
-            await this._messageRepository.getMessagesForAConversation(
-              conversationId
-            );
-          socket.to(userId).emit("conversation-list", messages);
-        } catch (error) {
-          return new Error(`${error}`);
-        }
-      });
 
       socket.on("join-conversation", (conversation_id: string, callback) => {
         socket.join(conversation_id);
@@ -212,16 +242,6 @@ class ChatServer {
         }
         await this._presence.upsert(socket.id, socket.user.id);
       });
-
-      socket.on(
-        "last-checked-conversation",
-        (conversation_id: string, user_id: string) => {
-          this._conversationRepository.updateParticipantsLastCheckedTimeByConversationId(
-            conversation_id,
-            user_id
-          );
-        }
-      );
 
       socket.on("disconnect", async () => {
         logger.info(

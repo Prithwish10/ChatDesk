@@ -1,5 +1,5 @@
-import mongoose, {Types} from "mongoose";
-import { IParticipant } from "./IParticipant";
+import mongoose, { Types } from 'mongoose';
+import { IParticipant } from './IParticipant';
 
 // An interface that describes the properties required to create a new Conversation.
 export interface IConversationAttrs {
@@ -8,8 +8,8 @@ export interface IConversationAttrs {
   groupName?: string;
   groupPhoto?: string;
   deleted: number;
-  lastMessageTimestamp?: Date;
-  lastMessage?: string;
+  lastMessageTimestamp: Date;
+  lastMessage: string;
   createdBy: Types.ObjectId;
 }
 
