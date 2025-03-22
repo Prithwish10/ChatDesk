@@ -8,6 +8,14 @@ export class RedisService {
   private redis = RedisClient.getInstance();
   private LOCK_EXPIRY = 5000; // 5 seconds
 
+  async get(key: string): Promise<string | null> {
+    return this.redis.get(key);
+  }
+
+  async set(key: string, value: number, ttlSeconds = 3600): Promise<void> {
+    await this.redis.set(key, value, 'EX', ttlSeconds);
+  }
+
   /**
    * Stores a message in Redis, using Sorted Set (ZSET) for ordered retrieval.
    * Stores the message id, conversation id, last message, and last message timestamp.

@@ -1,19 +1,16 @@
 import { Server as SocketServer, Socket } from "socket.io";
-import { v4 as uuidv4 } from "uuid";
 import { Redis } from "ioredis";
 import mongoose from "mongoose";
 import { createAdapter } from "@socket.io/redis-adapter";
-import { Inject } from "typedi";
+import { Service } from "typedi";
 import { Subjects } from "@pdchat/common";
 import { currentUser, requireAuth } from "@pdchat/common";
 import { logger } from "../loaders/logger";
-import { ConversationRepository } from "../repositories/v1/Conversation.repository";
 import { Participant } from "../interfaces/v1/Participant";
-import { IUser, UserAttrs } from "../interfaces/v1/User";
+import { IUser } from "../interfaces/v1/User";
 import Presence from "../services/Presence";
 import { ConversationAttrs } from "../interfaces/v1/Conversation";
 import { MessageAttrs } from "../interfaces/v1/Message";
-import { MessageRepository } from "../repositories/v1/Message.repository";
 import { natsWrapper } from "../loaders/NatsWrapper";
 import { MessageCreatedPublisher } from "../events/publishers/message-created-publisher";
 import { SocketEventPublisher } from "../interfaces/v1/SocketEventPublisher";
@@ -31,15 +28,12 @@ declare module "socket.io" {
   }
 }
 
+@Service()
 class ChatServer {
   private _io: SocketServer;
   private _presence: Presence;
   private _pubClient: Redis;
   private _subClient: Redis;
-  @Inject()
-  private _conversationRepository: ConversationRepository;
-  @Inject()
-  private _messageRepository: MessageRepository;
   private _socketEventPublisher: SocketEventPublisher;
   private _socketEventSubscriber: SocketEventSubscriber;
 
@@ -47,7 +41,6 @@ class ChatServer {
     this._io = new SocketServer(server, socketOptions);
     this._presence = presence;
     const redisClient = this._presence.getClient();
-
     this._pubClient = redisClient.duplicate();
     this._subClient = redisClient.duplicate();
     this._io.adapter(createAdapter(this._pubClient, this._subClient));
@@ -60,6 +53,7 @@ class ChatServer {
 
     this._socketEventSubscriber.subscribe(Subjects.WelcomeMessage);
     this._socketEventSubscriber.subscribe(Subjects.ConversationCreated);
+    this._socketEventSubscriber.subscribe(Subjects.ConversationUpdated);
     this._socketEventSubscriber.subscribe(Subjects.UserConnectedToChat);
     this._socketEventSubscriber.subscribe(Subjects.SendMessageToChat);
     this._socketEventSubscriber.subscribe(Subjects.ParticipantAddedToChat);
@@ -121,6 +115,34 @@ class ChatServer {
       );
 
       socket.on(
+        "update-conversation",
+        async (
+          participants: Participant[],
+          group_name?: string,
+          group_photo?: string
+        ) => {
+          const conversationId = new mongoose.Types.ObjectId().toHexString();
+          const version = await this._presence.increamentCounter(
+            `conversation:version:${conversationId}`
+          );
+
+          this._socketEventPublisher.publish(
+            Subjects.ConversationUpdated,
+            JSON.stringify({ participants, conversationId })
+          );
+
+          await new ConversationUpdatedPublisher(natsWrapper.client).publish({
+            id: conversationId,
+            participants,
+            group_name,
+            group_photo,
+            deleted: 1,
+            version,
+          });
+        }
+      );
+
+      socket.on(
         "add-participant",
         async (
           participant: Participant,
@@ -158,6 +180,7 @@ class ChatServer {
           const version = await this._presence.increamentCounter(
             `conversation:version:${conversationId}`
           );
+
           await new ParticipantRemovedPublisher(natsWrapper.client).publish({
             conversationId: conversationId,
             participantId: participant.user_id._id.toHexString(),

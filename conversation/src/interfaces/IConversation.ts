@@ -16,6 +16,7 @@ export interface IConversationAttrs {
 // An interface that describes the properties that a Conversation Model has.
 export interface IConversationModel extends mongoose.Model<IConversationDoc> {
   build(attrs: IConversationAttrs): IConversationDoc;
+  findByEvent(event: { id: string; version: number }): Promise<IConversationDoc | null>;
 }
 
 export interface IConversationDoc extends IConversationAttrs, mongoose.Document {

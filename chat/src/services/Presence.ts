@@ -1,37 +1,16 @@
+import { Service } from "typedi";
 import Redis, { RedisOptions } from "ioredis";
 import { logger } from "../loaders/logger";
 import { Api500Error } from "@pdchat/common";
 import configGlobal from "../config/config.global";
+import { RedisClient } from "./RedisClient.service";
 
+@Service()
 export class Presence {
-  private static instance: Presence;
   private _redisClient: Redis;
 
-  private constructor(redisOptions: RedisOptions) {
-    this._redisClient = new Redis(redisOptions);
-
-    this._redisClient.on("error", (error) => {
-      logger.error(`Error while connecting to redis: ${error}`);
-    });
-
-    this._redisClient.on("ready", () => {
-      logger.info("🛡️  Redis client connection is ready! 🛡️");
-    });
-
-    this._redisClient.on("reconnecting", () => {
-      logger.info("Redis client is re-connecting...!");
-    });
-
-    this._redisClient.on("end", () => {
-      logger.info("Redis client connection ended!");
-    });
-  }
-
-  public static getInstance(redisOptions: RedisOptions): Presence {
-    if (!Presence.instance) {
-      Presence.instance = new Presence(redisOptions);
-    }
-    return Presence.instance;
+  constructor() {
+    this._redisClient = RedisClient.getInstance();
   }
 
   public getClient(): Redis {
@@ -39,7 +18,7 @@ export class Presence {
       return this._redisClient;
     }
     throw new Api500Error(
-      "Trying to access Redis client even before initialization"
+      "Trying to access Redis client even before initialization."
     );
   }
 

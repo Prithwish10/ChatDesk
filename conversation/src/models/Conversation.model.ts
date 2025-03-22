@@ -63,6 +63,13 @@ const conversationSchema = new mongoose.Schema(
 
 // conversationSchema.set('versionKey', 'version');
 // conversationSchema.plugin(updateIfCurrentPlugin);
+conversationSchema.statics.findByEvent = (event: { id: string; version: number }) => {
+  return Conversation.findOne({
+    _id: event.id,
+    version: event.version - 1
+  })
+}
+
 
 conversationSchema.statics.build = (
   attrs: IConversationAttrs & { _id?: string | Types.ObjectId; version?: number },

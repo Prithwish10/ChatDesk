@@ -48,12 +48,19 @@ export class ConversationRepository {
     }
   }
 
+  /**
+   * Finds a conversation by its ID and previous version.
+   * @param id - The ID of the conversation to find.
+   * @param version - The previous version of the conversation.
+   * @returns The found conversation, or null if not found.
+   * @throws Error - If the conversation could not be found.
+   */
   public async findByIdAndPreviousVersion(
     id: string,
     version: number,
   ): Promise<IConversationDoc | null> {
     try {
-      const conversation = await Conversation.findOne({ _id: id, version });
+      const conversation = await Conversation.findByEvent({ id, version });
 
       return conversation;
     } catch (error) {
@@ -113,9 +120,20 @@ export class ConversationRepository {
     version?: number,
   ): Promise<IConversationDoc | null> {
     try {
+      let updatedVersion: number = 1;
+      if (!version) {
+        const existingConversation = await Conversation.findById(conversationId);
+
+        if (!existingConversation) {
+          throw new Api404Error('Conversation not found');
+        }
+
+        updatedVersion = existingConversation.version + 1;
+      }
+
       const result = await Conversation.findOneAndUpdate(
         { _id: conversationId },
-        { $set: conversation },
+        { $set: { ...conversation, version: version ?? updatedVersion } },
         { returnDocument: 'after' },
       );
 
@@ -139,9 +157,25 @@ export class ConversationRepository {
     version?: number,
   ): Promise<IConversationDoc | null> {
     try {
+      let updatedVersion: number = 1;
+      if (!version) {
+        const existingConversation = await Conversation.findById(conversationId);
+
+        if (!existingConversation) {
+          throw new Api404Error('Conversation not found');
+        }
+
+        updatedVersion = existingConversation.version + 1;
+      }
+
       const result = await Conversation.findOneAndUpdate(
         { '_id': conversationId, 'participants.userId': deletedFor },
-        { $set: { 'participants.$.isConversationDeleted': true } },
+        {
+          $set: {
+            'participants.$.isConversationDeleted': true,
+            'version': version ?? updatedVersion,
+          },
+        },
         { returnDocument: 'after' },
       );
 
@@ -261,12 +295,26 @@ export class ConversationRepository {
   public async addParticipantsToConversation(
     conversationId: string,
     participants: IParticipant[],
-    version?: number
+    version?: number,
   ): Promise<IConversationDoc> {
     try {
+      let updatedVersion: number = 1;
+      if (!version) {
+        const existingConversation = await Conversation.findById(conversationId);
+
+        if (!existingConversation) {
+          throw new Api404Error('Conversation not found');
+        }
+
+        updatedVersion = existingConversation.version + 1;
+      }
+
       const updatedConversation = await Conversation.findByIdAndUpdate(
         conversationId,
-        { $addToSet: { participants: { $each: participants } } },
+        {
+          $addToSet: { participants: { $each: participants } },
+          $set: { version: version ?? updatedVersion },
+        },
         { new: true },
       );
 
@@ -295,12 +343,26 @@ export class ConversationRepository {
   public async removeParticipantFromConversation(
     conversationId: string,
     participantId: string,
-    version?: number
+    version?: number,
   ): Promise<IConversationDoc> {
     try {
+      let updatedVersion: number = 1;
+      if (!version) {
+        const existingConversation = await Conversation.findById(conversationId);
+
+        if (!existingConversation) {
+          throw new Api404Error('Conversation not found');
+        }
+
+        updatedVersion = existingConversation.version + 1;
+      }
+
       const updatedConversation = await Conversation.findByIdAndUpdate(
         conversationId,
-        { $pull: { participants: { userId: participantId } } },
+        {
+          $pull: { participants: { userId: participantId } },
+          $set: { version: version ?? updatedVersion },
+        },
         { new: true },
       );
 

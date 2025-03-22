@@ -10,4 +10,8 @@ export class RedisKeyUtil {
   static conversationCreated(conversationId: string): string {
     return `conv:${conversationId}:created`;
   }
+
+  static lastConversationVersionKey(conversationId: string): string {
+    return `conversation:lastVersion:${conversationId}`;
+  }
 }
