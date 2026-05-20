@@ -4,6 +4,7 @@ export * from "./errors/Api403Error";
 export * from "./errors/Api404Error";
 export * from "./errors/Api409Error";
 export * from "./errors/Api422Error";
+export * from "./errors/Api429Error";
 export * from "./errors/Api500Error";
 
 export * from "./middlewares/current-user.middleware";
