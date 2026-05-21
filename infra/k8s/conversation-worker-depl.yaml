@@ -1,0 +1,49 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: conversation-worker-depl
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: conversation-worker
+  template:
+    metadata:
+      labels:
+        app: conversation-worker
+    spec:
+      containers:
+        - name: conversation-worker
+          image: prithwishdas60/conversation-worker
+          env:
+            - name: NATS_URL
+              value: 'http://nats-srv:4222'
+            - name: NATS_CLUSTER_ID
+              value: chat
+            - name: NATS_CLIENT_ID
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.name
+            - name: MONGO_URL
+              value: 'mongodb://conversation-mongo-srv:27017'
+            - name: REDIS_HOST
+              value: conversation-redis-srv
+            - name: DB_NAME
+              value: 'conversation'
+            - name: POD_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.name
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: conversation-worker-srv
+spec:
+  selector:
+    app: conversation-worker
+  ports:
+    - name: conversation-worker
+      protocol: TCP
+      port: 3000
+      targetPort: 3000

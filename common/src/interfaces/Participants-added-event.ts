@@ -1,11 +1,11 @@
 import { Subjects } from "../enums/subjects";
-import { Participant } from "./Participant";
+import { IParticipant } from "./IParticipant";
 
 export interface ParticipantsAddedEvent {
   subject: Subjects.ParticipantsAdded;
   data: {
     conversationId: string;
-    participants: Participant[];
+    participants: IParticipant[];
     version: number;
   };
 }

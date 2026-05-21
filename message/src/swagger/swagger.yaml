@@ -1,0 +1,128 @@
+openapi: 3.0.0
+info:
+  title: Message Service API
+  version: 1.0.0
+  description: API documentation for the Message Service
+servers:
+  - url: "https://chatdesk.dev"
+    description: Message Service
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+  schemas:
+    Message:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          example: 123e4567-e89b-12d3-a456-426614174000
+        message:
+          type: string
+          example: 'Hello World!'
+        sender:
+          type: string
+          format: uuid
+          example: 123e4567-e89b-12d3-a456-426614174000
+        recipient:
+          type: string
+          format: uuid
+          example: 123e4567-e89b-12d3-a456-426614174000
+        conversation:
+          type: string
+          format: uuid
+          example: 123e4567-e89b-12d3-a456-426614174000
+        createdAt:
+          type: string
+          format: date-time
+          example: 2021-01-01T12:00:00.000Z
+        deletedAt:
+          type: string
+          format: date-time
+          example: 2021-01-01T12:00:00.000Z
+        updatedAt:
+          type: string
+          format: date-time
+          example: 2021-01-01T12:00:00.000Z
+      required:
+        - id
+        - message
+        - sender
+        - recipient
+        - conversation
+        - createdAt
+
+paths:
+  /messages/{conversationId}:
+    get:
+      summary: Retrieve messages by conversation ID
+      description: Fetches messages for a given conversation ID with pagination and sorting options.
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: conversationId
+          in: path
+          required: true
+          description: The unique ID of the conversation
+          schema:
+            type: string
+            format: uuid
+        - name: limit
+          in: query
+          required: false
+          description: The number of messages to return (default is 50)
+          schema:
+            type: integer
+            default: 50
+        - name: cursor
+          in: query
+          required: false
+          description: The cursor for pagination
+          schema:
+            type: string
+        - name: sort
+          in: query
+          required: false
+          description: The field to sort messages by (default is messageId)
+          schema:
+            type: string
+            enum: [messageId, createdAt]
+            default: messageId
+        - name: order
+          in: query
+          required: false
+          description: The sorting order (asc or desc, default is asc)
+          schema:
+            type: string
+            enum: [asc, desc]
+            default: asc
+      responses:
+        200:
+          description: A list of messages in the conversation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  statusCode:
+                    type: integer
+                    example: 200
+                  messages:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Message'
+        400:
+          description: Invalid request parameters
+        401:
+          description: Unauthorized access
+        404:
+          description: Conversation not found
+        500:
+          description: Internal server error

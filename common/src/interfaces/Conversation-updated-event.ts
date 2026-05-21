@@ -1,13 +1,15 @@
+import { Types } from "mongoose";
 import { Subjects } from "../enums/subjects";
-import { Participant } from "./Participant";
+import { IParticipant } from "./IParticipant";
 
 export interface ConversationUpdatedEvent {
   subject: Subjects.ConversationUpdated;
   data: {
     id: string;
-    participants: Participant[];
-    group_name?: string;
-    group_photo?: string;
+    participants: IParticipant[];
+    groupName?: string;
+    groupPhoto?: string;
+    updatedBy: Types.ObjectId
     deleted: number;
     version: number;
   };

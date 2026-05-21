@@ -1,0 +1,30 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: conversation-mongo-depl
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: conversation-mongo
+  template:
+    metadata:
+      labels:
+        app: conversation-mongo
+    spec:
+      containers:
+        - name: conversation-mongo
+          image: mongo
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: conversation-mongo-srv
+spec:
+  selector:
+    app: conversation-mongo
+  ports:
+    - name: db
+      protocol: TCP
+      port: 27017
+      targetPort: 27017
