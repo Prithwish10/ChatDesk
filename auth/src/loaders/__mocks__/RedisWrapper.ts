@@ -62,11 +62,12 @@ const client = {
     const next = current + increment;
     h[field] = String(next);
     return next;
-  } /**
+  },
+
+  /**
    * Simulates the INCR+EXPIRE Lua rate-limit script.
    * Only the counter increment is relevant for tests; TTL is not enforced.
-   */,
-  async eval(_script: string, _numkeys: number, key: string, _ttl: string): Promise<number> {
+   */ async eval(_script: string, _numkeys: number, key: string, _ttl: string): Promise<number> {
     const current = (counterStore.get(key) ?? 0) + 1;
     counterStore.set(key, current);
     return current;
@@ -77,6 +78,6 @@ const client = {
 };
 export const redisWrapper = {
   client,
-  connect: async (_url: string): Promise<void> => undefined,
+  connect: async (_options: any): Promise<void> => undefined,
   disconnect: async (): Promise<void> => undefined,
 };

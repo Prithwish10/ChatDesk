@@ -5,6 +5,7 @@ import DatabaseManager from './loaders/DatabaseManager';
 import { logger } from './loaders/logger';
 import config from './config/config.global';
 import { natsWrapper } from './loaders/NatsWrapper';
+import { redisWrapper } from './loaders/RedisWrapper';
 import createApp from './loaders/app';
 
 /**
@@ -36,6 +37,8 @@ class Server {
    */
   public async up(): Promise<void> {
     try {
+      await redisWrapper.connect(config.connections.redisOptions);
+
       await natsWrapper.connect(
         config.connections.nats.natsClusterId!,
         config.connections.nats.natsClientId!,

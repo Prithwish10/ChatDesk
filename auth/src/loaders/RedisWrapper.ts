@@ -9,9 +9,10 @@ class RedisWrapper {
     }
     return this._client;
   }
-  connect(url: string): Promise<void> {
+  connect(options: any): Promise<void> {
     return new Promise<void>((resolve, reject) => {
-      this._client = new Redis(url, {
+      this._client = new Redis({
+        ...options,
         maxRetriesPerRequest: 3,
         retryStrategy: (times: number) => {
           if (times > 10) {
