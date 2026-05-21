@@ -19,8 +19,8 @@ if (!process.env.NATS_CLUSTER_ID) {
 if (!process.env.NATS_CLUSTER_ID) {
   throw new Error('NATS Cluster Id must be defined');
 }
-if (!process.env.REDIS_URL) {
-  throw new Error('Redis URL must be defined');
+if (!process.env.REDIS_HOST) {
+  throw new Error('Redis Host must be defined');
 }
 
 export default {
@@ -40,9 +40,9 @@ export default {
       natsClusterId: process.env.NATS_CLUSTER_ID,
       natsClientId: process.env.NATS_CLIENT_ID,
     },
-    redis: {
-      redisURL: process.env.REDIS_URL,
-      redisPort: process.env.REDIS_PORT ? parseInt(process.env.REDIS_PORT) : 6379,
+    redisOptions: {
+      host: process.env.REDIS_HOST,
+      port: process.env.REDIS_PORT ? parseInt(process.env.REDIS_PORT) : 6379,
     },
   },
 

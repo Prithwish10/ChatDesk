@@ -5,7 +5,8 @@ process.env.DB_NAME = 'asdf';
 process.env.NATS_URL = 'asdf';
 process.env.NATS_CLUSTER_ID = 'asdf';
 process.env.NATS_CLUSTER_ID = 'asdf';
-process.env.REDIS_URL = 'redis://localhost:6379';
+process.env.REDIS_HOST = 'localhost';
+process.env.REDIS_PORT = '6379';
 export default {
   jwtSecret: 'asdfabcd',
   connections: {
@@ -18,8 +19,9 @@ export default {
       natsClusterId: 'asdf',
       natsClientId: 'test-client',
     },
-    redis: {
-      redisURL: 'redis://localhost:6379',
+    redisOptions: {
+      host: 'localhost',
+      port: 6379,
     },
   },
   otp: {
