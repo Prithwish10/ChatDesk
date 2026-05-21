@@ -10,6 +10,7 @@ declare global {
 
 jest.mock('../config/config.global');
 jest.mock('../loaders/NatsWrapper.ts');
+jest.mock('../loaders/RedisWrapper.ts');
 // jest.setTimeout(30000);
 
 let mongo: any;
@@ -21,11 +22,16 @@ beforeAll(async () => {
 });
 
 beforeEach(async () => {
+  // Clear all MongoDB collections
   const collections = await mongoose.connection.db.collections();
 
   for (const collection of collections) {
     await collection.deleteMany({});
   }
+
+  // Reset the in-memory redis mock store between tests
+  const { __clearStore } = jest.requireMock('../loaders/RedisWrapper');
+  __clearStore();
 });
 
 afterAll(async () => {

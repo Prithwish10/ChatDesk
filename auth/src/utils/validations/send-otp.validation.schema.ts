@@ -1,17 +1,17 @@
 import Joi from 'joi';
 import { OTPDeliveryType } from '../../enums/OTPDeliveryType';
-
 const sendOTPSchema = Joi.object({
-  type: Joi.string()
-    .valid(...Object.values(OTPDeliveryType))
+  types: Joi.array()
+    .items(Joi.string().valid(...Object.values(OTPDeliveryType)))
+    .min(1)
+    .unique()
     .required()
-    .label('OTP Type'),
+    .label('OTP Types'),
   recipientId: Joi.string()
     .required()
     .custom((value, helpers) => {
       const isEmail = Joi.string().email().validate(value).error === undefined;
       const isMobile = /^\+[1-9]\d{1,14}$/.test(value); // E.164 format regex
-
       if (!isEmail && !isMobile) {
         return helpers.error('any.custom', {
           message:
@@ -22,5 +22,4 @@ const sendOTPSchema = Joi.object({
     })
     .label('Recipient ID'),
 });
-
 export { sendOTPSchema };

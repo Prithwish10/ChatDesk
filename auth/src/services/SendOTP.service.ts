@@ -3,52 +3,59 @@ import { logger } from '../loaders/logger';
 import { OTPDeliveryFactory } from './OTPDeliverFactory.service';
 import { OTPDeliveryType } from '../enums/OTPDeliveryType';
 import { OtpGenerator } from '../utils/OtpGenerator';
-import { OTPRepository } from '../repositories/otp.repository';
-import { generateOtpExpiration } from '../utils/GenerateOTPExpiration';
-import { Api400Error } from '@pdchat/common';
+import { OTPRedisRepository } from '../repositories/otp-redis.repository';
+import { PasswordManager } from './PasswordManager.service';
+import { Api400Error, Api429Error } from '@pdchat/common';
 import { RecipientValidatorFactory } from './RecipientValidatorFactory.service';
 import { RecipientService } from './Recipient.service';
-
 @Service()
 export class SendOTPService {
   constructor(
-    private readonly _otpRepository: OTPRepository,
+    private readonly _otpRedisRepository: OTPRedisRepository,
     private readonly _otpDeliveryFactory: OTPDeliveryFactory,
     private readonly _recipientService: RecipientService,
     private readonly _recipientValidatorFactory: RecipientValidatorFactory,
   ) {}
 
   /**
-   * Authenticates a user by their email and password, generating a JSON Web Token (JWT) upon successful authentication.
-   * @async
-   * @param {OTPDeliveryType} type - The type of otp user wants to login with.
-   * @param {string} recipientId - The email address or the phone number of the user attempting to sign in.
-   * @returns {Promise<string>} A Promise that resolves to an object containing nothing.
-   * @throws {Error} Any other error that occurs during the authentication process.
+   * Sends an OTP to the given recipient after validating the user and enforcing rate limits.
+   * Supports multi-channel delivery — all requested channels are dispatched concurrently.
+   * The OTP is stored in Redis with a fixed TTL — no MongoDB write is involved.
+   *
+   * @param {OTPDeliveryType[]} types - One or more delivery channels (email, sms, …).
+   * @param {string} recipientId      - Email address or E.164 phone number.
    */
-  public async sendOTP(type: OTPDeliveryType, recipientId: string): Promise<void> {
+  public async sendOTP(types: OTPDeliveryType[], recipientId: string): Promise<void> {
     try {
-      // Determine the recipient type (email or phone)
+      // 1. Enforce rate limit before doing any expensive work
+      const limited = await this._otpRedisRepository.isRateLimited(recipientId);
+      if (limited) {
+        throw new Api429Error('Too many OTP requests. Please wait before requesting a new code.');
+      }
+
+      // 2. Resolve and validate the recipient
       const recipientType = this._recipientService.getRecipientType(recipientId);
       const recipientValidator = this._recipientValidatorFactory.getValidator(recipientType);
       if (!recipientValidator) {
         throw new Api400Error(`Unsupported recipient type for OTP delivery: ${recipientType}`);
       }
-
       const user = await recipientValidator.validate(recipientId);
       if (!user) {
         throw new Api400Error('User not found.');
       }
 
-      const generatedOTP = OtpGenerator.generateOtp();
-      const expirationDate = generateOtpExpiration();
-      await this._otpRepository.saveOtp({
-        recipientId,
-        hashedOtp: generatedOTP,
-        expiration: expirationDate,
-      });
-      const otpStrategy = this._otpDeliveryFactory.getStrategy(type);
-      await otpStrategy.sendOtp(recipientId, generatedOTP, user.firstName);
+      // 3. Generate, hash, and persist the OTP in Redis (overwrites any stale OTP)
+      const plainOtp = OtpGenerator.generateOtp();
+      const hashedOtp = await PasswordManager.toHash(plainOtp);
+
+      // 4. Validate all requested channels upfront before dispatching any
+      await this._otpRedisRepository.saveOtp(recipientId, hashedOtp);
+
+      // 5. Fan-out to all channels concurrently — one OTP, multiple delivery paths
+      const strategies = this._otpDeliveryFactory.getStrategies(types);
+      await Promise.all(
+        strategies.map((strategy) => strategy.sendOtp(recipientId, plainOtp, user.firstName)),
+      );
     } catch (error) {
       logger.error(`Error in service while sending OTP: ${error}`);
       throw error;
