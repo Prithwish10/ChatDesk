@@ -19,6 +19,9 @@ if (!process.env.NATS_CLUSTER_ID) {
 if (!process.env.NATS_CLUSTER_ID) {
   throw new Error('NATS Cluster Id must be defined');
 }
+if (!process.env.REDIS_URL) {
+  throw new Error('Redis URL must be defined');
+}
 
 export default {
   servicename: 'auth',
@@ -37,10 +40,25 @@ export default {
       natsClusterId: process.env.NATS_CLUSTER_ID,
       natsClientId: process.env.NATS_CLIENT_ID,
     },
+    redis: {
+      redisURL: process.env.REDIS_URL,
+      redisPort: process.env.REDIS_PORT ? parseInt(process.env.REDIS_PORT) : 6379,
+    },
   },
 
   jwtSecret: process.env.JWT_KEY,
-  otpExpirationMinutes: 10,
+
+  /**
+   * OTP configuration
+   */
+  otp: {
+    /** TTL for a stored OTP in seconds (10 minutes) */
+    ttlSeconds:
+      10 * 60 /** Maximum consecutive failed verification attempts before the OTP is invalidated */,
+    maxAttempts: 5 /** Maximum OTP send requests allowed per recipient within the rate-limit window */,
+    maxOtpRequestsPerWindow: 3 /** Duration of the rate-limit window in seconds */,
+    rateLimitWindowSeconds: 60,
+  },
 
   /**
    * API configs
