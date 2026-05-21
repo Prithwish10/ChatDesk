@@ -1,0 +1,30 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: conversation-redis-depl
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: conversation-redis
+  template:
+    metadata:
+      labels:
+        app: conversation-redis
+    spec:
+      containers:
+        - name: conversation-redis
+          image: redis
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: conversation-redis-srv
+spec:
+  selector:
+    app: conversation-redis
+  ports:
+    - name: db
+      protocol: TCP
+      port: 6379
+      targetPort: 6379

@@ -5,5 +5,6 @@ export interface ConversationDeletedEvent {
   data: {
     id: string;
     version: number;
+    deletedFor: string;
   };
 }

@@ -7,6 +7,7 @@ export interface UserCreatedEvent {
     firstName: string;
     lastName: string;
     email: string;
+    countryCode: string;
     mobileNumber: string;
     version: number;
   };

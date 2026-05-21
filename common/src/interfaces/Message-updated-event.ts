@@ -1,7 +1,7 @@
 import { Types } from "mongoose";
 import { Subjects } from "../enums/subjects";
 import { Attachment } from "./Attachment";
-import { Participant } from "./Participant";
+import { IParticipant } from "./IParticipant";
 
 export interface MessageUpdatedEvent {
   subject: Subjects.MessageUpdated;
@@ -14,7 +14,7 @@ export interface MessageUpdatedEvent {
     attachments?: Attachment[];
     parent_message_id?: Types.ObjectId | null;
     status: string;
-    participants: Participant[];
+    participants: IParticipant[];
     deleted: number;
     version: number;
   };

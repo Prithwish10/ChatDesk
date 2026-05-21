@@ -14,6 +14,7 @@ import { ParticipantAddedHandler } from "./socket-channel-handlers/participants-
 import { ParticipantRemovedHandler } from "./socket-channel-handlers/participant-removed-handler";
 import { CreateConversationHandler } from "./socket-channel-handlers/conversation-created-handler";
 import { WelcomeMessageHandler } from "./socket-channel-handlers/welcome-message-handler";
+import { UpdateConversationHandler } from "./socket-channel-handlers/conversation-updated-handler";
 
 export class SocketEventSubscriberImpl implements SocketEventSubscriber {
   private _subscriber: Redis;
@@ -53,6 +54,10 @@ export class SocketEventSubscriberImpl implements SocketEventSubscriber {
       Subjects.ConversationCreated,
       new CreateConversationHandler(this._io)
     );
+    this.registerHandler(
+      Subjects.ConversationUpdated,
+      new UpdateConversationHandler(this._io)
+    )
     this.registerHandler(
       Subjects.WelcomeMessage,
       new WelcomeMessageHandler(this._io)

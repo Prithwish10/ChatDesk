@@ -88,6 +88,7 @@ export class SignupService {
         firstName: user.firstName,
         lastName: user.lastName,
         email: user.email,
+        countryCode: user.countryCode,
         mobileNumber: user.mobileNumber,
         version: user.version!,
       });

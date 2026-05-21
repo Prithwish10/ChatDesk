@@ -32,8 +32,24 @@ build:
         manual:
           - src: 'src/**/*.ts'
             dest: .
-    - image: prithwishdas60/search
-      context: search
+    - image: prithwishdas60/message
+      context: message
+      docker:
+        dockerfile: Dockerfile
+      sync:
+        manual:
+          - src: 'src/**/*.ts'
+            dest: .
+    - image: prithwishdas60/conversation
+      context: conversation
+      docker:
+        dockerfile: Dockerfile
+      sync:
+        manual:
+          - src: 'src/**/*.ts'
+            dest: .
+    - image: prithwishdas60/conversation-worker
+      context: conversation-worker
       docker:
         dockerfile: Dockerfile
       sync:
