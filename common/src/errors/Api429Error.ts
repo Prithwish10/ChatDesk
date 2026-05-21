@@ -1,11 +1,11 @@
 import httpStatusCodes from "./httpStatusCodes";
 import { BaseError } from "./BaseError";
 
-export class Api500Error extends BaseError {
+export class Api429Error extends BaseError {
   constructor(
     name: string,
-    statusCode = httpStatusCodes.INTERNAL_SERVER,
-    description = "Internal server error.",
+    statusCode = httpStatusCodes.TOO_MANY_REQUESTS,
+    description = "Too many requests.",
     isOperational = true,
   ) {
     super(name, statusCode, isOperational, description);
